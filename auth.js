@@ -59,7 +59,7 @@ export async function login(email, password) {
   const cleanEmail = email.trim().toLowerCase();
 
   // Validación de Super Administrador Mario
-  const isSuperAdmin = (cleanEmail === ADMIN_EMAIL.toLowerCase() || cleanEmail === "mario" || cleanEmail === "mario@bemis.com.mx");
+  const isSuperAdmin = (cleanEmail === ADMIN_EMAIL.toLowerCase() || cleanEmail === "mario.ortiz@bemismfg.com");
   const targetEmail = isSuperAdmin ? ADMIN_EMAIL : cleanEmail;
 
   try {
