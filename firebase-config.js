@@ -32,7 +32,7 @@ import {
 
 // Configuración exacta proporcionada por Bemis México
 export const firebaseConfig = {
-  apiKey: "AIzaSyAy0kp2bvlDMcXic2wKENd6ccYimD7_Cng",
+  apiKey: "AIzaSyAyOkp2bv1DMcXic2wKENd6ccYimD7_Cng",
   authDomain: "bemis-tickets.firebaseapp.com",
   projectId: "bemis-tickets",
   storageBucket: "bemis-tickets.firebasestorage.app",
