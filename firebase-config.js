@@ -47,6 +47,6 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 
 // Constantes globales
-export const ADMIN_EMAIL = "mario@bemis.com";
+export const ADMIN_EMAIL = "mario.ortiz@bemismfg.com";
 export const ADMIN_NAME = "Mario (Super Administrador)";
 export const ADMIN_DEFAULT_PASS = "425395";
