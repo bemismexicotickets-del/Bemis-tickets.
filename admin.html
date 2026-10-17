@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bemis Tickets - Panel de Super Administrador (Mario)</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- SheetJS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,900;1,900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-bemis { font-family: 'Montserrat', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col relative overflow-x-hidden">
+
+  <!-- Canvas animaciones estacionales a 60fps (Módulo 3) -->
+  <canvas id="seasonalCanvas" class="fixed inset-0 pointer-events-none z-10 w-full h-full"></canvas>
+
+  <!-- Header Admin -->
+  <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="relative w-10 h-10 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center border border-cyan-500/40">
+          <span id="logoSeasonOrnament" class="absolute -top-3.5 -right-2 text-xl pointer-events-none animate-pulse"></span>
+          <i data-lucide="ticket-check" class="w-6 h-6 text-cyan-300"></i>
+        </div>
+        <div>
+          <div class="font-bemis font-black italic tracking-wide text-xl flex items-baseline gap-1">
+            <span class="text-white">BEMIS</span>
+            <span class="text-cyan-300">TICKETS</span>
+          </div>
+          <span class="text-[9px] uppercase font-bold text-amber-400 tracking-wider">
+            Super Administrador Mario • Firebase Firestore
+          </span>
+        </div>
+      </div>
+
+      <!-- Selector de Tema Estacional Global (Firestore) y Botón Excel -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <div class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs">
+          <i data-lucide="palette" class="w-3.5 h-3.5 text-cyan-400"></i>
+          <span class="text-slate-400">Tema:</span>
+          <select id="themeSelectorTop" class="bg-transparent text-white font-semibold focus:outline-none cursor-pointer">
+            <option value="estandar" class="bg-slate-900">🏢 Estándar Bemis</option>
+            <option value="navidad" class="bg-slate-900">❄️ Navideño 🎅</option>
+            <option value="halloween" class="bg-slate-900">🎃 Halloween 🎃</option>
+            <option value="dia_muertos" class="bg-slate-900">🏵️ Día de Muertos 🏵️</option>
+            <option value="san_valentin" class="bg-slate-900">💖 San Valentín 💖</option>
+            <option value="pascua" class="bg-slate-900">🐣 Pascua 🐣</option>
+            <option value="primavera" class="bg-slate-900">🌸 Primavera 🌸</option>
+            <option value="otono" class="bg-slate-900">🍂 Otoño 🍁</option>
+            <option value="invierno" class="bg-slate-900">❄️ Invierno ❄️</option>
+            <option value="verano" class="bg-slate-900">☀️ Verano ☀️</option>
+            <option value="dia_madres" class="bg-slate-900">💐 Día de las Madres 💐</option>
+            <option value="dia_padre" class="bg-slate-900">👔 Día del Padre 👔</option>
+          </select>
+        </div>
+
+        <!-- Botón MÓDULO 5: Descargar Reporte Mensual EXACTO en Excel -->
+        <button id="btnExportExcel"
+          class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/20 cursor-pointer transition-all">
+          <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+          <span>Descargar Reporte Mensual (.xlsx)</span>
+        </button>
+
+        <button id="btnLogout" class="p-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-300 border border-slate-700">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenedor Principal -->
+  <main class="relative z-20 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <!-- Métricas con Satisfacción Promedio de 5 Preguntas -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="p-4 rounded-3xl bg-slate-900/85 border border-slate-800">
+        <span class="text-xs text-slate-400">Total Tickets</span>
+        <div id="statTotal" class="text-2xl font-black text-white mt-1">0</div>
+      </div>
+      <div class="p-4 rounded-3xl bg-slate-900/85 border border-blue-500/30">
+        <span class="text-xs text-blue-300">Pendientes</span>
+        <div id="statPendientes" class="text-2xl font-black text-cyan-400 mt-1">0</div>
+      </div>
+      <div class="p-4 rounded-3xl bg-slate-900/85 border border-amber-500/30">
+        <span class="text-xs text-amber-300">En Proceso</span>
+        <div id="statProceso" class="text-2xl font-black text-amber-400 mt-1">0</div>
+      </div>
+      <div class="p-4 rounded-3xl bg-slate-900/85 border border-emerald-500/30">
+        <span class="text-xs text-emerald-300">Satisfacción Prom. (5 Preg.)</span>
+        <div id="statSatisfaccion" class="text-2xl font-black text-emerald-400 mt-1 font-mono">100%</div>
+      </div>
+    </div>
+
+    <!-- MÓDULO 4: Tabla de Tickets Interactiva -->
+    <section class="bg-slate-900/85 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+        <div>
+          <h2 class="text-lg font-black text-white flex items-center gap-2">
+            <i data-lucide="ticket" class="w-5 h-5 text-cyan-400"></i>
+            Mesa de Control de Tickets TI
+          </h2>
+          <p class="text-xs text-slate-400">Cambia estatus a "Resuelto" para activar la encuesta obligatoria de 5 preguntas</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="text" id="filtroSearch" placeholder="Buscar ticket..."
+            class="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400 font-mono">
+          <select id="filtroEstado"
+            class="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400">
+            <option value="todos">Todos los estatus</option>
+            <option value="Pendiente">Pendiente (0%)</option>
+            <option value="En Proceso">En Proceso (1-99%)</option>
+            <option value="Resuelto">Resuelto (100%)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto rounded-2xl border border-slate-800">
+        <table class="w-full text-left text-xs text-slate-300">
+          <thead class="bg-slate-800 text-slate-400 uppercase text-[10px] tracking-wider">
+            <tr>
+              <th class="py-3 px-3">Ticket</th>
+              <th class="py-3 px-3">Usuario / Depto</th>
+              <th class="py-3 px-3">Reporte</th>
+              <th class="py-3 px-3">Prioridad</th>
+              <th class="py-3 px-3">Seguimiento</th>
+              <th class="py-3 px-3">% Hecho</th>
+              <th class="py-3 px-3">Estatus</th>
+              <th class="py-3 px-3">Satisfacción (5 Preg.)</th>
+              <th class="py-3 px-3 text-right">Acción Rápida</th>
+            </tr>
+          </thead>
+          <tbody id="ticketsTableBody" class="divide-y divide-slate-800">
+            <!-- Filas dinámicas generadas desde Firestore -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- MÓDULO 1 & 2: Gestión de Usuarios, Departamentos y Noticias -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Módulo 1: Usuarios (Firestore Auth & Users) -->
+      <section class="bg-slate-900/85 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl space-y-4">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="users" class="w-4 h-4 text-cyan-400"></i>
+          Módulo 1: Usuarios y Departamentos
+        </h3>
+        <p class="text-xs text-slate-400">
+          Crea colaboradores asignándoles su departamento en Firestore y contraseña inicial.
+        </p>
+
+        <form id="formCrearUsuario" class="grid grid-cols-2 gap-2 text-xs">
+          <input type="email" id="newEmail" required placeholder="correo@bemis.com"
+            class="p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white font-mono">
+          <input type="text" id="newFullName" required placeholder="Nombre Completo"
+            class="p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white">
+          <select id="newUserDept" class="p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white">
+            <option value="Finanzas">Finanzas</option>
+            <option value="Sistemas">Sistemas</option>
+            <option value="Producción">Producción</option>
+            <option value="Entrenamiento">Entrenamiento</option>
+            <option value="Calidad">Calidad</option>
+            <option value="Recursos Humanos">Recursos Humanos</option>
+          </select>
+          <input type="text" id="newPass" required value="bemis2026" placeholder="Contraseña inicial"
+            class="p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white font-mono">
+          <div class="col-span-2 flex items-center gap-2">
+            <input type="checkbox" id="requirePassChange" checked class="rounded">
+            <label for="requirePassChange" class="text-slate-300">Exigir cambio de contraseña en primer login</label>
+          </div>
+          <button type="submit" id="btnCrearUsuario"
+            class="col-span-2 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold">
+            Guardar Usuario en Firestore
+          </button>
+        </form>
+      </section>
+
+      <!-- Módulo 2: Noticias y Comunicados (Firestore news) -->
+      <section class="bg-slate-900/85 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl space-y-4">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="bell" class="w-4 h-4 text-cyan-400"></i>
+          Módulo 2: Publicar Noticia o Aviso
+        </h3>
+        <p class="text-xs text-slate-400">
+          Publica un comunicado global para todos o exclusivo para un departamento.
+        </p>
+
+        <form id="formCrearNoticia" class="space-y-2 text-xs">
+          <input type="text" id="newsTitle" required placeholder="Título del aviso..."
+            class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white">
+          <div class="grid grid-cols-2 gap-2">
+            <select id="newsScope" class="p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white">
+              <option value="GLOBAL">🌐 Para Todos (Global)</option>
+              <option value="DEPTO">🔒 Solo un Departamento</option>
+            </select>
+            <select id="newsDeptTarget" disabled
+              class="p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white opacity-50">
+              <option value="Finanzas">Finanzas</option>
+              <option value="Sistemas">Sistemas</option>
+              <option value="Producción">Producción</option>
+              <option value="Entrenamiento">Entrenamiento</option>
+            </select>
+          </div>
+          <textarea id="newsContent" required rows="2" placeholder="Contenido del comunicado..."
+            class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white resize-none"></textarea>
+          <button type="submit" id="btnCrearNoticia"
+            class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold">
+            Publicar Aviso en Firestore
+          </button>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <!-- Modal para ver el desglose de las 5 preguntas -->
+  <div id="surveyDetailModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+    <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl max-w-lg w-full p-6 shadow-2xl relative">
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <span class="text-[10px] uppercase font-bold text-cyan-400">Evaluación de Calidad TI</span>
+          <h3 class="text-base font-bold text-white" id="modalSurveyTicket">Ticket</h3>
+        </div>
+        <button id="btnCloseSurveyDetail" class="text-slate-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <div class="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex justify-between items-center mb-4">
+        <span class="text-xs text-amber-300 font-semibold">Porcentaje Final Calculado:</span>
+        <span id="modalSurveyPct" class="text-xl font-mono font-black text-amber-400">100%</span>
+      </div>
+
+      <div id="modalSurveyDetails" class="space-y-2 text-xs mb-4"></div>
+
+      <div class="p-3 rounded-xl bg-slate-800 border border-slate-700 text-xs">
+        <span class="text-[10px] text-slate-400 uppercase font-bold block mb-1">Comentario del Usuario:</span>
+        <p id="modalSurveyComment" class="text-slate-200 italic"></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="animations.js"></script>
+  <script type="module">
+    import { logout } from "./auth.js";
+    import { 
+      subscribeToTickets, 
+      updateTicket, 
+      createNews, 
+      saveUserProfile, 
+      subscribeToGlobalTheme, 
+      setGlobalTheme 
+    } from "./db.js";
+    import { exportarTicketsAExcel } from "./app.js";
+
+    lucide.createIcons();
+
+    // Validar sesión de Mario
+    const user = JSON.parse(sessionStorage.getItem("bemis_session_user") || "{}");
+    if (!user || user.role !== "admin") {
+      window.location.href = "index.html";
+    }
+
+    let currentTickets = [];
+
+    // 1. Escuchar tickets en tiempo real desde Firestore
+    subscribeToTickets((tickets) => {
+      currentTickets = tickets;
+      renderizarTickets();
+      actualizarMetricas();
+    });
+
+    // 2. Escuchar tema global en tiempo real
+    const themeSelectorTop = document.getElementById("themeSelectorTop");
+    const logoSeasonOrnament = document.getElementById("logoSeasonOrnament");
+    const themeOrnaments = {
+      navidad: "🎅", halloween: "🎃", dia_muertos: "🏵️", san_valentin: "💖",
+      pascua: "🐣", primavera: "🌸", otono: "🍁", invierno: "❄️",
+      verano: "☀️", dia_madres: "💐", dia_padre: "👔", estandar: ""
+    };
+
+    subscribeToGlobalTheme((activeTheme) => {
+      themeSelectorTop.value = activeTheme;
+      if (window.seasonalEngine) {
+        window.seasonalEngine.setTheme(activeTheme);
+      }
+      if (logoSeasonOrnament) {
+        logoSeasonOrnament.innerText = themeOrnaments[activeTheme] || "";
+      }
+    });
+
+    themeSelectorTop.addEventListener("change", async (e) => {
+      await setGlobalTheme(e.target.value);
+    });
+
+    // 3. Renderizar tabla de tickets
+    const filtroSearch = document.getElementById("filtroSearch");
+    const filtroEstado = document.getElementById("filtroEstado");
+    const tbody = document.getElementById("ticketsTableBody");
+
+    function renderizarTickets() {
+      const search = filtroSearch.value.toLowerCase();
+      const estado = filtroEstado.value;
+      tbody.innerHTML = "";
+
+      const filtrados = currentTickets.filter(t => {
+        const match = (t.ticketId || t.id).toLowerCase().includes(search) || 
+                      (t.usuario || "").toLowerCase().includes(search) || 
+                      (t.nombreReporte || "").toLowerCase().includes(search);
+        if (estado === "Pendiente") return match && t.porcentajeHecho === 0;
+        if (estado === "En Proceso") return match && t.porcentajeHecho > 0 && t.porcentajeHecho < 100;
+        if (estado === "Resuelto") return match && t.porcentajeHecho === 100;
+        return match;
+      });
+
+      filtrados.forEach(t => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-800/40";
+        const pct = t.porcentajeSatisfaccion !== undefined ? t.porcentajeSatisfaccion : (t.encuestaDetalle?.porcentajeFinal ?? null);
+
+        tr.innerHTML = `
+          <td class="py-3 px-3 font-mono font-bold text-cyan-400">${t.ticketId || t.id}</td>
+          <td class="py-3 px-3"><div class="font-bold text-white">${t.usuario}</div><div class="text-[10px] text-slate-400">${t.departamento}</div></td>
+          <td class="py-3 px-3"><div class="font-medium text-slate-200">${t.nombreReporte}</div></td>
+          <td class="py-3 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${t.prioridad === 'Crítica' ? 'bg-rose-500/20 text-rose-300' : 'bg-slate-800 text-slate-300'}">${t.prioridad}</span></td>
+          <td class="py-3 px-3 text-slate-300">${t.seguimiento || 'Mario (Sistemas)'}</td>
+          <td class="py-3 px-3 font-mono">${t.porcentajeHecho || 0}%</td>
+          <td class="py-3 px-3">${t.porcentajeHecho === 100 ? '<span class="text-emerald-400 font-bold">Resuelto</span>' : t.porcentajeHecho > 0 ? '<span class="text-amber-400 font-bold">En Proceso</span>' : '<span class="text-cyan-400 font-bold">Pendiente</span>'}</td>
+          <td class="py-3 px-3">
+            ${pct !== null ? `
+              <button onclick="window.verEncuesta('${t.id}')" class="px-2 py-0.5 rounded bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-mono font-bold border border-amber-500/30 text-[11px] cursor-pointer">
+                ⭐ ${pct}% (Ver)
+              </button>
+            ` : t.porcentajeHecho === 100 ? '<span class="text-[10px] text-amber-400/80 italic">Esperando usuario</span>' : '<span class="text-slate-600">-</span>'}
+          </td>
+          <td class="py-3 px-3 text-right">
+            <button onclick="window.resolverTicket('${t.id}')" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold cursor-pointer" title="Marcar Resuelto y activar encuesta de 5 preguntas">Resolver</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    filtroSearch.addEventListener("input", renderizarTickets);
+    filtroEstado.addEventListener("change", renderizarTickets);
+
+    function actualizarMetricas() {
+      document.getElementById("statTotal").innerText = currentTickets.length;
+      document.getElementById("statPendientes").innerText = currentTickets.filter(t => (t.porcentajeHecho || 0) === 0).length;
+      document.getElementById("statProceso").innerText = currentTickets.filter(t => (t.porcentajeHecho || 0) > 0 && t.porcentajeHecho < 100).length;
+
+      const answered = currentTickets.filter(t => t.porcentajeSatisfaccion !== undefined || t.encuestaDetalle?.porcentajeFinal !== undefined);
+      if (answered.length > 0) {
+        const avg = Math.round(answered.reduce((acc, t) => acc + (t.porcentajeSatisfaccion || t.encuestaDetalle?.porcentajeFinal || 100), 0) / answered.length);
+        document.getElementById("statSatisfaccion").innerText = `${avg}%`;
+      } else {
+        document.getElementById("statSatisfaccion").innerText = "100%";
+      }
+    }
+
+    // Funciones globales expuestas al window para los onclick
+    window.resolverTicket = async (docId) => {
+      const today = new Date().toISOString().split("T")[0];
+      await updateTicket(docId, {
+        porcentajeHecho: 100,
+        fechaTermino: today
+      });
+    };
+
+    window.verEncuesta = (docId) => {
+      const t = currentTickets.find(x => x.id === docId);
+      if (!t) return;
+      document.getElementById("modalSurveyTicket").innerText = `${t.ticketId || t.id} - ${t.usuario}`;
+      const pct = t.porcentajeSatisfaccion ?? t.encuestaDetalle?.porcentajeFinal ?? 100;
+      document.getElementById("modalSurveyPct").innerText = `${pct}%`;
+
+      const d = t.encuestaDetalle;
+      const detailsContainer = document.getElementById("modalSurveyDetails");
+      if (d) {
+        detailsContainer.innerHTML = `
+          <div class="p-2 rounded bg-slate-800 flex justify-between"><span>1. Rapidez inicial:</span><strong>${d.q1_rapidez * 20} pts (${d.q1_rapidez}/5)</strong></div>
+          <div class="p-2 rounded bg-slate-800 flex justify-between"><span>2. Claridad y comunicación:</span><strong>${d.q2_comunicacion * 20} pts (${d.q2_comunicacion}/5)</strong></div>
+          <div class="p-2 rounded bg-slate-800 flex justify-between"><span>3. Eficacia y resolución:</span><strong>${d.q3_eficacia * 20} pts (${d.q3_eficacia}/5)</strong></div>
+          <div class="p-2 rounded bg-slate-800 flex justify-between"><span>4. Amabilidad del técnico:</span><strong>${d.q4_amabilidad * 20} pts (${d.q4_amabilidad}/5)</strong></div>
+          <div class="p-2 rounded bg-slate-800 flex justify-between"><span>5. Satisfacción global:</span><strong>${d.q5_general * 20} pts (${d.q5_general}/5)</strong></div>
+        `;
+      } else {
+        detailsContainer.innerHTML = '<div class="text-slate-400">Calificación de satisfacción registrada en Firestore.</div>';
+      }
+
+      document.getElementById("modalSurveyComment").innerText = `"${t.comentarioUsuario || d?.comentario || 'Sin comentario adicional.'}"`;
+      document.getElementById("surveyDetailModal").classList.remove("hidden");
+    };
+
+    document.getElementById("btnCloseSurveyDetail").addEventListener("click", () => {
+      document.getElementById("surveyDetailModal").classList.add("hidden");
+    });
+
+    // 4. Exportación a Excel con SheetJS
+    document.getElementById("btnExportExcel").addEventListener("click", () => {
+      exportarTicketsAExcel(currentTickets);
+    });
+
+    // 5. Publicar Noticia
+    const formCrearNoticia = document.getElementById("formCrearNoticia");
+    const newsScope = document.getElementById("newsScope");
+    const newsDeptTarget = document.getElementById("newsDeptTarget");
+
+    newsScope.addEventListener("change", (e) => {
+      if (e.target.value === "DEPTO") {
+        newsDeptTarget.disabled = false;
+        newsDeptTarget.classList.remove("opacity-50");
+      } else {
+        newsDeptTarget.disabled = true;
+        newsDeptTarget.classList.add("opacity-50");
+      }
+    });
+
+    formCrearNoticia.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("btnCrearNoticia");
+      btn.disabled = true;
+      btn.innerText = "Guardando...";
+
+      await createNews({
+        titulo: document.getElementById("newsTitle").value,
+        contenido: document.getElementById("newsContent").value,
+        esGlobal: newsScope.value === "GLOBAL",
+        departamentoDestino: newsDeptTarget.value,
+        autor: "Mario (Super Admin)"
+      });
+
+      formCrearNoticia.reset();
+      btn.disabled = false;
+      btn.innerText = "Publicar Aviso en Firestore";
+      alert("Aviso publicado en Firestore exitosamente.");
+    });
+
+    // 6. Crear Usuario en Firestore
+    const formCrearUsuario = document.getElementById("formCrearUsuario");
+    formCrearUsuario.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("newEmail").value;
+      const nombre = document.getElementById("newFullName").value;
+      const dept = document.getElementById("newUserDept").value;
+      const pass = document.getElementById("newPass").value;
+      const reqChange = document.getElementById("requirePassChange").checked;
+
+      // Crear documento en users
+      const tempUid = "user_" + Date.now();
+      await saveUserProfile(tempUid, {
+        email,
+        nombreCompleto: nombre,
+        departamento: dept,
+        role: "user",
+        requiereCambioPassword: reqChange,
+        activo: true,
+        creadoEn: new Date().toISOString()
+      });
+
+      formCrearUsuario.reset();
+      alert(`Usuario ${email} registrado para el departamento ${dept}.`);
+    });
+
+    // 7. Cerrar Sesión
+    document.getElementById("btnLogout").addEventListener("click", async () => {
+      await logout();
+      window.location.href = "index.html";
+    });
+  </script>
+</body>
+</html>
