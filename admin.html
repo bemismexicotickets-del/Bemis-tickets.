@@ -189,4 +189,102 @@
         <h2 class="text-lg font-black text-white mb-4"><i data-lucide="paint-bucket" class="inline w-5 h-5 text-cyan-400"></i> Color de Fondo Global</h2>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div><h3 class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Oscuros Elegantes</h3><div class="flex gap-2"><button onclick="window.seleccionarFondo('#020617')" class="w-8 h-8 rounded-full bg-[#020617] border-2 border-slate-600 hover:scale-110" title="Negro Noche"></button><button onclick="window.seleccionarFondo('#0f172a')" class="w-8 h-8 rounded-full bg-[#0f172a] border-2 border-slate-600 hover:scale-110" title="Azul Marino"></button><button onclick="window.seleccionarFondo('#064e3b')" class="w-8 h-8 rounded-full bg-[#064e3b] border-2 border-slate-600 hover:scale-110" title="Verde Bosque"></button><button onclick="window.seleccionarFondo('#2e1065')" class="w-8 h-8 rounded-full bg-[#2e1065] border-2 border-slate-600 hover:scale-110" title="Morado Profundo"></button><button onclick="window.seleccionarFondo('#4c0519')" class="w-8 h-8 rounded-full bg-[#4c0519] border-2 border-slate-600 hover:scale-110" title="Rojo Vino"></button></div></div>
-          <div><h3 class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Tonos Pasteles</h3><div class="flex gap-2"><button onclick="window.seleccionarFondo('#e0f2fe')" class="w-8 h-8 rounded-full bg-[#e0f2fe] border-2 border-slate-400 hover:scale-110" title="Azul Pastel"></button><button onclick="window.seleccionarFondo('#fce7f3')" class="w-8 h-8 rounded-full bg-[#fce7f3] border-2 border-slate-400 hover:scale-110" title="Rosa Pastel"></button><button onclick="window.seleccionarFondo('#d1fae5')" class="w-8 h-8 rounded-full bg-[#d1fae5] border-2 border-slate-40
+          <div><h3 class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Tonos Pasteles</h3><div class="flex gap-2"><button onclick="window.seleccionarFondo('#e0f2fe')" class="w-8 h-8 rounded-full bg-[#e0f2fe] border-2 border-slate-400 hover:scale-110" title="Azul Pastel"></button><button onclick="window.seleccionarFondo('#fce7f3')" class="w-8 h-8 rounded-full bg-[#fce7f3] border-2 border-slate-400 hover:scale-110" title="Rosa Pastel"></button><button onclick="window.seleccionarFondo('#d1fae5')" class="w-8 h-8 rounded-full bg-[#d1fae5] border-2 border-slate-400 hover:scale-110" title="Menta Suave"></button><button onclick="window.seleccionarFondo('#f3e8ff')" class="w-8 h-8 rounded-full bg-[#f3e8ff] border-2 border-slate-400 hover:scale-110" title="Lavanda"></button><button onclick="window.seleccionarFondo('#fef9c3')" class="w-8 h-8 rounded-full bg-[#fef9c3] border-2 border-slate-400 hover:scale-110" title="Amarillo Vainilla"></button></div></div>
+          <div><h3 class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Claros y Neutros</h3><div class="flex gap-2"><button onclick="window.seleccionarFondo('#ffffff')" class="w-8 h-8 rounded-full bg-[#ffffff] border-2 border-slate-300 hover:scale-110" title="Blanco Puro"></button><button onclick="window.seleccionarFondo('#f3f4f6')" class="w-8 h-8 rounded-full bg-[#f3f4f6] border-2 border-slate-300 hover:scale-110" title="Gris Claro"></button><button onclick="window.seleccionarFondo('#fef3c7')" class="w-8 h-8 rounded-full bg-[#fef3c7] border-2 border-slate-300 hover:scale-110" title="Beige Arena"></button><button onclick="window.seleccionarFondo('#e0e7ff')" class="w-8 h-8 rounded-full bg-[#e0e7ff] border-2 border-slate-300 hover:scale-110" title="Celeste Hielo"></button><button onclick="window.seleccionarFondo('#fafaf9')" class="w-8 h-8 rounded-full bg-[#fafaf9] border-2 border-slate-300 hover:scale-110" title="Crema"></button></div></div>
+          <div><h3 class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Vibrantes</h3><div class="flex gap-2"><button onclick="window.seleccionarFondo('#1d4ed8')" class="w-8 h-8 rounded-full bg-[#1d4ed8] border-2 border-slate-500 hover:scale-110" title="Azul Rey"></button><button onclick="window.seleccionarFondo('#ea580c')" class="w-8 h-8 rounded-full bg-[#ea580c] border-2 border-slate-500 hover:scale-110" title="Naranja Intenso"></button><button onclick="window.seleccionarFondo('#be185d')" class="w-8 h-8 rounded-full bg-[#be185d] border-2 border-slate-500 hover:scale-110" title="Magenta"></button><button onclick="window.seleccionarFondo('#7e22ce')" class="w-8 h-8 rounded-full bg-[#7e22ce] border-2 border-slate-500 hover:scale-110" title="Púrpura Neón"></button><button onclick="window.seleccionarFondo('#047857')" class="w-8 h-8 rounded-full bg-[#047857] border-2 border-slate-500 hover:scale-110" title="Verde Esmeralda"></button></div></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="surveyDetailModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+    <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl max-w-lg w-full p-6 shadow-2xl relative"><div class="flex justify-between"><h3 class="text-base font-bold text-white">Evaluación</h3><button onclick="document.getElementById('surveyDetailModal').classList.add('hidden')" class="text-slate-400">✕</button></div><div class="p-3 bg-amber-500/10 mb-4"><span class="text-xl font-mono text-amber-400" id="modalSurveyPct">100%</span></div><p id="modalSurveyComment" class="text-slate-200 italic text-xs"></p></div>
+  </div>
+
+  <script src="animations.js"></script>
+  <script type="module">
+    import { logout } from "./auth.js";
+    import { db, firebaseConfig } from "./firebase-config.js";
+    import { collection, getDocs, doc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { subscribeToTickets, updateTicket, createNews, saveUserProfile, subscribeToGlobalTheme, setGlobalTheme, setGlobalBackground, createDepartment } from "./db.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { exportarTicketsAExcel } from "./app.js";
+
+    lucide.createIcons();
+    const secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
+    const secondaryAuth = getAuth(secondaryApp);
+
+    let currentTickets = [];
+
+    // TICKETS
+    subscribeToTickets((tickets) => { currentTickets = tickets; document.getElementById("count-tickets").innerText = tickets.length; renderizarTickets(); });
+    function renderizarTickets() {
+      const search = document.getElementById("filtroSearch").value.toLowerCase(), estado = document.getElementById("filtroEstado").value, tbody = document.getElementById("ticketsTableBody");
+      tbody.innerHTML = "";
+      currentTickets.filter(t => {
+        const match = (t.ticketId || t.id).toLowerCase().includes(search) || (t.usuario || "").toLowerCase().includes(search);
+        if (estado === "Pendiente") return match && t.porcentajeHecho === 0;
+        if (estado === "En Proceso") return match && t.porcentajeHecho > 0 && t.porcentajeHecho < 100;
+        if (estado === "Resuelto") return match && t.porcentajeHecho === 100; return match;
+      }).forEach(t => {
+        const tr = document.createElement("tr"); tr.className = "border-b border-slate-800 hover:bg-slate-800/40";
+        const pct = t.porcentajeSatisfaccion !== undefined ? t.porcentajeSatisfaccion : (t.encuestaDetalle?.porcentajeFinal ?? null);
+        tr.innerHTML = `<td class="p-3 font-mono text-cyan-400">${t.ticketId || t.id}</td><td class="p-3 text-white">${t.usuario} <div class="text-[10px] text-slate-400">${t.departamento}</div></td><td class="p-3 text-slate-200 truncate max-w-xs">${t.nombreReporte}</td><td class="p-3">${t.porcentajeHecho === 100 ? '<span class="text-emerald-400">Resuelto</span>' : '<span class="text-amber-400">Pendiente</span>'}</td><td class="p-3">${pct !== null ? `<button onclick="window.verEncuesta('${t.id}')" class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 font-bold text-[11px]">⭐ ${pct}% (Ver)</button>` : '-'}</td><td class="p-3 text-right"><button onclick="window.resolverTicket('${t.id}')" class="px-2 py-1 bg-emerald-600 rounded text-white text-[10px]">Resolver</button></td>`;
+        tbody.appendChild(tr);
+      });
+      document.getElementById("statTotal").innerText = currentTickets.length; document.getElementById("statPendientes").innerText = currentTickets.filter(t => t.porcentajeHecho === 0).length; document.getElementById("statProceso").innerText = currentTickets.filter(t => t.porcentajeHecho > 0 && t.porcentajeHecho < 100).length;
+    }
+    document.getElementById("filtroSearch").addEventListener("input", renderizarTickets); document.getElementById("filtroEstado").addEventListener("change", renderizarTickets);
+    window.resolverTicket = async (docId) => await updateTicket(docId, { porcentajeHecho: 100, fechaTermino: new Date().toISOString().split("T")[0] });
+    window.verEncuesta = (docId) => { const t = currentTickets.find(x => x.id === docId); if (!t) return; document.getElementById("modalSurveyPct").innerText = `${t.porcentajeSatisfaccion ?? t.encuestaDetalle?.porcentajeFinal ?? 100}%`; document.getElementById("modalSurveyComment").innerText = `"${t.comentarioUsuario || t.encuestaDetalle?.comentario || 'Sin comentario.'}"`; document.getElementById("surveyDetailModal").classList.remove("hidden"); };
+
+    // USUARIOS
+    const loadUsers = async () => {
+      const snap = await getDocs(collection(db, "users"));
+      document.getElementById("count-users").innerText = snap.docs.length;
+      document.getElementById('usuariosTableBody').innerHTML = snap.docs.map(d => { const u=d.data(); return `<tr class="border-b border-slate-800"><td class="p-3 text-white">${u.email}</td><td class="p-3">${u.nombreCompleto}</td><td class="p-3">${u.departamento}</td><td class="p-3 text-right"><button onclick="window.eliminarUsuario('${d.id}')" class="text-rose-400">Borrar</button></td></tr>`;}).join('');
+    };
+    document.getElementById("formCrearUsuario").addEventListener("submit", async (e) => {
+      e.preventDefault(); const btn = document.getElementById("btnCrearUsuario"); btn.disabled = true; btn.innerText = "Registrando...";
+      try {
+        const email = document.getElementById("newEmail").value;
+        const userCred = await createUserWithEmailAndPassword(secondaryAuth, email, document.getElementById("newPass").value);
+        await signOut(secondaryAuth);
+        await saveUserProfile(userCred.user.uid, { email, nombreCompleto: document.getElementById("newFullName").value, departamento: document.getElementById("newUserDept").value, role: "user", requiereCambioPassword: document.getElementById("requirePassChange").checked, activo: true, creadoEn: new Date().toISOString() });
+        document.getElementById("formCrearUsuario").reset(); loadUsers(); alert("¡Usuario registrado!");
+      } catch (err) { alert("Error: " + err.message); }
+      btn.disabled = false; btn.innerText = "Guardar Usuario";
+    });
+    window.eliminarUsuario = async (id) => { if(confirm("¿Borrar?")) { await deleteDoc(doc(db, "users", id)); loadUsers(); } };
+
+    // DEPTOS Y NOTICIAS
+    const loadDepts = async () => {
+      const snap = await getDocs(collection(db, "departments"));
+      document.getElementById('deptsContainer').innerHTML = snap.docs.map(d => `<div class="p-3 bg-slate-800 rounded-xl flex justify-between text-white">${d.data().nombre} <button onclick="window.eliminarDepto('${d.id}')" class="text-rose-400">X</button></div>`).join('');
+      document.getElementById('newUserDept').innerHTML = snap.docs.map(d => `<option value="${d.data().nombre}">${d.data().nombre}</option>`).join('');
+    };
+    document.getElementById("formCrearDepto").addEventListener("submit", async (e) => { e.preventDefault(); await createDepartment(document.getElementById("newDeptName").value, document.getElementById("newDeptDesc").value); document.getElementById("formCrearDepto").reset(); loadDepts(); });
+    window.eliminarDepto = async (id) => { if(confirm("¿Borrar?")) { await deleteDoc(doc(db, "departments", id)); loadDepts(); } };
+    onSnapshot(query(collection(db, "news"), orderBy("fecha", "desc")), (snap) => document.getElementById('newsContainer').innerHTML = snap.docs.map(d => `<div class="p-3 bg-slate-800 rounded-xl text-white"><b>${d.data().titulo}</b> <br> <span class="text-xs text-slate-400">${d.data().contenido}</span></div>`).join(''));
+    document.getElementById("formCrearNoticia").addEventListener("submit", async (e) => { e.preventDefault(); await createNews({ titulo: document.getElementById("newsTitle").value, contenido: document.getElementById("newsContent").value, esGlobal: document.getElementById("newsScope").value === "GLOBAL", departamentoDestino: document.getElementById("newsDeptTarget").value, autor: "Mario (Sistemas)" }); document.getElementById("formCrearNoticia").reset(); });
+
+    // TEMAS Y FONDOS
+    window.seleccionarTema = async (tema) => { await setGlobalTheme(tema); alert("Animación aplicada a todos"); };
+    window.seleccionarFondo = async (color) => { await setGlobalBackground(color); };
+    const themeOrnaments = { navidad: "🎅", halloween: "🎃", dia_muertos: "🏵️", san_valentin: "💖", primavera: "🌸", estandar: "" };
+    
+    // El sistema recibe y aplica el color de fondo guardado en la base de datos
+    subscribeToGlobalTheme((activeTheme, activeBg) => { 
+      if(window.seasonalEngine) window.seasonalEngine.setTheme(activeTheme); 
+      const ornamentSpan = document.getElementById("logoSeasonOrnament");
+      if (ornamentSpan) ornamentSpan.innerText = themeOrnaments[activeTheme] || "";
+      document.body.style.backgroundColor = activeBg; 
+    });
+
+    document.getElementById("btnExportExcel").addEventListener("click", () => exportarTicketsAExcel(currentTickets));
+    document.getElementById("btnLogout").addEventListener("click", async () => { await logout(); window.location.href = "index.html"; });
+    loadUsers(); loadDepts();
+  </script>
+</body>
+</html>
