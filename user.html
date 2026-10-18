@@ -18,18 +18,43 @@
   <header class="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 shadow-xl">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
       
-      <!-- LOGO BEMIS TICKETS CON SWOOSH -->
+      <!-- LOGO BEMIS TICKETS ORIGINAL EN EL HEADER -->
       <div class="flex items-center gap-3">
-        <div class="relative w-10 h-10 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center border border-cyan-500/40">
-          <span id="logoSeasonOrnament" class="absolute -top-3.5 -right-2 text-xl pointer-events-none animate-pulse"></span>
-          <i data-lucide="ticket-check" class="w-6 h-6 text-cyan-300"></i>
+        <div class="relative flex items-center justify-center">
+          <div class="absolute -inset-1 bg-cyan-400/30 rounded-2xl blur-sm"></div>
+          <span id="logoSeasonOrnament" class="absolute -top-2.5 -right-2.5 text-lg z-20 pointer-events-none animate-pulse"></span>
+          <svg width="46" height="46" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="relative drop-shadow-[0_4px_12px_rgba(0,180,255,0.4)] z-10">
+            <circle cx="28" cy="24" r="9" stroke="#38bdf8" stroke-width="2.5" stroke-dasharray="3 2" opacity="0.8" />
+            <circle cx="28" cy="24" r="4" fill="#38bdf8" opacity="0.8" />
+            <g transform="rotate(-18 35 48)">
+              <rect x="20" y="26" width="34" height="46" rx="5" fill="url(#gradTicketBack)" stroke="#67e8f9" stroke-width="2" />
+              <line x1="26" y1="38" x2="48" y2="38" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.7" />
+              <line x1="26" y1="46" x2="42" y2="46" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.7" />
+              <circle cx="20" cy="49" r="4" fill="#0f172a" />
+              <circle cx="54" cy="49" r="4" fill="#0f172a" />
+            </g>
+            <g transform="rotate(12 55 58)">
+              <rect x="40" y="30" width="40" height="56" rx="6" fill="url(#gradTicketFront)" stroke="#38bdf8" stroke-width="2.5" />
+              <circle cx="40" cy="58" r="4.5" fill="#0f172a" />
+              <circle cx="80" cy="58" r="4.5" fill="#0f172a" />
+              <circle cx="60" cy="58" r="13" fill="#0284c7" stroke="#ffffff" stroke-width="2.5" />
+              <path d="M54 58 L58 62 L67 53" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+            </g>
+            <rect x="82" y="70" width="3" height="3" fill="#38bdf8" />
+            <rect x="88" y="74" width="3" height="3" fill="#00e5ff" />
+            <rect x="78" y="78" width="4" height="2" fill="#38bdf8" />
+            <defs>
+              <linearGradient id="gradTicketBack" x1="20" y1="26" x2="54" y2="72" gradientUnits="userSpaceOnUse"><stop stop-color="#0284c7" /><stop offset="1" stop-color="#0c4a6e" /></linearGradient>
+              <linearGradient id="gradTicketFront" x1="40" y1="30" x2="80" y2="86" gradientUnits="userSpaceOnUse"><stop stop-color="#38bdf8" /><stop offset="1" stop-color="#0369a1" /></linearGradient>
+            </defs>
+          </svg>
         </div>
         <div class="flex flex-col">
           <svg class="w-full h-2.5 text-white overflow-visible -mb-1 opacity-90" viewBox="0 0 160 20" fill="none">
             <path d="M 5 18 Q 80 -4 155 18" stroke="white" stroke-width="4" stroke-linecap="round"/>
           </svg>
-          <div class="font-bemis font-black italic tracking-wide text-xl flex items-baseline gap-1">
-            <span class="text-white">BEMIS</span><span class="text-cyan-300">TICKETS</span>
+          <div class="font-bemis font-black italic tracking-wide text-2xl flex items-baseline gap-1">
+            <span class="text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">BEMIS</span><span class="text-cyan-300 drop-shadow-[0_2px_8px_rgba(0,180,255,0.7)]">TICKETS</span>
           </div>
           <span class="text-[9px] uppercase font-bold text-blue-300 tracking-wider">Portal de Autoservicio de TI</span>
         </div>
@@ -76,7 +101,7 @@
     </aside>
   </main>
 
-  <!-- MODAL DE ENCUESTA (Estrellas Grises) -->
+  <!-- MODAL DE ENCUESTA (Estrellas inician Grises con Validación) -->
   <div id="surveyModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
     <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl max-w-xl w-full p-6 shadow-2xl relative my-auto">
       <div class="flex items-start justify-between gap-3 mb-4">
@@ -92,31 +117,11 @@
       </div>
       <form id="surveyForm" class="space-y-3">
         <div class="space-y-2.5 max-h-[50vh] overflow-y-auto pr-1">
-          <!-- P1 -->
-          <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60">
-            <div class="flex justify-between text-xs font-bold text-white mb-1"><span>1. Rapidez y tiempo de respuesta inicial</span><span id="pts_q1" class="text-cyan-300 font-mono">0 pts</span></div>
-            <div class="flex gap-1" id="stars_q1"></div>
-          </div>
-          <!-- P2 -->
-          <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60">
-            <div class="flex justify-between text-xs font-bold text-white mb-1"><span>2. Claridad y comunicación</span><span id="pts_q2" class="text-cyan-300 font-mono">0 pts</span></div>
-            <div class="flex gap-1" id="stars_q2"></div>
-          </div>
-          <!-- P3 -->
-          <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60">
-            <div class="flex justify-between text-xs font-bold text-white mb-1"><span>3. Eficacia y resolución definitiva</span><span id="pts_q3" class="text-cyan-300 font-mono">0 pts</span></div>
-            <div class="flex gap-1" id="stars_q3"></div>
-          </div>
-          <!-- P4 -->
-          <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60">
-            <div class="flex justify-between text-xs font-bold text-white mb-1"><span>4. Amabilidad y profesionalismo</span><span id="pts_q4" class="text-cyan-300 font-mono">0 pts</span></div>
-            <div class="flex gap-1" id="stars_q4"></div>
-          </div>
-          <!-- P5 -->
-          <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60">
-            <div class="flex justify-between text-xs font-bold text-white mb-1"><span>5. Satisfacción global con TI Bemis</span><span id="pts_q5" class="text-cyan-300 font-mono">0 pts</span></div>
-            <div class="flex gap-1" id="stars_q5"></div>
-          </div>
+          <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60"><div class="flex justify-between text-xs font-bold text-white mb-1"><span>1. Rapidez y tiempo de respuesta inicial</span><span id="pts_q1" class="text-cyan-300 font-mono">0 pts</span></div><div class="flex gap-1" id="stars_q1"></div></div>
+          <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60"><div class="flex justify-between text-xs font-bold text-white mb-1"><span>2. Claridad y comunicación</span><span id="pts_q2" class="text-cyan-300 font-mono">0 pts</span></div><div class="flex gap-1" id="stars_q2"></div></div>
+          <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60"><div class="flex justify-between text-xs font-bold text-white mb-1"><span>3. Eficacia y resolución definitiva</span><span id="pts_q3" class="text-cyan-300 font-mono">0 pts</span></div><div class="flex gap-1" id="stars_q3"></div></div>
+          <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60"><div class="flex justify-between text-xs font-bold text-white mb-1"><span>4. Amabilidad y profesionalismo</span><span id="pts_q4" class="text-cyan-300 font-mono">0 pts</span></div><div class="flex gap-1" id="stars_q4"></div></div>
+          <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60"><div class="flex justify-between text-xs font-bold text-white mb-1"><span>5. Satisfacción global con TI Bemis</span><span id="pts_q5" class="text-cyan-300 font-mono">0 pts</span></div><div class="flex gap-1" id="stars_q5"></div></div>
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-300 mb-1">Comentario para Soporte de Sistemas:</label>
@@ -136,12 +141,8 @@
       <form id="createTicketForm" class="space-y-3 text-xs">
         <input type="text" id="ticketSubject" required placeholder="Nombre del Reporte / Resumen" class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white">
         <div class="grid grid-cols-2 gap-2">
-          <select id="ticketCategory" class="w-full p-2 rounded-xl bg-slate-800 border border-slate-700 text-white">
-            <option value="Hardware / PC">Hardware / PC</option><option value="Software / SAP ERP">Software / SAP ERP</option><option value="Red e Internet">Red / Wi-Fi</option><option value="Impresoras">Impresoras</option>
-          </select>
-          <select id="ticketPriority" class="w-full p-2 rounded-xl bg-slate-800 border border-slate-700 text-white">
-            <option value="Baja">Baja</option><option value="Media" selected>Media</option><option value="Alta">Alta</option><option value="Crítica">Crítica</option>
-          </select>
+          <select id="ticketCategory" class="w-full p-2 rounded-xl bg-slate-800 border border-slate-700 text-white"><option value="Hardware / PC">Hardware / PC</option><option value="Software / SAP ERP">Software / SAP ERP</option><option value="Red e Internet">Red / Wi-Fi</option><option value="Impresoras">Impresoras</option></select>
+          <select id="ticketPriority" class="w-full p-2 rounded-xl bg-slate-800 border border-slate-700 text-white"><option value="Baja">Baja</option><option value="Media" selected>Media</option><option value="Alta">Alta</option><option value="Crítica">Crítica</option></select>
         </div>
         <textarea id="ticketDesc" required rows="3" placeholder="Descripción detallada..." class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white resize-none"></textarea>
         <div class="flex justify-end gap-2 pt-2">
@@ -164,7 +165,6 @@
     document.getElementById("headerUserName").innerText = currentUser.nombreCompleto || currentUser.email;
     document.getElementById("headerUserDept").innerText = currentUser.departamento || "Bemis";
 
-    // --- TEMAS Y FONDOS ---
     const themeOrnaments = { navidad: "🎅", halloween: "🎃", dia_muertos: "🏵️", san_valentin: "💖", primavera: "🌸", estandar: "" };
     subscribeToGlobalTheme((activeTheme, activeBg) => {
       if (window.seasonalEngine) window.seasonalEngine.setTheme(activeTheme);
@@ -173,24 +173,14 @@
       document.body.style.backgroundColor = activeBg; 
     });
 
-    // --- NOTICIAS ---
     subscribeToNews(currentUser.departamento, (news) => {
-      document.getElementById("newsContainer").innerHTML = news.length === 0 ? '<div class="text-xs text-slate-500">Sin comunicados.</div>' : news.map(n => `
-        <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/50 text-xs">
-          <div class="text-[10px] text-cyan-400 font-bold mb-1">${n.esGlobal ? '🌐 Aviso General' : '🔒 Solo ' + n.departamentoDestino}</div>
-          <div class="font-bold text-white">${n.titulo}</div><div class="text-slate-300 mt-1">${n.contenido}</div>
-        </div>`).join('');
+      document.getElementById("newsContainer").innerHTML = news.length === 0 ? '<div class="text-xs text-slate-500">Sin comunicados.</div>' : news.map(n => `<div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/50 text-xs"><div class="text-[10px] text-cyan-400 font-bold mb-1">${n.esGlobal ? '🌐 Aviso General' : '🔒 Solo ' + n.departamentoDestino}</div><div class="font-bold text-white">${n.titulo}</div><div class="text-slate-300 mt-1">${n.contenido}</div></div>`).join('');
     });
 
-    // --- TICKETS Y ENCUESTA OBLIGATORIA ---
     let pendingSurveyDocId = null;
     subscribeToTickets((allTickets) => {
       const myTickets = allTickets.filter(t => (t.usuario || "").toLowerCase() === (currentUser.nombreCompleto || "").toLowerCase() || (t.usuario || "").toLowerCase() === (currentUser.email || "").toLowerCase());
-      document.getElementById("ticketsContainer").innerHTML = myTickets.length === 0 ? '<div class="py-6 text-center text-xs text-slate-500">Sin tickets.</div>' : myTickets.map(t => `
-        <div class="p-3.5 rounded-2xl bg-slate-800/70 border border-slate-700/60 flex flex-col gap-2">
-          <div class="flex items-center justify-between text-xs"><span class="font-mono font-bold text-cyan-400">${t.ticketId || t.id}</span><span class="px-2 py-0.5 rounded text-[10px] font-bold ${t.porcentajeHecho === 100 ? 'bg-emerald-500/20 text-emerald-300' : 'bg-blue-500/20 text-cyan-300'}">${t.porcentajeHecho === 100 ? '✅ Resuelto' : 'En Atención'}</span></div>
-          <div class="text-sm font-bold text-white">${t.nombreReporte}</div><div class="text-xs text-slate-400">Atiende: ${t.seguimiento || 'Mario (Sistemas)'} | Inicio: ${t.fechaTicket}</div>
-        </div>`).join('');
+      document.getElementById("ticketsContainer").innerHTML = myTickets.length === 0 ? '<div class="py-6 text-center text-xs text-slate-500">Sin tickets.</div>' : myTickets.map(t => `<div class="p-3.5 rounded-2xl bg-slate-800/70 border border-slate-700/60 flex flex-col gap-2"><div class="flex items-center justify-between text-xs"><span class="font-mono font-bold text-cyan-400">${t.ticketId || t.id}</span><span class="px-2 py-0.5 rounded text-[10px] font-bold ${t.porcentajeHecho === 100 ? 'bg-emerald-500/20 text-emerald-300' : 'bg-blue-500/20 text-cyan-300'}">${t.porcentajeHecho === 100 ? '✅ Resuelto' : 'En Atención'}</span></div><div class="text-sm font-bold text-white">${t.nombreReporte}</div><div class="text-xs text-slate-400">Atiende: ${t.seguimiento || 'Mario (Sistemas)'} | Inicio: ${t.fechaTicket}</div></div>`).join('');
 
       const pending = myTickets.find(t => t.porcentajeHecho === 100 && !t.encuestaRespondida);
       if (pending) {
@@ -201,7 +191,6 @@
       }
     });
 
-    // --- LÓGICA DE ESTRELLAS GRISES (Inician en 0) ---
     let surveyRatings = { q1: 0, q2: 0, q3: 0, q4: 0, q5: 0 };
     
     function actualizarTotalPct() {
@@ -218,43 +207,23 @@
         for (let star = 1; star <= 5; star++) {
           const btn = document.createElement('button');
           btn.type = 'button';
-          // Si star es menor o igual, se pinta de dorado. Si no, se queda gris
           btn.className = `text-2xl cursor-pointer transition-transform hover:scale-125 ${star <= surveyRatings[q] ? 'text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.6)]' : 'text-slate-600'}`;
           btn.innerText = '★';
-          btn.onclick = () => {
-            surveyRatings[q] = star;
-            document.getElementById(`pts_${q}`).innerText = `${star * 20} pts`;
-            renderStarRows();
-            actualizarTotalPct();
-          };
+          btn.onclick = () => { surveyRatings[q] = star; document.getElementById(`pts_${q}`).innerText = `${star * 20} pts`; renderStarRows(); actualizarTotalPct(); };
           container.appendChild(btn);
         }
       });
     }
 
-    // --- VALIDACIÓN Y ENVÍO DE ENCUESTA ---
     document.getElementById("surveyForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      
-      // Validar que ninguna pregunta esté en 0 (Gris)
       const sinContestar = Object.values(surveyRatings).some(val => val === 0);
-      if (sinContestar) {
-        alert("Por favor, califica todas las preguntas (selecciona al menos 1 estrella en cada una) antes de enviar.");
-        return;
-      }
-
-      const btn = document.getElementById("btnSubmitSurvey");
-      btn.disabled = true;
-      btn.innerText = "Guardando...";
-      await submitSatisfactionSurvey(pendingSurveyDocId, {
-        q1: surveyRatings.q1, q2: surveyRatings.q2, q3: surveyRatings.q3, q4: surveyRatings.q4, q5: surveyRatings.q5,
-        comentario: document.getElementById("surveyComment").value
-      });
-      btn.disabled = false; btn.innerText = "Enviar Encuesta";
-      document.getElementById("surveyModal").classList.add("hidden");
+      if (sinContestar) { alert("¡Alto! Por favor califica todas las preguntas antes de enviar."); return; }
+      const btn = document.getElementById("btnSubmitSurvey"); btn.disabled = true; btn.innerText = "Guardando...";
+      await submitSatisfactionSurvey(pendingSurveyDocId, { q1: surveyRatings.q1, q2: surveyRatings.q2, q3: surveyRatings.q3, q4: surveyRatings.q4, q5: surveyRatings.q5, comentario: document.getElementById("surveyComment").value });
+      btn.disabled = false; btn.innerText = "Enviar Encuesta"; document.getElementById("surveyModal").classList.add("hidden");
     });
 
-    // --- MODAL NUEVO TICKET ---
     document.getElementById("btnOpenNewTicket").addEventListener("click", () => document.getElementById("newTicketModal").classList.remove("hidden"));
     document.getElementById("btnCloseNewTicket").addEventListener("click", () => document.getElementById("newTicketModal").classList.add("hidden"));
     document.getElementById("createTicketForm").addEventListener("submit", async (e) => {
