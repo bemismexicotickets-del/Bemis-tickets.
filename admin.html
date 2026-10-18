@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bemis Tickets - Panel de Super Administrador (Mario)</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- ¡NUEVO! Librería XLSX con soporte para colores, bordes y estilos -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-  
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,900;1,900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -40,7 +37,7 @@
   <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-xl">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
       
-      <!-- LOGO BEMIS TICKETS -->
+      <!-- LOGO BEMIS TICKETS ORIGINAL -->
       <div class="flex items-center gap-3">
         <div class="relative flex items-center justify-center">
           <div class="absolute -inset-1 bg-cyan-400/30 rounded-2xl blur-sm"></div>
@@ -115,14 +112,11 @@
           <h2 class="text-lg font-black text-white flex items-center gap-2"><i data-lucide="ticket" class="w-5 h-5 text-cyan-400"></i> Mesa de Tickets</h2>
           
           <div class="flex flex-wrap gap-2 items-center">
-            <!-- BOTÓN IMPORTAR EXCEL HISTÓRICO -->
             <input type="file" id="inputImportExcel" accept=".xlsx, .xls" class="hidden" />
             <button id="btnImportExcel" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-lg shadow-blue-500/20 flex items-center gap-1.5 transition-all cursor-pointer">
               <i data-lucide="upload-cloud" class="w-4 h-4"></i><span class="hidden md:inline">Cargar Excel Viejo</span>
             </button>
-            
             <div class="h-4 w-px bg-slate-700 mx-1 hidden md:block"></div>
-            
             <input type="text" id="filtroSearch" placeholder="Buscar..." class="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white">
             <select id="filtroEstado" class="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white">
               <option value="todos">Todos</option><option value="Pendiente">Pendiente</option><option value="En Proceso">En Proceso</option><option value="Resuelto">Resuelto</option>
@@ -131,7 +125,7 @@
         </div>
         <div class="overflow-x-auto rounded-2xl border border-slate-800">
           <table class="w-full text-left text-xs text-slate-300">
-            <thead class="bg-slate-800 text-slate-400 uppercase text-[10px]"><tr><th class="p-3">Ticket</th><th class="p-3">Usuario</th><th class="p-3">Reporte</th><th class="p-3">Estatus</th><th class="p-3">Encuesta</th><th class="p-3">Acción</th></tr></thead>
+            <thead class="bg-slate-800 text-slate-400 uppercase text-[10px]"><tr><th class="p-3">Ticket</th><th class="p-3">Usuario</th><th class="p-3">Reporte</th><th class="p-3">Estatus</th><th class="p-3">Encuesta</th><th class="p-3 text-right">Acciones</th></tr></thead>
             <tbody id="ticketsTableBody" class="divide-y divide-slate-800"></tbody>
           </table>
         </div>
@@ -185,7 +179,6 @@
 
     <!-- TAB 5: TEMAS Y FONDOS -->
     <div id="tab-temas" class="hidden space-y-6">
-      <!-- Selector de Animaciones Estacionales -->
       <div class="bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl">
         <h2 class="text-lg font-black text-white mb-4"><i data-lucide="palette" class="inline w-5 h-5 text-cyan-400"></i> Animaciones Estacionales</h2>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -195,8 +188,6 @@
           <button onclick="window.seleccionarTema('dia_muertos')" class="p-4 rounded-2xl bg-slate-800/60 hover:border-amber-400 text-left border border-slate-700"><div class="text-2xl">💀</div><h4 class="text-sm font-bold text-white">Día de Muertos</h4></button>
         </div>
       </div>
-
-      <!-- Selector de 20 Colores de Fondo -->
       <div class="bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl">
         <h2 class="text-lg font-black text-white mb-4"><i data-lucide="paint-bucket" class="inline w-5 h-5 text-cyan-400"></i> Color de Fondo Global</h2>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -209,8 +200,27 @@
     </div>
   </main>
 
+  <!-- Modal Detalles de Encuesta -->
   <div id="surveyDetailModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
     <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl max-w-lg w-full p-6 shadow-2xl relative"><div class="flex justify-between"><h3 class="text-base font-bold text-white">Evaluación</h3><button onclick="document.getElementById('surveyDetailModal').classList.add('hidden')" class="text-slate-400">✕</button></div><div class="p-3 bg-amber-500/10 mb-4"><span class="text-xl font-mono text-amber-400" id="modalSurveyPct">100%</span></div><p id="modalSurveyComment" class="text-slate-200 italic text-xs"></p></div>
+  </div>
+
+  <!-- ¡NUEVO! Modal Confirmar Borrar Ticket con PIN 1917 -->
+  <div id="deleteTicketModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+    <div class="bg-slate-900 border border-rose-500/40 rounded-3xl max-w-sm w-full p-6 shadow-2xl relative">
+      <h3 class="text-base font-bold text-white mb-2 flex items-center gap-2">
+        <i data-lucide="alert-triangle" class="w-5 h-5 text-rose-500"></i> Eliminar Ticket
+      </h3>
+      <p class="text-xs text-slate-400 mb-4">Ingresa la contraseña maestra para confirmar la eliminación definitiva de este reporte (pruebas).</p>
+      
+      <!-- autocomplete="new-password" Evita que el navegador sugiera correos o claves autoguardadas -->
+      <input type="password" id="deleteTicketPassword" autocomplete="new-password" placeholder="Contraseña..." class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white font-mono mb-4 focus:outline-none focus:border-rose-400">
+      
+      <div class="flex justify-end gap-2">
+        <button onclick="document.getElementById('deleteTicketModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-400 text-xs font-bold hover:text-white transition-colors">Cancelar</button>
+        <button onclick="window.ejecutarEliminarTicket()" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-colors">Eliminar Definitivamente</button>
+      </div>
+    </div>
   </div>
 
   <script src="animations.js"></script>
@@ -228,6 +238,7 @@
     const secondaryAuth = getAuth(secondaryApp);
 
     let currentTickets = [];
+    let ticketAEliminarId = null;
 
     // TICKETS
     subscribeToTickets((tickets) => { currentTickets = tickets; document.getElementById("count-tickets").innerText = tickets.length; renderizarTickets(); });
@@ -242,14 +253,47 @@
       }).forEach(t => {
         const tr = document.createElement("tr"); tr.className = "border-b border-slate-800 hover:bg-slate-800/40";
         const pct = t.porcentajeSatisfaccion !== undefined ? t.porcentajeSatisfaccion : (t.encuestaDetalle?.porcentajeFinal ?? null);
-        tr.innerHTML = `<td class="p-3 font-mono text-cyan-400">${t.ticketId || t.id}</td><td class="p-3 text-white">${t.usuario} <div class="text-[10px] text-slate-400">${t.departamento}</div></td><td class="p-3 text-slate-200 truncate max-w-xs">${t.nombreReporte}</td><td class="p-3">${t.porcentajeHecho === 100 ? '<span class="text-emerald-400">Resuelto</span>' : '<span class="text-amber-400">Pendiente</span>'}</td><td class="p-3">${pct !== null ? `<button onclick="window.verEncuesta('${t.id}')" class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 font-bold text-[11px]">⭐ ${pct}% (Ver)</button>` : '-'}</td><td class="p-3 text-right"><button onclick="window.resolverTicket('${t.id}')" class="px-2 py-1 bg-emerald-600 rounded text-white text-[10px]">Resolver</button></td>`;
+        
+        tr.innerHTML = `
+          <td class="p-3 font-mono text-cyan-400">${t.ticketId || t.id}</td>
+          <td class="p-3 text-white">${t.usuario} <div class="text-[10px] text-slate-400">${t.departamento}</div></td>
+          <td class="p-3 text-slate-200 truncate max-w-xs">${t.nombreReporte}</td>
+          <td class="p-3">${t.porcentajeHecho === 100 ? '<span class="text-emerald-400">Resuelto</span>' : '<span class="text-amber-400">Pendiente</span>'}</td>
+          <td class="p-3">${pct !== null ? `<button onclick="window.verEncuesta('${t.id}')" class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 font-bold text-[11px]">⭐ ${pct}% (Ver)</button>` : '-'}</td>
+          <td class="p-3 text-right flex items-center justify-end gap-1.5">
+            ${t.porcentajeHecho !== 100 ? `<button onclick="window.resolverTicket('${t.id}')" class="px-2 py-1 bg-emerald-600 rounded text-white text-[10px]">Resolver</button>` : ''}
+            <button onclick="window.confirmarEliminarTicket('${t.id}')" class="px-2 py-1 bg-rose-600/80 hover:bg-rose-500 rounded text-white text-[10px]" title="Eliminar Ticket">Borrar</button>
+          </td>
+        `;
         tbody.appendChild(tr);
       });
       document.getElementById("statTotal").innerText = currentTickets.length; document.getElementById("statPendientes").innerText = currentTickets.filter(t => t.porcentajeHecho === 0).length; document.getElementById("statProceso").innerText = currentTickets.filter(t => t.porcentajeHecho > 0 && t.porcentajeHecho < 100).length;
     }
     document.getElementById("filtroSearch").addEventListener("input", renderizarTickets); document.getElementById("filtroEstado").addEventListener("change", renderizarTickets);
+    
     window.resolverTicket = async (docId) => await updateTicket(docId, { porcentajeHecho: 100, fechaTermino: new Date().toISOString().split("T")[0] });
     window.verEncuesta = (docId) => { const t = currentTickets.find(x => x.id === docId); if (!t) return; document.getElementById("modalSurveyPct").innerText = `${t.porcentajeSatisfaccion ?? t.encuestaDetalle?.porcentajeFinal ?? 100}%`; document.getElementById("modalSurveyComment").innerText = `"${t.comentarioUsuario || t.encuestaDetalle?.comentario || 'Sin comentario.'}"`; document.getElementById("surveyDetailModal").classList.remove("hidden"); };
+
+    // FUNCIÓN ELIMINAR TICKET CON CLAVE
+    window.confirmarEliminarTicket = (id) => {
+      ticketAEliminarId = id;
+      document.getElementById('deleteTicketPassword').value = '';
+      document.getElementById('deleteTicketModal').classList.remove('hidden');
+      document.getElementById('deleteTicketPassword').focus();
+    };
+
+    window.ejecutarEliminarTicket = async () => {
+      const pass = document.getElementById('deleteTicketPassword').value;
+      if (pass === '1917') {
+        await deleteDoc(doc(db, "tickets", ticketAEliminarId));
+        document.getElementById('deleteTicketModal').classList.add('hidden');
+        alert("Ticket eliminado correctamente del sistema.");
+      } else {
+        alert("Contraseña incorrecta. Acción cancelada.");
+        document.getElementById('deleteTicketPassword').value = '';
+        document.getElementById('deleteTicketPassword').focus();
+      }
+    };
 
     // IMPORTACIÓN EXCEL
     document.getElementById("btnImportExcel").addEventListener("click", () => document.getElementById("inputImportExcel").click());
