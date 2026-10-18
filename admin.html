@@ -4,11 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bemis Tickets - Panel de Super Administrador (Mario)</title>
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- SheetJS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,900;1,900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -18,10 +15,25 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col relative overflow-x-hidden">
 
-  <!-- Canvas animaciones estacionales a 60fps -->
+  <!-- SCRIPT BLINDADO DE PESTAÑAS (Funciona siempre, sin depender de Firebase) -->
+  <script>
+    window.cambiarPestana = (pestana) => {
+      const pestanas = ['tickets', 'usuarios', 'departamentos', 'noticias', 'temas'];
+      pestanas.forEach(p => {
+        const tab = document.getElementById(`tab-${p}`);
+        const nav = document.getElementById(`nav-${p}`);
+        if(tab) { tab.classList.add('hidden'); tab.classList.remove('block'); }
+        if(nav) { nav.classList.remove('border-cyan-400', 'text-cyan-300'); nav.classList.add('border-transparent', 'text-slate-400'); }
+      });
+      const activeTab = document.getElementById(`tab-${pestana}`);
+      const activeNav = document.getElementById(`nav-${pestana}`);
+      if(activeTab) { activeTab.classList.remove('hidden'); activeTab.classList.add('block'); }
+      if(activeNav) { activeNav.classList.add('border-cyan-400', 'text-cyan-300'); activeNav.classList.remove('border-transparent', 'text-slate-400'); }
+    };
+  </script>
+
   <canvas id="seasonalCanvas" class="fixed inset-0 pointer-events-none z-10 w-full h-full"></canvas>
 
-  <!-- Header Admin -->
   <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-xl">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
       <div class="flex items-center gap-3">
@@ -34,26 +46,19 @@
             <span class="text-white">BEMIS</span>
             <span class="text-cyan-300">TICKETS</span>
           </div>
-          <span class="text-[9px] uppercase font-bold text-amber-400 tracking-wider">
-            Super Administrador Mario • Firebase
-          </span>
+          <span class="text-[9px] uppercase font-bold text-amber-400 tracking-wider">Super Administrador Mario • Firebase</span>
         </div>
       </div>
-
       <div class="flex items-center gap-2 sm:gap-3">
-        <button id="btnExportExcel"
-          class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/20 cursor-pointer transition-all">
-          <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
-          <span>Descargar Reporte Mensual (.xlsx)</span>
+        <button id="btnExportExcel" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/20 transition-all">
+          <i data-lucide="file-spreadsheet" class="w-4 h-4"></i><span>Descargar Reporte Mensual (.xlsx)</span>
         </button>
-
         <button id="btnLogout" class="p-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-300 border border-slate-700">
           <i data-lucide="log-out" class="w-4 h-4"></i>
         </button>
       </div>
     </div>
-
-    <!-- PESTAÑAS (TABS) -->
+    <!-- BOTONES DE PESTAÑAS -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-2 overflow-x-auto border-t border-slate-800/80 text-xs font-semibold">
       <button id="nav-tickets" onclick="cambiarPestana('tickets')" class="py-3 px-3.5 border-b-2 flex items-center gap-2 whitespace-nowrap cursor-pointer transition-all border-cyan-400 text-cyan-300">
         <i data-lucide="ticket" class="w-4 h-4"></i> Mesa de Tickets (<span id="count-tickets">0</span>)
@@ -74,8 +79,7 @@
   </header>
 
   <main class="relative z-20 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-    
-    <!-- TARJETAS DE MÉTRICAS GLOBALES -->
+    <!-- MÉTRICAS -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
       <div class="p-4 rounded-3xl bg-slate-900/85 border border-slate-800">
         <span class="text-xs text-slate-400">Total Tickets</span>
@@ -97,42 +101,22 @@
 
     <!-- TAB 1: TICKETS -->
     <div id="tab-tickets" class="block">
-      <section class="bg-slate-900/85 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl">
+      <section class="bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-          <div>
-            <h2 class="text-lg font-black text-white flex items-center gap-2">
-              <i data-lucide="ticket" class="w-5 h-5 text-cyan-400"></i> Mesa de Control de Tickets TI
-            </h2>
-            <p class="text-xs text-slate-400">Cambia estatus a "Resuelto" para activar la encuesta obligatoria</p>
-          </div>
-          <div class="flex items-center gap-2">
-            <input type="text" id="filtroSearch" placeholder="Buscar ticket..." class="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400 font-mono">
-            <select id="filtroEstado" class="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400">
-              <option value="todos">Todos los estatus</option>
-              <option value="Pendiente">Pendiente (0%)</option>
-              <option value="En Proceso">En Proceso (1-99%)</option>
-              <option value="Resuelto">Resuelto (100%)</option>
+          <h2 class="text-lg font-black text-white flex items-center gap-2"><i data-lucide="ticket" class="w-5 h-5 text-cyan-400"></i> Mesa de Tickets</h2>
+          <div class="flex gap-2">
+            <input type="text" id="filtroSearch" placeholder="Buscar..." class="px-3 py-1.5 rounded-xl bg-slate-800 text-xs text-white">
+            <select id="filtroEstado" class="px-3 py-1.5 rounded-xl bg-slate-800 text-xs text-white">
+              <option value="todos">Todos</option><option value="Pendiente">Pendiente</option><option value="En Proceso">En Proceso</option><option value="Resuelto">Resuelto</option>
             </select>
           </div>
         </div>
-
         <div class="overflow-x-auto rounded-2xl border border-slate-800">
           <table class="w-full text-left text-xs text-slate-300">
-            <thead class="bg-slate-800 text-slate-400 uppercase text-[10px] tracking-wider">
-              <tr>
-                <th class="py-3 px-3">Ticket</th>
-                <th class="py-3 px-3">Usuario / Depto</th>
-                <th class="py-3 px-3">Reporte</th>
-                <th class="py-3 px-3">Prioridad</th>
-                <th class="py-3 px-3">% Hecho</th>
-                <th class="py-3 px-3">Estatus</th>
-                <th class="py-3 px-3">Encuesta</th>
-                <th class="py-3 px-3 text-right">Acción Rápida</th>
-              </tr>
+            <thead class="bg-slate-800 text-slate-400 uppercase text-[10px]">
+              <tr><th class="p-3">Ticket</th><th class="p-3">Usuario</th><th class="p-3">Reporte</th><th class="p-3">Estatus</th><th class="p-3">Acción</th></tr>
             </thead>
-            <tbody id="ticketsTableBody" class="divide-y divide-slate-800">
-              <!-- Renderizado en JS -->
-            </tbody>
+            <tbody id="ticketsTableBody" class="divide-y divide-slate-800"></tbody>
           </table>
         </div>
       </section>
@@ -141,44 +125,22 @@
     <!-- TAB 2: USUARIOS -->
     <div id="tab-usuarios" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
       <section class="lg:col-span-4 bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-4">
-        <h3 class="text-base font-bold text-white flex items-center gap-2">
-          <i data-lucide="user-plus" class="w-4 h-4 text-cyan-400"></i> Nuevo Usuario
-        </h3>
-        <p class="text-xs text-slate-400">Registra un empleado con su correo.</p>
+        <h3 class="text-base font-bold text-white"><i data-lucide="user-plus" class="inline w-4 h-4 text-cyan-400"></i> Nuevo Usuario</h3>
         <form id="formCrearUsuario" class="space-y-3 text-xs">
-          <input type="email" id="newEmail" required placeholder="correo@bemismfg.com" class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white font-mono">
-          <input type="text" id="newFullName" required placeholder="Nombre Completo" class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white">
-          <select id="newUserDept" class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white">
-            <option value="Sistemas">Cargando...</option>
-          </select>
-          <input type="text" id="newPass" required value="bemis2026" placeholder="Contraseña inicial" class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white font-mono">
-          <div class="flex items-center gap-2">
-            <input type="checkbox" id="requirePassChange" checked class="rounded">
-            <label for="requirePassChange" class="text-slate-300">Exigir cambio en 1er login</label>
-          </div>
-          <button type="submit" id="btnCrearUsuario" class="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold">
-            Guardar en Firebase
-          </button>
+          <input type="email" id="newEmail" required placeholder="correo@bemismfg.com" class="w-full p-2.5 rounded-xl bg-slate-800 text-white">
+          <input type="text" id="newFullName" required placeholder="Nombre Completo" class="w-full p-2.5 rounded-xl bg-slate-800 text-white">
+          <select id="newUserDept" class="w-full p-2.5 rounded-xl bg-slate-800 text-white"></select>
+          <input type="text" id="newPass" required value="bemis2026" class="w-full p-2.5 rounded-xl bg-slate-800 text-white">
+          <div class="flex gap-2"><input type="checkbox" id="requirePassChange" checked><label class="text-slate-300">Exigir cambio en 1er login</label></div>
+          <button type="submit" id="btnCrearUsuario" class="w-full py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-bold">Guardar Usuario</button>
         </form>
       </section>
-
       <section class="lg:col-span-8 bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl">
-        <h3 class="text-base font-bold text-white flex items-center gap-2 mb-4">
-          <i data-lucide="users" class="w-4 h-4 text-cyan-400"></i> Directorio de Usuarios
-        </h3>
+        <h3 class="text-base font-bold text-white mb-4"><i data-lucide="users" class="inline w-4 h-4 text-cyan-400"></i> Directorio</h3>
         <div class="overflow-x-auto rounded-2xl border border-slate-800">
           <table class="w-full text-left text-xs text-slate-300">
-            <thead class="bg-slate-800 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-700">
-              <tr>
-                <th class="py-3 px-3">Correo</th>
-                <th class="py-3 px-3">Nombre</th>
-                <th class="py-3 px-3">Depto</th>
-                <th class="py-3 px-3 text-right">Acción</th>
-              </tr>
-            </thead>
-            <tbody id="usuariosTableBody" class="divide-y divide-slate-800">
-              <!-- Renderizado en JS -->
-            </tbody>
+            <thead class="bg-slate-800 text-slate-400 uppercase text-[10px]"><tr><th class="p-3">Correo</th><th class="p-3">Nombre</th><th class="p-3">Depto</th><th class="p-3 text-right">Acción</th></tr></thead>
+            <tbody id="usuariosTableBody" class="divide-y divide-slate-800"></tbody>
           </table>
         </div>
       </section>
@@ -187,79 +149,191 @@
     <!-- TAB 3: DEPARTAMENTOS -->
     <div id="tab-departamentos" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
       <section class="lg:col-span-5 bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-4">
-        <h3 class="text-base font-bold text-white flex items-center gap-2">
-          <i data-lucide="plus" class="w-4 h-4 text-cyan-400"></i> Registrar Departamento
-        </h3>
+        <h3 class="text-base font-bold text-white"><i data-lucide="plus" class="inline w-4 h-4 text-cyan-400"></i> Nuevo Depto</h3>
         <form id="formCrearDepto" class="space-y-3 text-xs">
-          <input type="text" id="newDeptName" required placeholder="Ej. Producción" class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white">
-          <input type="text" id="newDeptDesc" placeholder="Descripción de actividades" class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white">
-          <button type="submit" class="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold">
-            Guardar Departamento
-          </button>
+          <input type="text" id="newDeptName" required placeholder="Ej. Producción" class="w-full p-2.5 rounded-xl bg-slate-800 text-white">
+          <input type="text" id="newDeptDesc" placeholder="Descripción" class="w-full p-2.5 rounded-xl bg-slate-800 text-white">
+          <button type="submit" class="w-full py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-bold">Guardar Departamento</button>
         </form>
       </section>
       <section class="lg:col-span-7 bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl">
-        <h3 class="text-base font-bold text-white flex items-center gap-2 mb-4">
-          <i data-lucide="building" class="w-4 h-4 text-cyan-400"></i> Departamentos Configurados
-        </h3>
-        <div id="deptsContainer" class="space-y-2">
-           <!-- Renderizado en JS -->
-        </div>
+        <h3 class="text-base font-bold text-white mb-4">Departamentos Configurados</h3>
+        <div id="deptsContainer" class="space-y-2"></div>
       </section>
     </div>
 
     <!-- TAB 4: NOTICIAS -->
     <div id="tab-noticias" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
       <section class="lg:col-span-5 bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-4">
-        <h3 class="text-base font-bold text-white flex items-center gap-2">
-          <i data-lucide="send" class="w-4 h-4 text-cyan-400"></i> Publicar Aviso
-        </h3>
+        <h3 class="text-base font-bold text-white"><i data-lucide="send" class="inline w-4 h-4 text-cyan-400"></i> Publicar Aviso</h3>
         <form id="formCrearNoticia" class="space-y-3 text-xs">
-          <input type="text" id="newsTitle" required placeholder="Título..." class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white">
+          <input type="text" id="newsTitle" required placeholder="Título..." class="w-full p-2.5 rounded-xl bg-slate-800 text-white">
           <div class="grid grid-cols-2 gap-2">
-            <select id="newsScope" class="p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white">
-              <option value="GLOBAL">Global (Todos)</option>
-              <option value="DEPTO">Por Departamento</option>
-            </select>
-            <select id="newsDeptTarget" disabled class="p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white opacity-50"></select>
+            <select id="newsScope" class="p-2.5 rounded-xl bg-slate-800 text-white"><option value="GLOBAL">Global</option><option value="DEPTO">Por Depto</option></select>
+            <select id="newsDeptTarget" disabled class="p-2.5 rounded-xl bg-slate-800 text-white opacity-50"></select>
           </div>
-          <select id="newsImportance" class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white">
-            <option value="Normal">Normal</option>
-            <option value="Importante">Importante</option>
-            <option value="Urgente">Urgente</option>
-          </select>
-          <textarea id="newsContent" required rows="3" placeholder="Contenido..." class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white resize-none"></textarea>
-          <button type="submit" id="btnCrearNoticia" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold">
-            Publicar
-          </button>
+          <select id="newsImportance" class="w-full p-2.5 rounded-xl bg-slate-800 text-white"><option value="Normal">Normal</option><option value="Importante">Importante</option><option value="Urgente">Urgente</option></select>
+          <textarea id="newsContent" required rows="3" placeholder="Contenido..." class="w-full p-2.5 rounded-xl bg-slate-800 text-white resize-none"></textarea>
+          <button type="submit" class="w-full py-2.5 rounded-xl bg-blue-600 text-white font-bold">Publicar</button>
         </form>
       </section>
       <section class="lg:col-span-7 bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl">
-        <h3 class="text-base font-bold text-white flex items-center gap-2 mb-4">
-          <i data-lucide="bell" class="w-4 h-4 text-cyan-400"></i> Avisos Activos
-        </h3>
-        <div id="newsContainer" class="space-y-3">
-          <!-- Renderizado en JS -->
-        </div>
+        <h3 class="text-base font-bold text-white mb-4">Avisos Activos</h3>
+        <div id="newsContainer" class="space-y-3"></div>
       </section>
     </div>
 
     <!-- TAB 5: TEMAS -->
     <div id="tab-temas" class="hidden bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl">
-      <div class="mb-4">
-        <h2 class="text-lg font-black text-white flex items-center gap-2">
-          <i data-lucide="palette" class="w-5 h-5 text-cyan-400"></i> Selector de Tema de Interfaz
-        </h2>
-        <p class="text-xs text-slate-400">El tema que selecciones se aplicará en tiempo real en todos los dispositivos de la empresa.</p>
+      <h2 class="text-lg font-black text-white mb-4"><i data-lucide="palette" class="inline w-5 h-5 text-cyan-400"></i> Temas de Interfaz</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <button onclick="window.seleccionarTema('estandar')" class="p-4 rounded-2xl bg-slate-800/60 hover:border-cyan-400 text-left border border-slate-700"><div class="text-2xl">🏢</div><h4 class="text-sm font-bold text-white">Estándar Bemis</h4></button>
+        <button onclick="window.seleccionarTema('navidad')" class="p-4 rounded-2xl bg-slate-800/60 hover:border-emerald-400 text-left border border-slate-700"><div class="text-2xl">❄️</div><h4 class="text-sm font-bold text-white">Navideño</h4></button>
+        <button onclick="window.seleccionarTema('halloween')" class="p-4 rounded-2xl bg-slate-800/60 hover:border-orange-500 text-left border border-slate-700"><div class="text-2xl">🎃</div><h4 class="text-sm font-bold text-white">Halloween</h4></button>
+        <button onclick="window.seleccionarTema('dia_muertos')" class="p-4 rounded-2xl bg-slate-800/60 hover:border-amber-400 text-left border border-slate-700"><div class="text-2xl">💀</div><h4 class="text-sm font-bold text-white">Día de Muertos</h4></button>
       </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4" id="temasGrid">
-        <button onclick="window.seleccionarTema('estandar')" class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700 hover:border-cyan-400 text-left transition-all">
-          <div class="text-2xl mb-2">🏢</div><h4 class="text-sm font-bold text-white">Estándar Bemis</h4><div class="text-cyan-400 text-[10px] mt-2 font-bold">Aplicar Tema</div>
-        </button>
-        <button onclick="window.seleccionarTema('navidad')" class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700 hover:border-emerald-400 text-left transition-all">
-          <div class="text-2xl mb-2">❄️🎅</div><h4 class="text-sm font-bold text-white">Navideño</h4><div class="text-emerald-400 text-[10px] mt-2 font-bold">Aplicar Tema</div>
-        </button>
-        <button onclick="window.seleccionarTema('halloween')" class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700 hover:border-orange-500 text-left transition-all">
-          <div class="text-2xl mb-2">🎃🦇</div><h4 class="text-sm font-bold text-white">Halloween</h4><div class="text-orange-500 text-[10px] mt-2 font-bold">Aplicar Tema</div>
-        </button>
-        <button onclick="window.seleccionarTema('dia_muertos')" class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700
+    </div>
+  </main>
+
+  <div id="surveyDetailModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+    <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl max-w-lg w-full p-6 shadow-2xl relative">
+      <div class="flex justify-between items-start mb-4">
+        <h3 class="text-base font-bold text-white">Evaluación</h3>
+        <button onclick="document.getElementById('surveyDetailModal').classList.add('hidden')" class="text-slate-400 hover:text-white">✕</button>
+      </div>
+      <div class="p-3 rounded-2xl bg-amber-500/10 mb-4"><span class="text-xl font-mono text-amber-400" id="modalSurveyPct">100%</span></div>
+      <p id="modalSurveyComment" class="text-slate-200 italic text-xs"></p>
+    </div>
+  </div>
+
+  <script src="animations.js"></script>
+  <!-- EL MÓDULO CON TRY/CATCH PARA ASEGURAR QUE FIREBASE SE CONECTE -->
+  <script type="module">
+    import { logout } from "./auth.js";
+    import { db, firebaseConfig } from "./firebase-config.js";
+    import { collection, getDocs, doc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { subscribeToTickets, updateTicket, createNews, saveUserProfile, subscribeToGlobalTheme, setGlobalTheme, createDepartment } from "./db.js";
+    import { exportarTicketsAExcel } from "./app.js";
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    lucide.createIcons();
+    const secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
+    const secondaryAuth = getAuth(secondaryApp);
+
+    let currentTickets = [], currentUsers = [], currentDepts = [], currentNews = [];
+
+    // TICKETS
+    subscribeToTickets((tickets) => {
+      currentTickets = tickets;
+      document.getElementById("count-tickets").innerText = tickets.length;
+      renderizarTickets();
+    });
+
+    function renderizarTickets() {
+      const search = document.getElementById("filtroSearch").value.toLowerCase();
+      const estado = document.getElementById("filtroEstado").value;
+      const tbody = document.getElementById("ticketsTableBody");
+      tbody.innerHTML = "";
+
+      currentTickets.filter(t => {
+        const match = (t.ticketId || t.id).toLowerCase().includes(search) || (t.usuario || "").toLowerCase().includes(search);
+        if (estado === "Pendiente") return match && t.porcentajeHecho === 0;
+        if (estado === "En Proceso") return match && t.porcentajeHecho > 0 && t.porcentajeHecho < 100;
+        if (estado === "Resuelto") return match && t.porcentajeHecho === 100;
+        return match;
+      }).forEach(t => {
+        const tr = document.createElement("tr");
+        tr.className = "border-b border-slate-800 hover:bg-slate-800/40";
+        tr.innerHTML = `
+          <td class="p-3 font-mono text-cyan-400">${t.ticketId || t.id}</td>
+          <td class="p-3 text-white">${t.usuario} <div class="text-[10px] text-slate-400">${t.departamento}</div></td>
+          <td class="p-3 text-slate-200 truncate max-w-xs">${t.nombreReporte}</td>
+          <td class="p-3">${t.porcentajeHecho === 100 ? '<span class="text-emerald-400">Resuelto</span>' : '<span class="text-amber-400">Pendiente</span>'}</td>
+          <td class="p-3"><button onclick="window.resolverTicket('${t.id}')" class="px-2 py-1 bg-emerald-600 rounded text-white text-[10px]">Resolver</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      document.getElementById("statTotal").innerText = currentTickets.length;
+      document.getElementById("statPendientes").innerText = currentTickets.filter(t => t.porcentajeHecho === 0).length;
+      document.getElementById("statProceso").innerText = currentTickets.filter(t => t.porcentajeHecho > 0 && t.porcentajeHecho < 100).length;
+    }
+
+    document.getElementById("filtroSearch").addEventListener("input", renderizarTickets);
+    document.getElementById("filtroEstado").addEventListener("change", renderizarTickets);
+
+    window.resolverTicket = async (docId) => await updateTicket(docId, { porcentajeHecho: 100, fechaTermino: new Date().toISOString().split("T")[0] });
+
+    // USUARIOS
+    const loadUsers = async () => {
+      const snap = await getDocs(collection(db, "users"));
+      currentUsers = snap.docs.map(d => ({id: d.id, ...d.data()}));
+      document.getElementById("count-users").innerText = currentUsers.length;
+      document.getElementById('usuariosTableBody').innerHTML = currentUsers.map(u => `
+        <tr class="border-b border-slate-800">
+          <td class="p-3 text-white">${u.email}</td><td class="p-3">${u.nombreCompleto}</td><td class="p-3">${u.departamento}</td>
+          <td class="p-3 text-right"><button onclick="window.eliminarUsuario('${u.id}')" class="text-rose-400">Borrar</button></td>
+        </tr>`).join('');
+    };
+
+    document.getElementById("formCrearUsuario").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("btnCrearUsuario");
+      btn.disabled = true; btn.innerText = "Registrando...";
+      try {
+        const email = document.getElementById("newEmail").value;
+        const userCred = await createUserWithEmailAndPassword(secondaryAuth, email, document.getElementById("newPass").value);
+        await signOut(secondaryAuth);
+        await saveUserProfile(userCred.user.uid, {
+          email, nombreCompleto: document.getElementById("newFullName").value, departamento: document.getElementById("newUserDept").value,
+          role: "user", requiereCambioPassword: document.getElementById("requirePassChange").checked, activo: true, creadoEn: new Date().toISOString()
+        });
+        document.getElementById("formCrearUsuario").reset();
+        loadUsers(); alert("¡Usuario registrado!");
+      } catch (err) { alert("Error: " + err.message); }
+      btn.disabled = false; btn.innerText = "Guardar Usuario";
+    });
+    window.eliminarUsuario = async (id) => { if(confirm("¿Borrar?")) { await deleteDoc(doc(db, "users", id)); loadUsers(); } };
+
+    // DEPTOS
+    const loadDepts = async () => {
+      const snap = await getDocs(collection(db, "departments"));
+      currentDepts = snap.docs.map(d => ({id: d.id, ...d.data()}));
+      document.getElementById('deptsContainer').innerHTML = currentDepts.map(d => `
+        <div class="p-3 bg-slate-800 rounded-xl flex justify-between text-white">${d.nombre} <button onclick="window.eliminarDepto('${d.id}')" class="text-rose-400">X</button></div>`).join('');
+      const options = currentDepts.map(d => `<option value="${d.nombre}">${d.nombre}</option>`).join('');
+      document.getElementById('newUserDept').innerHTML = options;
+      document.getElementById('newsDeptTarget').innerHTML = options;
+    };
+    document.getElementById("formCrearDepto").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      await createDepartment(document.getElementById("newDeptName").value, document.getElementById("newDeptDesc").value);
+      document.getElementById("formCrearDepto").reset(); loadDepts();
+    });
+    window.eliminarDepto = async (id) => { if(confirm("¿Borrar?")) { await deleteDoc(doc(db, "departments", id)); loadDepts(); } };
+
+    // NOTICIAS
+    onSnapshot(query(collection(db, "news"), orderBy("fecha", "desc")), (snap) => {
+      document.getElementById('newsContainer').innerHTML = snap.docs.map(d => {
+        const n = d.data();
+        return `<div class="p-3 bg-slate-800 rounded-xl text-white"><b>${n.titulo}</b> <br> <span class="text-xs text-slate-400">${n.contenido}</span></div>`;
+      }).join('');
+    });
+    document.getElementById("newsScope").addEventListener("change", (e) => document.getElementById("newsDeptTarget").disabled = e.target.value !== "DEPTO");
+    document.getElementById("formCrearNoticia").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      await createNews({ titulo: document.getElementById("newsTitle").value, contenido: document.getElementById("newsContent").value, esGlobal: document.getElementById("newsScope").value === "GLOBAL", departamentoDestino: document.getElementById("newsDeptTarget").value, autor: "Mario (Sistemas)" });
+      document.getElementById("formCrearNoticia").reset();
+    });
+
+    // TEMAS Y EXCEL
+    window.seleccionarTema = async (tema) => { await setGlobalTheme(tema); alert("Tema aplicado"); };
+    subscribeToGlobalTheme((t) => { if(window.seasonalEngine) window.seasonalEngine.setTheme(t); });
+    document.getElementById("btnExportExcel").addEventListener("click", () => exportarTicketsAExcel(currentTickets));
+    document.getElementById("btnLogout").addEventListener("click", async () => { await logout(); window.location.href = "index.html"; });
+
+    loadUsers(); loadDepts();
+  </script>
+</body>
+</html>
