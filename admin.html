@@ -35,13 +35,12 @@
             <span class="text-cyan-300">TICKETS</span>
           </div>
           <span class="text-[9px] uppercase font-bold text-amber-400 tracking-wider">
-            Super Administrador Mario • Firebase Firestore
+            Super Administrador Mario • Firebase
           </span>
         </div>
       </div>
 
       <div class="flex items-center gap-2 sm:gap-3">
-        <!-- Botón MÓDULO 5: Descargar Reporte Mensual EXACTO en Excel -->
         <button id="btnExportExcel"
           class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/20 cursor-pointer transition-all">
           <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
@@ -54,7 +53,7 @@
       </div>
     </div>
 
-    <!-- PESTAÑAS (TABS) NAVEGABLES COMO EN GOOGLE LABS -->
+    <!-- PESTAÑAS (TABS) -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-2 overflow-x-auto border-t border-slate-800/80 text-xs font-semibold">
       <button id="nav-tickets" onclick="cambiarPestana('tickets')" class="py-3 px-3.5 border-b-2 flex items-center gap-2 whitespace-nowrap cursor-pointer transition-all border-cyan-400 text-cyan-300">
         <i data-lucide="ticket" class="w-4 h-4"></i> Mesa de Tickets (<span id="count-tickets">0</span>)
@@ -91,12 +90,10 @@
         <div id="statProceso" class="text-2xl font-black text-amber-400 mt-1">0</div>
       </div>
       <div class="p-4 rounded-3xl bg-slate-900/85 border border-emerald-500/30">
-        <span class="text-xs text-emerald-300">Satisfacción Prom. (5 Preg.)</span>
+        <span class="text-xs text-emerald-300">Satisfacción Prom.</span>
         <div id="statSatisfaccion" class="text-2xl font-black text-emerald-400 mt-1 font-mono">100%</div>
       </div>
     </div>
-
-    <!-- CONTENEDORES DE PESTAÑAS (TABS) -->
 
     <!-- TAB 1: TICKETS -->
     <div id="tab-tickets" class="block">
@@ -143,7 +140,6 @@
 
     <!-- TAB 2: USUARIOS -->
     <div id="tab-usuarios" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
-      <!-- Formulario Usuarios (Izquierda) -->
       <section class="lg:col-span-4 bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-4">
         <h3 class="text-base font-bold text-white flex items-center gap-2">
           <i data-lucide="user-plus" class="w-4 h-4 text-cyan-400"></i> Nuevo Usuario
@@ -161,12 +157,11 @@
             <label for="requirePassChange" class="text-slate-300">Exigir cambio en 1er login</label>
           </div>
           <button type="submit" id="btnCrearUsuario" class="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold">
-            Guardar en Firestore
+            Guardar en Firebase
           </button>
         </form>
       </section>
 
-      <!-- Lista de Usuarios (Derecha) -->
       <section class="lg:col-span-8 bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl">
         <h3 class="text-base font-bold text-white flex items-center gap-2 mb-4">
           <i data-lucide="users" class="w-4 h-4 text-cyan-400"></i> Directorio de Usuarios
@@ -258,7 +253,6 @@
         <p class="text-xs text-slate-400">El tema que selecciones se aplicará en tiempo real en todos los dispositivos de la empresa.</p>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4" id="temasGrid">
-        <!-- Renderizado manual estático para mejor estilo -->
         <button onclick="window.seleccionarTema('estandar')" class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700 hover:border-cyan-400 text-left transition-all">
           <div class="text-2xl mb-2">🏢</div><h4 class="text-sm font-bold text-white">Estándar Bemis</h4><div class="text-cyan-400 text-[10px] mt-2 font-bold">Aplicar Tema</div>
         </button>
@@ -268,314 +262,4 @@
         <button onclick="window.seleccionarTema('halloween')" class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700 hover:border-orange-500 text-left transition-all">
           <div class="text-2xl mb-2">🎃🦇</div><h4 class="text-sm font-bold text-white">Halloween</h4><div class="text-orange-500 text-[10px] mt-2 font-bold">Aplicar Tema</div>
         </button>
-        <button onclick="window.seleccionarTema('dia_muertos')" class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700 hover:border-amber-400 text-left transition-all">
-          <div class="text-2xl mb-2">🏵️💀</div><h4 class="text-sm font-bold text-white">Día de Muertos</h4><div class="text-amber-400 text-[10px] mt-2 font-bold">Aplicar Tema</div>
-        </button>
-        <button onclick="window.seleccionarTema('san_valentin')" class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700 hover:border-pink-500 text-left transition-all">
-          <div class="text-2xl mb-2">💖</div><h4 class="text-sm font-bold text-white">San Valentín</h4><div class="text-pink-500 text-[10px] mt-2 font-bold">Aplicar Tema</div>
-        </button>
-        <button onclick="window.seleccionarTema('primavera')" class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700 hover:border-rose-400 text-left transition-all">
-          <div class="text-2xl mb-2">🌸</div><h4 class="text-sm font-bold text-white">Primavera</h4><div class="text-rose-400 text-[10px] mt-2 font-bold">Aplicar Tema</div>
-        </button>
-      </div>
-    </div>
-
-  </main>
-
-  <!-- Modal Detalles de Encuesta -->
-  <div id="surveyDetailModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-    <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl max-w-lg w-full p-6 shadow-2xl relative">
-      <div class="flex justify-between items-start mb-4">
-        <div>
-          <span class="text-[10px] uppercase font-bold text-cyan-400">Evaluación de Calidad TI</span>
-          <h3 class="text-base font-bold text-white" id="modalSurveyTicket">Ticket</h3>
-        </div>
-        <button id="btnCloseSurveyDetail" class="text-slate-400 hover:text-white text-lg">✕</button>
-      </div>
-      <div class="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex justify-between items-center mb-4">
-        <span class="text-xs text-amber-300 font-semibold">Porcentaje Final:</span>
-        <span id="modalSurveyPct" class="text-xl font-mono font-black text-amber-400">100%</span>
-      </div>
-      <div id="modalSurveyDetails" class="space-y-2 text-xs mb-4"></div>
-      <div class="p-3 rounded-xl bg-slate-800 border border-slate-700 text-xs">
-        <span class="text-[10px] text-slate-400 uppercase font-bold block mb-1">Comentario del Usuario:</span>
-        <p id="modalSurveyComment" class="text-slate-200 italic"></p>
-      </div>
-    </div>
-  </div>
-
-  <script src="animations.js"></script>
-  <script type="module">
-    import { logout } from "./auth.js";
-    import { db } from "./firebase-config.js";
-    import { collection, getDocs, doc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { subscribeToTickets, updateTicket, createNews, saveUserProfile, subscribeToGlobalTheme, setGlobalTheme, createDepartment } from "./db.js";
-    import { exportarTicketsAExcel } from "./app.js";
-
-    lucide.createIcons();
-
-    // Validar sesión
-    const user = JSON.parse(sessionStorage.getItem("bemis_session_user") || "{}");
-    if (!user || user.role !== "admin") {
-      window.location.href = "index.html";
-    }
-
-    // --- LÓGICA DE PESTAÑAS (TABS) ---
-    window.cambiarPestana = (pestana) => {
-      ['tickets', 'usuarios', 'departamentos', 'noticias', 'temas'].forEach(p => {
-        document.getElementById(`tab-${p}`).classList.add('hidden');
-        document.getElementById(`tab-${p}`).classList.remove('block');
-        document.getElementById(`nav-${p}`).classList.remove('border-cyan-400', 'text-cyan-300');
-        document.getElementById(`nav-${p}`).classList.add('border-transparent', 'text-slate-400');
-      });
-      document.getElementById(`tab-${pestana}`).classList.remove('hidden');
-      document.getElementById(`tab-${pestana}`).classList.add('block');
-      document.getElementById(`nav-${pestana}`).classList.add('border-cyan-400', 'text-cyan-300');
-      document.getElementById(`nav-${pestana}`).classList.remove('border-transparent', 'text-slate-400');
-    };
-
-    // --- VARIABLES DE ESTADO Y SUSCRIPCIONES ---
-    let currentTickets = [];
-    let currentUsers = [];
-    let currentDepts = [];
-    let currentNews = [];
-
-    // TICKETS
-    subscribeToTickets((tickets) => {
-      currentTickets = tickets;
-      document.getElementById("count-tickets").innerText = tickets.length;
-      renderizarTickets();
-      actualizarMetricas();
-    });
-
-    // USUARIOS
-    const loadUsers = async () => {
-      const snap = await getDocs(collection(db, "users"));
-      currentUsers = snap.docs.map(d => ({id: d.id, ...d.data()}));
-      document.getElementById("count-users").innerText = currentUsers.length;
-      
-      const tbody = document.getElementById('usuariosTableBody');
-      tbody.innerHTML = currentUsers.map(u => `
-        <tr class="hover:bg-slate-800/40 border-b border-slate-800">
-          <td class="py-3 px-3 font-semibold text-white font-mono">${u.email}</td>
-          <td class="py-3 px-3 text-slate-200">${u.nombreCompleto}</td>
-          <td class="py-3 px-3"><span class="px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 text-[10px] border border-slate-700 font-medium">${u.departamento}</span></td>
-          <td class="py-3 px-3 text-right">
-             ${u.email !== 'mario.ortiz@bemismfg.com' ? `<button onclick="window.eliminarUsuario('${u.id}')" class="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition-colors"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>` : '<span class="text-[10px] text-amber-500">Master</span>'}
-          </td>
-        </tr>
-      `).join('');
-      lucide.createIcons();
-    };
-
-    // DEPARTAMENTOS
-    const loadDepts = async () => {
-      const snap = await getDocs(collection(db, "departments"));
-      currentDepts = snap.docs.map(d => ({id: d.id, ...d.data()}));
-      document.getElementById("count-depts").innerText = currentDepts.length;
-
-      const container = document.getElementById('deptsContainer');
-      container.innerHTML = currentDepts.map(d => `
-        <div class="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700/60 flex items-center justify-between gap-4 mb-2">
-          <div>
-            <div class="font-semibold text-white text-xs sm:text-sm flex items-center gap-2">
-              <i data-lucide="building" class="w-3.5 h-3.5 text-cyan-400"></i> ${d.nombre}
-            </div>
-            <div class="text-[11px] text-slate-400 mt-0.5">${d.descripcion || ''}</div>
-          </div>
-          <button onclick="window.eliminarDepto('${d.id}')" class="p-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition-colors">
-            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-          </button>
-        </div>
-      `).join('');
-
-      const options = currentDepts.map(d => `<option value="${d.nombre}">${d.nombre}</option>`).join('');
-      document.getElementById('newUserDept').innerHTML = options;
-      document.getElementById('newsDeptTarget').innerHTML = options;
-      lucide.createIcons();
-    };
-
-    // NOTICIAS
-    onSnapshot(query(collection(db, "news"), orderBy("fecha", "desc")), (snap) => {
-      currentNews = snap.docs.map(d => ({id: d.id, ...d.data()}));
-      document.getElementById("count-news").innerText = currentNews.length;
-
-      const container = document.getElementById('newsContainer');
-      container.innerHTML = currentNews.map(n => `
-        <div class="p-4 rounded-2xl bg-slate-800/70 border border-slate-700/60 mb-3">
-          <div class="flex items-center justify-between text-xs mb-2">
-             <span class="font-semibold px-2 py-0.5 rounded text-[10px] ${n.esGlobal ? 'bg-blue-500/20 text-cyan-300' : 'bg-purple-500/20 text-purple-300'}">
-                ${n.esGlobal ? '🌐 Global' : '🔒 Solo ' + n.departamentoDestino}
-             </span>
-             <div class="flex items-center gap-2">
-                <span class="text-slate-400 font-mono">${n.fecha}</span>
-                <button onclick="window.eliminarNoticia('${n.id}')" class="p-1 rounded hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition-colors"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
-             </div>
-          </div>
-          <h4 class="text-sm font-bold text-white">${n.titulo}</h4>
-          <p class="text-xs text-slate-300">${n.contenido}</p>
-        </div>
-      `).join('');
-      lucide.createIcons();
-    });
-
-    // TEMA ESTACIONAL GLOBAL
-    const themeOrnaments = { navidad: "🎅", halloween: "🎃", dia_muertos: "🏵️", san_valentin: "💖", primavera: "🌸", estandar: "" };
-    subscribeToGlobalTheme((activeTheme) => {
-      if (window.seasonalEngine) window.seasonalEngine.setTheme(activeTheme);
-      if (document.getElementById("logoSeasonOrnament")) document.getElementById("logoSeasonOrnament").innerText = themeOrnaments[activeTheme] || "";
-    });
-
-    window.seleccionarTema = async (tema) => {
-      await setGlobalTheme(tema);
-      alert("Tema aplicado exitosamente en todos los dispositivos");
-    };
-
-    // FUNCIONES DE ELIMINACIÓN
-    window.eliminarUsuario = async (id) => {
-      if(confirm("¿Eliminar usuario definitivamente?")) {
-        await deleteDoc(doc(db, "users", id));
-        loadUsers();
-      }
-    };
-    window.eliminarDepto = async (id) => {
-      if(confirm("¿Eliminar departamento?")) {
-        await deleteDoc(doc(db, "departments", id));
-        loadDepts();
-      }
-    };
-    window.eliminarNoticia = async (id) => {
-      if(confirm("¿Eliminar comunicado?")) {
-        await deleteDoc(doc(db, "news", id));
-      }
-    };
-
-    // RENDERIZAR TICKETS
-    const filtroSearch = document.getElementById("filtroSearch");
-    const filtroEstado = document.getElementById("filtroEstado");
-    const tbody = document.getElementById("ticketsTableBody");
-
-    function renderizarTickets() {
-      const search = filtroSearch.value.toLowerCase();
-      const estado = filtroEstado.value;
-      tbody.innerHTML = "";
-
-      const filtrados = currentTickets.filter(t => {
-        const match = (t.ticketId || t.id).toLowerCase().includes(search) || (t.usuario || "").toLowerCase().includes(search);
-        if (estado === "Pendiente") return match && t.porcentajeHecho === 0;
-        if (estado === "En Proceso") return match && t.porcentajeHecho > 0 && t.porcentajeHecho < 100;
-        if (estado === "Resuelto") return match && t.porcentajeHecho === 100;
-        return match;
-      });
-
-      filtrados.forEach(t => {
-        const tr = document.createElement("tr");
-        tr.className = "hover:bg-slate-800/40 border-b border-slate-800";
-        const pct = t.porcentajeSatisfaccion !== undefined ? t.porcentajeSatisfaccion : (t.encuestaDetalle?.porcentajeFinal ?? null);
-        tr.innerHTML = `
-          <td class="py-3 px-3 font-mono font-bold text-cyan-400">${t.ticketId || t.id}</td>
-          <td class="py-3 px-3"><div class="font-bold text-white">${t.usuario}</div><div class="text-[10px] text-slate-400">${t.departamento}</div></td>
-          <td class="py-3 px-3"><div class="font-medium text-slate-200 max-w-xs truncate">${t.nombreReporte}</div></td>
-          <td class="py-3 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${t.prioridad === 'Crítica' ? 'bg-rose-500/20 text-rose-300' : 'bg-slate-800 text-slate-300'}">${t.prioridad}</span></td>
-          <td class="py-3 px-3 font-mono">${t.porcentajeHecho || 0}%</td>
-          <td class="py-3 px-3">${t.porcentajeHecho === 100 ? '<span class="text-emerald-400 font-bold">Resuelto</span>' : '<span class="text-amber-400 font-bold">En Proceso</span>'}</td>
-          <td class="py-3 px-3">
-            ${pct !== null ? `<button onclick="window.verEncuesta('${t.id}')" class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 font-bold text-[11px]">⭐ ${pct}% (Ver)</button>` : '<span class="text-[10px] text-slate-600">-</span>'}
-          </td>
-          <td class="py-3 px-3 text-right">
-            <button onclick="window.resolverTicket('${t.id}')" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold">Resolver</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    filtroSearch.addEventListener("input", renderizarTickets);
-    filtroEstado.addEventListener("change", renderizarTickets);
-
-    function actualizarMetricas() {
-      document.getElementById("statTotal").innerText = currentTickets.length;
-      document.getElementById("statPendientes").innerText = currentTickets.filter(t => (t.porcentajeHecho || 0) === 0).length;
-      document.getElementById("statProceso").innerText = currentTickets.filter(t => (t.porcentajeHecho || 0) > 0 && t.porcentajeHecho < 100).length;
-      const answered = currentTickets.filter(t => t.porcentajeSatisfaccion !== undefined || t.encuestaDetalle?.porcentajeFinal !== undefined);
-      if (answered.length > 0) {
-        const avg = Math.round(answered.reduce((acc, t) => acc + (t.porcentajeSatisfaccion || t.encuestaDetalle?.porcentajeFinal || 100), 0) / answered.length);
-        document.getElementById("statSatisfaccion").innerText = `${avg}%`;
-      } else {
-        document.getElementById("statSatisfaccion").innerText = "100%";
-      }
-    }
-
-    // Funciones globales expuestas para onclicks de Tickets
-    window.resolverTicket = async (docId) => {
-      await updateTicket(docId, { porcentajeHecho: 100, fechaTermino: new Date().toISOString().split("T")[0] });
-    };
-
-    window.verEncuesta = (docId) => {
-      const t = currentTickets.find(x => x.id === docId);
-      if (!t) return;
-      document.getElementById("modalSurveyPct").innerText = `${t.porcentajeSatisfaccion ?? t.encuestaDetalle?.porcentajeFinal ?? 100}%`;
-      document.getElementById("modalSurveyComment").innerText = `"${t.comentarioUsuario || t.encuestaDetalle?.comentario || 'Sin comentario adicional.'}"`;
-      document.getElementById("surveyDetailModal").classList.remove("hidden");
-    };
-
-    document.getElementById("btnCloseSurveyDetail").addEventListener("click", () => {
-      document.getElementById("surveyDetailModal").classList.add("hidden");
-    });
-
-    // FORMULARIOS (SUBMITS)
-    document.getElementById("formCrearUsuario").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = document.getElementById("newEmail").value;
-      const reqChange = document.getElementById("requirePassChange").checked;
-      await saveUserProfile("user_" + Date.now(), {
-        email,
-        nombreCompleto: document.getElementById("newFullName").value,
-        departamento: document.getElementById("newUserDept").value,
-        role: "user",
-        requiereCambioPassword: reqChange,
-        activo: true,
-        creadoEn: new Date().toISOString()
-      });
-      document.getElementById("formCrearUsuario").reset();
-      loadUsers();
-      alert(`Usuario creado correctamente`);
-    });
-
-    document.getElementById("formCrearDepto").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      await createDepartment(document.getElementById("newDeptName").value, document.getElementById("newDeptDesc").value);
-      document.getElementById("formCrearDepto").reset();
-      loadDepts();
-    });
-
-    const newsScope = document.getElementById("newsScope");
-    const newsDeptTarget = document.getElementById("newsDeptTarget");
-    newsScope.addEventListener("change", (e) => {
-      newsDeptTarget.disabled = e.target.value !== "DEPTO";
-      newsDeptTarget.classList.toggle("opacity-50", e.target.value !== "DEPTO");
-    });
-
-    document.getElementById("formCrearNoticia").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      await createNews({
-        titulo: document.getElementById("newsTitle").value,
-        contenido: document.getElementById("newsContent").value,
-        esGlobal: newsScope.value === "GLOBAL",
-        departamentoDestino: newsDeptTarget.value,
-        importancia: document.getElementById("newsImportance").value,
-        autor: "Mario (Super Admin)"
-      });
-      document.getElementById("formCrearNoticia").reset();
-    });
-
-    document.getElementById("btnExportExcel").addEventListener("click", () => exportarTicketsAExcel(currentTickets));
-    document.getElementById("btnLogout").addEventListener("click", async () => { await logout(); window.location.href = "index.html"; });
-
-    // Iniciar
-    loadUsers();
-    loadDepts();
-
-  </script>
-</body>
-</html>
+        <button onclick="window.seleccionarTema('dia_muertos')" class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700
