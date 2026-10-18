@@ -37,12 +37,12 @@
   <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-xl">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
       
-      <!-- LOGO BEMIS TICKETS ORIGINAL (Adaptado para el Header) -->
+      <!-- LOGO BEMIS TICKETS ORIGINAL -->
       <div class="flex items-center gap-3">
         <div class="relative flex items-center justify-center">
           <div class="absolute -inset-1 bg-cyan-400/30 rounded-2xl blur-sm"></div>
           <span id="logoSeasonOrnament" class="absolute -top-2.5 -right-2.5 text-lg z-20 pointer-events-none animate-pulse"></span>
-          <svg width="46" height="46" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="relative drop-shadow-[0_4px_12px_rgba(0,180,255,0.4)] z-10">
+          <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="relative drop-shadow-[0_4px_12px_rgba(0,180,255,0.4)] z-10">
             <circle cx="28" cy="24" r="9" stroke="#38bdf8" stroke-width="2.5" stroke-dasharray="3 2" opacity="0.8" />
             <circle cx="28" cy="24" r="4" fill="#38bdf8" opacity="0.8" />
             <g transform="rotate(-18 35 48)">
@@ -108,11 +108,19 @@
     <!-- TAB 1: TICKETS -->
     <div id="tab-tickets" class="block">
       <section class="bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
           <h2 class="text-lg font-black text-white flex items-center gap-2"><i data-lucide="ticket" class="w-5 h-5 text-cyan-400"></i> Mesa de Tickets</h2>
-          <div class="flex gap-2">
-            <input type="text" id="filtroSearch" placeholder="Buscar..." class="px-3 py-1.5 rounded-xl bg-slate-800 text-xs text-white">
-            <select id="filtroEstado" class="px-3 py-1.5 rounded-xl bg-slate-800 text-xs text-white">
+          
+          <div class="flex flex-wrap gap-2 items-center">
+            <!-- BOTÓN IMPORTAR EXCEL HISTÓRICO -->
+            <input type="file" id="inputImportExcel" accept=".xlsx, .xls" class="hidden" />
+            <button id="btnImportExcel" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-lg shadow-blue-500/20 flex items-center gap-1.5 transition-all cursor-pointer">
+              <i data-lucide="upload-cloud" class="w-4 h-4"></i><span class="hidden md:inline">Cargar Excel Viejo</span>
+            </button>
+            <div class="h-4 w-px bg-slate-700 mx-1 hidden md:block"></div>
+            <!-- Filtros -->
+            <input type="text" id="filtroSearch" placeholder="Buscar..." class="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white">
+            <select id="filtroEstado" class="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white">
               <option value="todos">Todos</option><option value="Pendiente">Pendiente</option><option value="En Proceso">En Proceso</option><option value="Resuelto">Resuelto</option>
             </select>
           </div>
@@ -188,10 +196,10 @@
       <div class="bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl">
         <h2 class="text-lg font-black text-white mb-4"><i data-lucide="paint-bucket" class="inline w-5 h-5 text-cyan-400"></i> Color de Fondo Global</h2>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div><h3 class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Oscuros Elegantes</h3><div class="flex gap-2"><button onclick="window.seleccionarFondo('#020617')" class="w-8 h-8 rounded-full bg-[#020617] border-2 border-slate-600 hover:scale-110" title="Negro Noche"></button><button onclick="window.seleccionarFondo('#0f172a')" class="w-8 h-8 rounded-full bg-[#0f172a] border-2 border-slate-600 hover:scale-110" title="Azul Marino"></button><button onclick="window.seleccionarFondo('#064e3b')" class="w-8 h-8 rounded-full bg-[#064e3b] border-2 border-slate-600 hover:scale-110" title="Verde Bosque"></button><button onclick="window.seleccionarFondo('#2e1065')" class="w-8 h-8 rounded-full bg-[#2e1065] border-2 border-slate-600 hover:scale-110" title="Morado Profundo"></button><button onclick="window.seleccionarFondo('#4c0519')" class="w-8 h-8 rounded-full bg-[#4c0519] border-2 border-slate-600 hover:scale-110" title="Rojo Vino"></button></div></div>
-          <div><h3 class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Tonos Pasteles</h3><div class="flex gap-2"><button onclick="window.seleccionarFondo('#e0f2fe')" class="w-8 h-8 rounded-full bg-[#e0f2fe] border-2 border-slate-400 hover:scale-110" title="Azul Pastel"></button><button onclick="window.seleccionarFondo('#fce7f3')" class="w-8 h-8 rounded-full bg-[#fce7f3] border-2 border-slate-400 hover:scale-110" title="Rosa Pastel"></button><button onclick="window.seleccionarFondo('#d1fae5')" class="w-8 h-8 rounded-full bg-[#d1fae5] border-2 border-slate-400 hover:scale-110" title="Menta Suave"></button><button onclick="window.seleccionarFondo('#f3e8ff')" class="w-8 h-8 rounded-full bg-[#f3e8ff] border-2 border-slate-400 hover:scale-110" title="Lavanda"></button><button onclick="window.seleccionarFondo('#fef9c3')" class="w-8 h-8 rounded-full bg-[#fef9c3] border-2 border-slate-400 hover:scale-110" title="Amarillo Vainilla"></button></div></div>
-          <div><h3 class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Claros y Neutros</h3><div class="flex gap-2"><button onclick="window.seleccionarFondo('#ffffff')" class="w-8 h-8 rounded-full bg-[#ffffff] border-2 border-slate-300 hover:scale-110" title="Blanco Puro"></button><button onclick="window.seleccionarFondo('#f3f4f6')" class="w-8 h-8 rounded-full bg-[#f3f4f6] border-2 border-slate-300 hover:scale-110" title="Gris Claro"></button><button onclick="window.seleccionarFondo('#fef3c7')" class="w-8 h-8 rounded-full bg-[#fef3c7] border-2 border-slate-300 hover:scale-110" title="Beige Arena"></button><button onclick="window.seleccionarFondo('#e0e7ff')" class="w-8 h-8 rounded-full bg-[#e0e7ff] border-2 border-slate-300 hover:scale-110" title="Celeste Hielo"></button><button onclick="window.seleccionarFondo('#fafaf9')" class="w-8 h-8 rounded-full bg-[#fafaf9] border-2 border-slate-300 hover:scale-110" title="Crema"></button></div></div>
-          <div><h3 class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Vibrantes</h3><div class="flex gap-2"><button onclick="window.seleccionarFondo('#1d4ed8')" class="w-8 h-8 rounded-full bg-[#1d4ed8] border-2 border-slate-500 hover:scale-110" title="Azul Rey"></button><button onclick="window.seleccionarFondo('#ea580c')" class="w-8 h-8 rounded-full bg-[#ea580c] border-2 border-slate-500 hover:scale-110" title="Naranja Intenso"></button><button onclick="window.seleccionarFondo('#be185d')" class="w-8 h-8 rounded-full bg-[#be185d] border-2 border-slate-500 hover:scale-110" title="Magenta"></button><button onclick="window.seleccionarFondo('#7e22ce')" class="w-8 h-8 rounded-full bg-[#7e22ce] border-2 border-slate-500 hover:scale-110" title="Púrpura Neón"></button><button onclick="window.seleccionarFondo('#047857')" class="w-8 h-8 rounded-full bg-[#047857] border-2 border-slate-500 hover:scale-110" title="Verde Esmeralda"></button></div></div>
+          <div><h3 class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Oscuros Elegantes</h3><div class="flex gap-2"><button onclick="window.seleccionarFondo('#020617')" class="w-8 h-8 rounded-full bg-[#020617] border-2 border-slate-600 hover:scale-110 cursor-pointer" title="Negro Noche"></button><button onclick="window.seleccionarFondo('#0f172a')" class="w-8 h-8 rounded-full bg-[#0f172a] border-2 border-slate-600 hover:scale-110 cursor-pointer" title="Azul Marino"></button><button onclick="window.seleccionarFondo('#064e3b')" class="w-8 h-8 rounded-full bg-[#064e3b] border-2 border-slate-600 hover:scale-110 cursor-pointer" title="Verde Bosque"></button><button onclick="window.seleccionarFondo('#2e1065')" class="w-8 h-8 rounded-full bg-[#2e1065] border-2 border-slate-600 hover:scale-110 cursor-pointer" title="Morado Profundo"></button><button onclick="window.seleccionarFondo('#4c0519')" class="w-8 h-8 rounded-full bg-[#4c0519] border-2 border-slate-600 hover:scale-110 cursor-pointer" title="Rojo Vino"></button></div></div>
+          <div><h3 class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Tonos Pasteles</h3><div class="flex gap-2"><button onclick="window.seleccionarFondo('#e0f2fe')" class="w-8 h-8 rounded-full bg-[#e0f2fe] border-2 border-slate-400 hover:scale-110 cursor-pointer" title="Azul Pastel"></button><button onclick="window.seleccionarFondo('#fce7f3')" class="w-8 h-8 rounded-full bg-[#fce7f3] border-2 border-slate-400 hover:scale-110 cursor-pointer" title="Rosa Pastel"></button><button onclick="window.seleccionarFondo('#d1fae5')" class="w-8 h-8 rounded-full bg-[#d1fae5] border-2 border-slate-400 hover:scale-110 cursor-pointer" title="Menta Suave"></button><button onclick="window.seleccionarFondo('#f3e8ff')" class="w-8 h-8 rounded-full bg-[#f3e8ff] border-2 border-slate-400 hover:scale-110 cursor-pointer" title="Lavanda"></button><button onclick="window.seleccionarFondo('#fef9c3')" class="w-8 h-8 rounded-full bg-[#fef9c3] border-2 border-slate-400 hover:scale-110 cursor-pointer" title="Amarillo Vainilla"></button></div></div>
+          <div><h3 class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Claros y Neutros</h3><div class="flex gap-2"><button onclick="window.seleccionarFondo('#ffffff')" class="w-8 h-8 rounded-full bg-[#ffffff] border-2 border-slate-300 hover:scale-110 cursor-pointer" title="Blanco Puro"></button><button onclick="window.seleccionarFondo('#f3f4f6')" class="w-8 h-8 rounded-full bg-[#f3f4f6] border-2 border-slate-300 hover:scale-110 cursor-pointer" title="Gris Claro"></button><button onclick="window.seleccionarFondo('#fef3c7')" class="w-8 h-8 rounded-full bg-[#fef3c7] border-2 border-slate-300 hover:scale-110 cursor-pointer" title="Beige Arena"></button><button onclick="window.seleccionarFondo('#e0e7ff')" class="w-8 h-8 rounded-full bg-[#e0e7ff] border-2 border-slate-300 hover:scale-110 cursor-pointer" title="Celeste Hielo"></button><button onclick="window.seleccionarFondo('#fafaf9')" class="w-8 h-8 rounded-full bg-[#fafaf9] border-2 border-slate-300 hover:scale-110 cursor-pointer" title="Crema"></button></div></div>
+          <div><h3 class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Vibrantes</h3><div class="flex gap-2"><button onclick="window.seleccionarFondo('#1d4ed8')" class="w-8 h-8 rounded-full bg-[#1d4ed8] border-2 border-slate-500 hover:scale-110 cursor-pointer" title="Azul Rey"></button><button onclick="window.seleccionarFondo('#ea580c')" class="w-8 h-8 rounded-full bg-[#ea580c] border-2 border-slate-500 hover:scale-110 cursor-pointer" title="Naranja Intenso"></button><button onclick="window.seleccionarFondo('#be185d')" class="w-8 h-8 rounded-full bg-[#be185d] border-2 border-slate-500 hover:scale-110 cursor-pointer" title="Magenta"></button><button onclick="window.seleccionarFondo('#7e22ce')" class="w-8 h-8 rounded-full bg-[#7e22ce] border-2 border-slate-500 hover:scale-110 cursor-pointer" title="Púrpura Neón"></button><button onclick="window.seleccionarFondo('#047857')" class="w-8 h-8 rounded-full bg-[#047857] border-2 border-slate-500 hover:scale-110 cursor-pointer" title="Verde Esmeralda"></button></div></div>
         </div>
       </div>
     </div>
@@ -206,10 +214,10 @@
     import { logout } from "./auth.js";
     import { db, firebaseConfig } from "./firebase-config.js";
     import { collection, getDocs, doc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { subscribeToTickets, updateTicket, createNews, saveUserProfile, subscribeToGlobalTheme, setGlobalTheme, setGlobalBackground, createDepartment } from "./db.js";
+    import { subscribeToTickets, updateTicket, createNews, saveUserProfile, subscribeToGlobalTheme, setGlobalTheme, setGlobalBackground, createDepartment, importarTicketsMasivos } from "./db.js";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { exportarTicketsAExcel } from "./app.js";
+    import { exportarTicketsAExcel, procesarExcelImportacion } from "./app.js";
 
     lucide.createIcons();
     const secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
@@ -238,6 +246,30 @@
     document.getElementById("filtroSearch").addEventListener("input", renderizarTickets); document.getElementById("filtroEstado").addEventListener("change", renderizarTickets);
     window.resolverTicket = async (docId) => await updateTicket(docId, { porcentajeHecho: 100, fechaTermino: new Date().toISOString().split("T")[0] });
     window.verEncuesta = (docId) => { const t = currentTickets.find(x => x.id === docId); if (!t) return; document.getElementById("modalSurveyPct").innerText = `${t.porcentajeSatisfaccion ?? t.encuestaDetalle?.porcentajeFinal ?? 100}%`; document.getElementById("modalSurveyComment").innerText = `"${t.comentarioUsuario || t.encuestaDetalle?.comentario || 'Sin comentario.'}"`; document.getElementById("surveyDetailModal").classList.remove("hidden"); };
+
+    // IMPORTACIÓN DE EXCEL VIEJO
+    document.getElementById("btnImportExcel").addEventListener("click", () => document.getElementById("inputImportExcel").click());
+    document.getElementById("inputImportExcel").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const btn = document.getElementById("btnImportExcel");
+      const iconOriginal = btn.innerHTML;
+      btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 text-cyan-400 animate-spin"></i> Cargando...';
+      
+      procesarExcelImportacion(file, async (ticketsProcesados) => {
+        if(confirm(`Se encontraron ${ticketsProcesados.length} tickets históricos. ¿Subirlos a Firebase? (Puede tardar unos segundos)`)) {
+          try {
+            await importarTicketsMasivos(ticketsProcesados);
+            alert("¡Éxito! Todos los tickets fueron cargados al sistema.");
+          } catch(err) {
+            alert("Error al subir: " + err.message);
+          }
+        }
+        btn.innerHTML = iconOriginal;
+        lucide.createIcons();
+        e.target.value = ''; 
+      });
+    });
 
     // USUARIOS
     const loadUsers = async () => {
