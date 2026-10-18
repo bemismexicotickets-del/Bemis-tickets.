@@ -1,9 +1,47 @@
-<!-- LOGO BEMIS TICKETS ORIGINAL EN EL HEADER -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bemis Tickets - Panel de Super Administrador (Mario)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,900;1,900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.5s ease; }
+    .font-bemis { font-family: 'Montserrat', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col relative overflow-x-hidden">
+
+  <!-- SCRIPT DE PESTAÑAS (TABS) -->
+  <script>
+    window.cambiarPestana = (pestana) => {
+      const pestanas = ['tickets', 'usuarios', 'departamentos', 'noticias', 'temas'];
+      pestanas.forEach(p => {
+        const tab = document.getElementById(`tab-${p}`);
+        const nav = document.getElementById(`nav-${p}`);
+        if(tab) { tab.classList.add('hidden'); tab.classList.remove('block'); }
+        if(nav) { nav.classList.remove('border-cyan-400', 'text-cyan-300'); nav.classList.add('border-transparent', 'text-slate-400'); }
+      });
+      const activeTab = document.getElementById(`tab-${pestana}`);
+      const activeNav = document.getElementById(`nav-${pestana}`);
+      if(activeTab) { activeTab.classList.remove('hidden'); activeTab.classList.add('block'); }
+      if(activeNav) { activeNav.classList.add('border-cyan-400', 'text-cyan-300'); activeNav.classList.remove('border-transparent', 'text-slate-400'); }
+    };
+  </script>
+
+  <canvas id="seasonalCanvas" class="fixed inset-0 pointer-events-none z-10 w-full h-full"></canvas>
+
+  <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- LOGO BEMIS TICKETS ORIGINAL (Adaptado para el Header) -->
       <div class="flex items-center gap-3">
         <div class="relative flex items-center justify-center">
           <div class="absolute -inset-1 bg-cyan-400/30 rounded-2xl blur-sm"></div>
           <span id="logoSeasonOrnament" class="absolute -top-2.5 -right-2.5 text-lg z-20 pointer-events-none animate-pulse"></span>
-          <!-- SVG Completo (Escalado para el header) -->
           <svg width="46" height="46" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="relative drop-shadow-[0_4px_12px_rgba(0,180,255,0.4)] z-10">
             <circle cx="28" cy="24" r="9" stroke="#38bdf8" stroke-width="2.5" stroke-dasharray="3 2" opacity="0.8" />
             <circle cx="28" cy="24" r="4" fill="#38bdf8" opacity="0.8" />
@@ -40,3 +78,115 @@
           <span class="text-[9px] uppercase font-bold text-amber-400 tracking-wider">Super Admin Mario • Firebase</span>
         </div>
       </div>
+
+      <div class="flex items-center gap-2 sm:gap-3">
+        <button id="btnExportExcel" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/20 transition-all">
+          <i data-lucide="file-spreadsheet" class="w-4 h-4"></i><span class="hidden md:inline">Descargar Reporte Mensual (.xlsx)</span>
+        </button>
+        <button id="btnLogout" class="p-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-300 border border-slate-700">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-2 overflow-x-auto border-t border-slate-800/80 text-xs font-semibold">
+      <button id="nav-tickets" onclick="cambiarPestana('tickets')" class="py-3 px-3.5 border-b-2 flex items-center gap-2 whitespace-nowrap cursor-pointer transition-all border-cyan-400 text-cyan-300"><i data-lucide="ticket" class="w-4 h-4"></i> Mesa de Tickets (<span id="count-tickets">0</span>)</button>
+      <button id="nav-usuarios" onclick="cambiarPestana('usuarios')" class="py-3 px-3.5 border-b-2 flex items-center gap-2 whitespace-nowrap cursor-pointer transition-all border-transparent text-slate-400 hover:text-slate-200"><i data-lucide="users" class="w-4 h-4"></i> Gestión de Usuarios (<span id="count-users">0</span>)</button>
+      <button id="nav-departamentos" onclick="cambiarPestana('departamentos')" class="py-3 px-3.5 border-b-2 flex items-center gap-2 whitespace-nowrap cursor-pointer transition-all border-transparent text-slate-400 hover:text-slate-200"><i data-lucide="building" class="w-4 h-4"></i> Departamentos (<span id="count-depts">0</span>)</button>
+      <button id="nav-noticias" onclick="cambiarPestana('noticias')" class="py-3 px-3.5 border-b-2 flex items-center gap-2 whitespace-nowrap cursor-pointer transition-all border-transparent text-slate-400 hover:text-slate-200"><i data-lucide="bell" class="w-4 h-4"></i> Noticias y Avisos (<span id="count-news">0</span>)</button>
+      <button id="nav-temas" onclick="cambiarPestana('temas')" class="py-3 px-3.5 border-b-2 flex items-center gap-2 whitespace-nowrap cursor-pointer transition-all border-transparent text-slate-400 hover:text-slate-200"><i data-lucide="palette" class="w-4 h-4"></i> Personalización (Colores y Temas)</button>
+    </div>
+  </header>
+
+  <main class="relative z-20 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="p-4 rounded-3xl bg-slate-900/85 border border-slate-800"><span class="text-xs text-slate-400">Total Tickets</span><div id="statTotal" class="text-2xl font-black text-white mt-1">0</div></div>
+      <div class="p-4 rounded-3xl bg-slate-900/85 border border-blue-500/30"><span class="text-xs text-blue-300">Pendientes</span><div id="statPendientes" class="text-2xl font-black text-cyan-400 mt-1">0</div></div>
+      <div class="p-4 rounded-3xl bg-slate-900/85 border border-amber-500/30"><span class="text-xs text-amber-300">En Proceso</span><div id="statProceso" class="text-2xl font-black text-amber-400 mt-1">0</div></div>
+      <div class="p-4 rounded-3xl bg-slate-900/85 border border-emerald-500/30"><span class="text-xs text-emerald-300">Satisfacción Prom.</span><div id="statSatisfaccion" class="text-2xl font-black text-emerald-400 mt-1 font-mono">100%</div></div>
+    </div>
+
+    <!-- TAB 1: TICKETS -->
+    <div id="tab-tickets" class="block">
+      <section class="bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+          <h2 class="text-lg font-black text-white flex items-center gap-2"><i data-lucide="ticket" class="w-5 h-5 text-cyan-400"></i> Mesa de Tickets</h2>
+          <div class="flex gap-2">
+            <input type="text" id="filtroSearch" placeholder="Buscar..." class="px-3 py-1.5 rounded-xl bg-slate-800 text-xs text-white">
+            <select id="filtroEstado" class="px-3 py-1.5 rounded-xl bg-slate-800 text-xs text-white">
+              <option value="todos">Todos</option><option value="Pendiente">Pendiente</option><option value="En Proceso">En Proceso</option><option value="Resuelto">Resuelto</option>
+            </select>
+          </div>
+        </div>
+        <div class="overflow-x-auto rounded-2xl border border-slate-800">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="bg-slate-800 text-slate-400 uppercase text-[10px]"><tr><th class="p-3">Ticket</th><th class="p-3">Usuario</th><th class="p-3">Reporte</th><th class="p-3">Estatus</th><th class="p-3">Encuesta</th><th class="p-3">Acción</th></tr></thead>
+            <tbody id="ticketsTableBody" class="divide-y divide-slate-800"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB 2: USUARIOS -->
+    <div id="tab-usuarios" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <section class="lg:col-span-4 bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-4">
+        <h3 class="text-base font-bold text-white"><i data-lucide="user-plus" class="inline w-4 h-4 text-cyan-400"></i> Nuevo Usuario</h3>
+        <form id="formCrearUsuario" class="space-y-3 text-xs">
+          <input type="email" id="newEmail" required placeholder="correo@bemismfg.com" class="w-full p-2.5 rounded-xl bg-slate-800 text-white">
+          <input type="text" id="newFullName" required placeholder="Nombre Completo" class="w-full p-2.5 rounded-xl bg-slate-800 text-white">
+          <select id="newUserDept" class="w-full p-2.5 rounded-xl bg-slate-800 text-white"></select>
+          <input type="text" id="newPass" required value="bemis2026" class="w-full p-2.5 rounded-xl bg-slate-800 text-white">
+          <div class="flex gap-2"><input type="checkbox" id="requirePassChange" checked><label class="text-slate-300">Exigir cambio en 1er login</label></div>
+          <button type="submit" id="btnCrearUsuario" class="w-full py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-bold">Guardar Usuario</button>
+        </form>
+      </section>
+      <section class="lg:col-span-8 bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl">
+        <h3 class="text-base font-bold text-white mb-4"><i data-lucide="users" class="inline w-4 h-4 text-cyan-400"></i> Directorio</h3>
+        <div class="overflow-x-auto rounded-2xl border border-slate-800">
+          <table class="w-full text-left text-xs text-slate-300"><thead class="bg-slate-800 text-slate-400 uppercase text-[10px]"><tr><th class="p-3">Correo</th><th class="p-3">Nombre</th><th class="p-3">Depto</th><th class="p-3 text-right">Acción</th></tr></thead><tbody id="usuariosTableBody" class="divide-y divide-slate-800"></tbody></table>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB 3: DEPARTAMENTOS -->
+    <div id="tab-departamentos" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <section class="lg:col-span-5 bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-4">
+        <h3 class="text-base font-bold text-white"><i data-lucide="plus" class="inline w-4 h-4 text-cyan-400"></i> Nuevo Depto</h3>
+        <form id="formCrearDepto" class="space-y-3 text-xs"><input type="text" id="newDeptName" required placeholder="Ej. Producción" class="w-full p-2.5 rounded-xl bg-slate-800 text-white"><input type="text" id="newDeptDesc" placeholder="Descripción" class="w-full p-2.5 rounded-xl bg-slate-800 text-white"><button type="submit" class="w-full py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-bold">Guardar Departamento</button></form>
+      </section>
+      <section class="lg:col-span-7 bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl"><h3 class="text-base font-bold text-white mb-4">Departamentos Configurados</h3><div id="deptsContainer" class="space-y-2"></div></section>
+    </div>
+
+    <!-- TAB 4: NOTICIAS -->
+    <div id="tab-noticias" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <section class="lg:col-span-5 bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-4">
+        <h3 class="text-base font-bold text-white"><i data-lucide="send" class="inline w-4 h-4 text-cyan-400"></i> Publicar Aviso</h3>
+        <form id="formCrearNoticia" class="space-y-3 text-xs">
+          <input type="text" id="newsTitle" required placeholder="Título..." class="w-full p-2.5 rounded-xl bg-slate-800 text-white">
+          <div class="grid grid-cols-2 gap-2"><select id="newsScope" class="p-2.5 rounded-xl bg-slate-800 text-white"><option value="GLOBAL">Global</option><option value="DEPTO">Por Depto</option></select><select id="newsDeptTarget" disabled class="p-2.5 rounded-xl bg-slate-800 text-white opacity-50"></select></div>
+          <select id="newsImportance" class="w-full p-2.5 rounded-xl bg-slate-800 text-white"><option value="Normal">Normal</option><option value="Importante">Importante</option><option value="Urgente">Urgente</option></select>
+          <textarea id="newsContent" required rows="3" placeholder="Contenido..." class="w-full p-2.5 rounded-xl bg-slate-800 text-white resize-none"></textarea>
+          <button type="submit" class="w-full py-2.5 rounded-xl bg-blue-600 text-white font-bold">Publicar</button>
+        </form>
+      </section>
+      <section class="lg:col-span-7 bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl"><h3 class="text-base font-bold text-white mb-4">Avisos Activos</h3><div id="newsContainer" class="space-y-3"></div></section>
+    </div>
+
+    <!-- TAB 5: TEMAS Y FONDOS -->
+    <div id="tab-temas" class="hidden space-y-6">
+      <!-- Selector de Animaciones Estacionales -->
+      <div class="bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl">
+        <h2 class="text-lg font-black text-white mb-4"><i data-lucide="palette" class="inline w-5 h-5 text-cyan-400"></i> Animaciones Estacionales</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <button onclick="window.seleccionarTema('estandar')" class="p-4 rounded-2xl bg-slate-800/60 hover:border-cyan-400 text-left border border-slate-700"><div class="text-2xl">🏢</div><h4 class="text-sm font-bold text-white">Estándar Bemis</h4></button>
+          <button onclick="window.seleccionarTema('navidad')" class="p-4 rounded-2xl bg-slate-800/60 hover:border-emerald-400 text-left border border-slate-700"><div class="text-2xl">❄️</div><h4 class="text-sm font-bold text-white">Navideño</h4></button>
+          <button onclick="window.seleccionarTema('halloween')" class="p-4 rounded-2xl bg-slate-800/60 hover:border-orange-500 text-left border border-slate-700"><div class="text-2xl">🎃</div><h4 class="text-sm font-bold text-white">Halloween</h4></button>
+          <button onclick="window.seleccionarTema('dia_muertos')" class="p-4 rounded-2xl bg-slate-800/60 hover:border-amber-400 text-left border border-slate-700"><div class="text-2xl">💀</div><h4 class="text-sm font-bold text-white">Día de Muertos</h4></button>
+        </div>
+      </div>
+
+      <!-- Selector de 20 Colores de Fondo -->
+      <div class="bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl">
+        <h2 class="text-lg font-black text-white mb-4"><i data-lucide="paint-bucket" class="inline w-5 h-5 text-cyan-400"></i> Color de Fondo Global</h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div><h3 class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Oscuros Elegantes</h3><div class="flex gap-2"><button onclick="window.seleccionarFondo('#020617')" class="w-8 h-8 rounded-full bg-[#020617] border-2 border-slate-600 hover:scale-110" title="Negro Noche"></button><button onclick="window.seleccionarFondo('#0f172a')" class="w-8 h-8 rounded-full bg-[#0f172a] border-2 border-slate-600 hover:scale-110" title="Azul Marino"></button><button onclick="window.seleccionarFondo('#064e3b')" class="w-8 h-8 rounded-full bg-[#064e3b] border-2 border-slate-600 hover:scale-110" title="Verde Bosque"></button><button onclick="window.seleccionarFondo('#2e1065')" class="w-8 h-8 rounded-full bg-[#2e1065] border-2 border-slate-600 hover:scale-110" title="Morado Profundo"></button><button onclick="window.seleccionarFondo('#4c0519')" class="w-8 h-8 rounded-full bg-[#4c0519] border-2 border-slate-600 hover:scale-110" title="Rojo Vino"></button></div></div>
+          <div><h3 class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Tonos Pasteles</h3><div class="flex gap-2"><button onclick="window.seleccionarFondo('#e0f2fe')" class="w-8 h-8 rounded-full bg-[#e0f2fe] border-2 border-slate-400 hover:scale-110" title="Azul Pastel"></button><button onclick="window.seleccionarFondo('#fce7f3')" class="w-8 h-8 rounded-full bg-[#fce7f3] border-2 border-slate-400 hover:scale-110" title="Rosa Pastel"></button><button onclick="window.seleccionarFondo('#d1fae5')" class="w-8 h-8 rounded-full bg-[#d1fae5] border-2 border-slate-40
