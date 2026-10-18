@@ -2,34 +2,21 @@
  * BEMIS MÉXICO - MÓDULO DE BASE DE DATOS CLOUD FIRESTORE v9
  * Archivo: db.js
  */
-
 import { db } from "./firebase-config.js";
 import { 
-  collection, 
-  doc, 
-  getDoc, 
-  getDocs, 
-  setDoc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy, 
-  onSnapshot, 
-  serverTimestamp 
+  collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, 
+  deleteDoc, query, where, orderBy, onSnapshot, serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ==========================================
 // 1. GESTIÓN DE TICKETS Y ENCUESTA
 // ==========================================
 export async function createTicket(ticketData) {
-  // Generar ID correlativo amigable
   const ticketsSnap = await getDocs(collection(db, "tickets"));
   const count = ticketsSnap.size;
   const ticketId = `TIK-${1001 + count}`;
-
   const today = new Date().toISOString().split("T")[0];
+
   const newTicket = {
     ticketId,
     usuario: ticketData.usuario,
@@ -56,10 +43,7 @@ export async function createTicket(ticketData) {
 
 export async function updateTicket(docId, updateData) {
   const docRef = doc(db, "tickets", docId);
-  await updateDoc(docRef, {
-    ...updateData,
-    actualizadoEn: serverTimestamp()
-  });
+  await updateDoc(docRef, { ...updateData, actualizadoEn: serverTimestamp() });
 }
 
 export async function deleteTicket(docId) {
@@ -80,13 +64,9 @@ export function subscribeToTickets(callback) {
   });
 }
 
-/**
- * Guarda la encuesta de 5 preguntas (20 pts por estrella) en Firestore
- */
+// Guarda la encuesta de 5 preguntas (20 pts por estrella) en Firestore
 export async function submitSatisfactionSurvey(docId, survey) {
   const docRef = doc(db, "tickets", docId);
-
-  // Cada estrella vale 20 puntos
   const scores = [survey.q1, survey.q2, survey.q3, survey.q4, survey.q5];
   const totalPercentage = Math.round(scores.reduce((a, b) => a + (b * 20), 0) / scores.length);
 
@@ -106,7 +86,6 @@ export async function submitSatisfactionSurvey(docId, survey) {
     },
     actualizadoEn: serverTimestamp()
   });
-
   return { success: true, totalPercentage };
 }
 
@@ -145,25 +124,26 @@ export function subscribeToNews(userDepartment, callback) {
 }
 
 // ==========================================
-// 3. TEMA ESTACIONAL EN TIEMPO REAL (SETTINGS)
+// 3. TEMA ESTACIONAL Y FONDO GLOBAL (SETTINGS)
 // ==========================================
 export function subscribeToGlobalTheme(callback) {
   const themeDocRef = doc(db, "settings", "theme");
   return onSnapshot(themeDocRef, (snap) => {
-    if (snap.exists() && snap.data().activeTheme) {
-      callback(snap.data().activeTheme);
+    if (snap.exists()) {
+      // Devuelve el tema de animaciones y el color de fondo
+      callback(snap.data().activeTheme || "estandar", snap.data().activeBg || "#0f172a");
     } else {
-      callback("estandar");
+      callback("estandar", "#0f172a");
     }
   });
 }
 
 export async function setGlobalTheme(themeName) {
-  const themeDocRef = doc(db, "settings", "theme");
-  await setDoc(themeDocRef, {
-    activeTheme: themeName,
-    actualizadoEn: serverTimestamp()
-  }, { merge: true });
+  await setDoc(doc(db, "settings", "theme"), { activeTheme: themeName, actualizadoEn: serverTimestamp() }, { merge: true });
+}
+
+export async function setGlobalBackground(bgColor) {
+  await setDoc(doc(db, "settings", "theme"), { activeBg: bgColor, actualizadoEn: serverTimestamp() }, { merge: true });
 }
 
 // ==========================================
@@ -171,23 +151,6 @@ export async function setGlobalTheme(themeName) {
 // ==========================================
 export async function getDepartments() {
   const snap = await getDocs(collection(db, "departments"));
-  if (snap.empty) {
-    // Si no existen, sembrar los departamentos iniciales de Bemis
-    const defaults = [
-      { nombre: "Sistemas", descripcion: "Infraestructura y Soporte TI" },
-      { nombre: "Finanzas", descripcion: "Contabilidad, Facturación y Tesorería" },
-      { nombre: "Producción", descripcion: "Líneas de manufactura y empaque" },
-      { nombre: "Entrenamiento", descripcion: "Capacitación y Desarrollo" },
-      { nombre: "Calidad", descripcion: "Aseguramiento de procesos" },
-      { nombre: "Recursos Humanos", descripcion: "Talento y Nóminas" },
-      { nombre: "Logística", descripcion: "Embarques y Almacén" }
-    ];
-    for (const d of defaults) {
-      await addDoc(collection(db, "departments"), d);
-    }
-    const reload = await getDocs(collection(db, "departments"));
-    return reload.docs.map(d => ({ id: d.id, ...d.data() }));
-  }
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
@@ -213,10 +176,7 @@ export async function getAllUsers() {
 
 export async function saveUserProfile(uid, userData) {
   const docRef = doc(db, "users", uid);
-  await setDoc(docRef, {
-    ...userData,
-    actualizadoEn: serverTimestamp()
-  }, { merge: true });
+  await setDoc(docRef, { ...userData, actualizadoEn: serverTimestamp() }, { merge: true });
 }
 
 export async function deleteUserProfile(uid) {
