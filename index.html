@@ -33,24 +33,53 @@
     <div id="loginCard" class="bg-slate-900/90 backdrop-blur-xl border border-blue-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden transition-all duration-500">
       <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 via-cyan-400 to-indigo-600"></div>
       
-      <!-- Logotipo Oficial Bemis Tickets con Swoosh -->
+      <!-- LOGOTIPO ORIGINAL BEMIS TICKETS (SVG COMPLETO) -->
       <div class="flex flex-col items-center mb-6">
         <div class="relative flex items-center gap-3">
-          <div class="relative w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center border border-cyan-500/40 shadow-[0_0_15px_rgba(0,210,255,0.4)]">
-            <span id="logoSeasonOrnament" class="absolute -top-3.5 -right-2.5 text-2xl pointer-events-none animate-pulse"></span>
-            <i data-lucide="ticket-check" class="w-7 h-7 text-cyan-300"></i>
+          <div class="relative flex items-center justify-center">
+            <div class="absolute -inset-1 bg-cyan-400/30 rounded-2xl blur-sm"></div>
+            <span id="logoSeasonOrnament" class="absolute -top-4 -right-4 text-3xl z-20 pointer-events-none animate-pulse"></span>
+            <svg width="72" height="72" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="relative drop-shadow-[0_4px_12px_rgba(0,180,255,0.4)] z-10">
+              <circle cx="28" cy="24" r="9" stroke="#38bdf8" stroke-width="2.5" stroke-dasharray="3 2" opacity="0.8" />
+              <circle cx="28" cy="24" r="4" fill="#38bdf8" opacity="0.8" />
+              <g transform="rotate(-18 35 48)">
+                <rect x="20" y="26" width="34" height="46" rx="5" fill="url(#gradTicketBack)" stroke="#67e8f9" stroke-width="2" />
+                <line x1="26" y1="38" x2="48" y2="38" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.7" />
+                <line x1="26" y1="46" x2="42" y2="46" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.7" />
+                <circle cx="20" cy="49" r="4" fill="#0f172a" />
+                <circle cx="54" cy="49" r="4" fill="#0f172a" />
+              </g>
+              <g transform="rotate(12 55 58)">
+                <rect x="40" y="30" width="40" height="56" rx="6" fill="url(#gradTicketFront)" stroke="#38bdf8" stroke-width="2.5" />
+                <circle cx="40" cy="58" r="4.5" fill="#0f172a" />
+                <circle cx="80" cy="58" r="4.5" fill="#0f172a" />
+                <circle cx="60" cy="58" r="13" fill="#0284c7" stroke="#ffffff" stroke-width="2.5" />
+                <path d="M54 58 L58 62 L67 53" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+              </g>
+              <rect x="82" y="70" width="3" height="3" fill="#38bdf8" />
+              <rect x="88" y="74" width="3" height="3" fill="#00e5ff" />
+              <rect x="78" y="78" width="4" height="2" fill="#38bdf8" />
+              <defs>
+                <linearGradient id="gradTicketBack" x1="20" y1="26" x2="54" y2="72" gradientUnits="userSpaceOnUse"><stop stop-color="#0284c7" /><stop offset="1" stop-color="#0c4a6e" /></linearGradient>
+                <linearGradient id="gradTicketFront" x1="40" y1="30" x2="80" y2="86" gradientUnits="userSpaceOnUse"><stop stop-color="#38bdf8" /><stop offset="1" stop-color="#0369a1" /></linearGradient>
+              </defs>
+            </svg>
           </div>
-          <div>
-            <svg class="w-full h-3 text-white overflow-visible -mb-1 opacity-90" viewBox="0 0 160 20" fill="none">
+          <div class="flex flex-col relative">
+            <svg class="w-full h-3 md:h-4 text-white overflow-visible -mb-1 opacity-90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]" viewBox="0 0 160 20" fill="none">
               <path d="M 5 18 Q 80 -4 155 18" stroke="white" stroke-width="4" stroke-linecap="round"/>
             </svg>
-            <div class="font-bemis font-black italic tracking-wide text-2xl flex items-baseline gap-1">
-              <span class="text-white">BEMIS</span><span class="text-cyan-300">TICKETS</span>
+            <div class="font-bemis font-black italic tracking-wide text-4xl flex items-baseline gap-1">
+              <span class="text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">BEMIS</span><span class="text-cyan-300 drop-shadow-[0_2px_8px_rgba(0,180,255,0.7)]">TICKETS</span>
             </div>
           </div>
         </div>
-        <div class="mt-1 text-[10px] tracking-wider font-bold text-blue-200 uppercase">
-          Mesa de Ayuda de TI • SOPORTE DE SISTEMAS
+        <div class="mt-1 flex items-center justify-center gap-1.5">
+          <div class="h-[1px] w-4 bg-cyan-400/40"></div>
+          <span class="text-[10px] font-semibold tracking-wider text-blue-100 uppercase text-center opacity-95 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
+            Mesa de Ayuda de TI • SOPORTE DE SISTEMAS
+          </span>
+          <div class="h-[1px] w-4 bg-cyan-400/40"></div>
         </div>
       </div>
 
@@ -99,7 +128,6 @@
     </div>
   </main>
 
-  <!-- Modal Cambio Contraseña -->
   <div id="passwordChangeModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
     <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
       <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center mb-4 border border-cyan-500/30">
@@ -152,12 +180,10 @@
 
     const themeOrnaments = { navidad: "🎅", halloween: "🎃", dia_muertos: "🏵️", san_valentin: "💖", primavera: "🌸", estandar: "" };
     
-    // Aquí recibimos el tema de animación y el color de fondo
     subscribeToGlobalTheme((activeTheme, activeBg) => {
       if (window.seasonalEngine) window.seasonalEngine.setTheme(activeTheme);
       const ornamentSpan = document.getElementById("logoSeasonOrnament");
       if (ornamentSpan) ornamentSpan.innerText = themeOrnaments[activeTheme] || "";
-      // Aplicar el color de fondo a toda la página
       document.body.style.backgroundColor = activeBg;
     });
 
