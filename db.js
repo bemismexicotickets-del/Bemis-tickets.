@@ -5,7 +5,7 @@
 import { db } from "./firebase-config.js";
 import { 
   collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, 
-  deleteDoc, query, where, orderBy, onSnapshot, serverTimestamp 
+  deleteDoc, query, where, orderBy, onSnapshot, serverTimestamp, writeBatch 
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ==========================================
@@ -64,7 +64,29 @@ export function subscribeToTickets(callback) {
   });
 }
 
-// Guarda la encuesta de 5 preguntas (20 pts por estrella) en Firestore
+// IMPORTACIÓN MASIVA DE EXCEL HISTÓRICO
+export async function importarTicketsMasivos(ticketsList) {
+  const ticketsRef = collection(db, "tickets");
+  
+  // Se dividen en bloques de 400 para no exceder el límite de seguridad de 500 de Firebase
+  const chunkSize = 400;
+  for (let i = 0; i < ticketsList.length; i += chunkSize) {
+    const chunk = ticketsList.slice(i, i + chunkSize);
+    const batch = writeBatch(db);
+    
+    chunk.forEach(tData => {
+      const newDocRef = doc(ticketsRef); // Autogenera un ID único para la base de datos
+      batch.set(newDocRef, {
+        ...tData,
+        creadoEn: serverTimestamp()
+      });
+    });
+    
+    await batch.commit();
+  }
+  return ticketsList.length;
+}
+
 export async function submitSatisfactionSurvey(docId, survey) {
   const docRef = doc(db, "tickets", docId);
   const scores = [survey.q1, survey.q2, survey.q3, survey.q4, survey.q5];
@@ -124,24 +146,21 @@ export function subscribeToNews(userDepartment, callback) {
 }
 
 // ==========================================
-// 3. TEMA ESTACIONAL Y FONDO GLOBAL (SETTINGS)
+// 3. TEMA ESTACIONAL Y FONDO GLOBAL
 // ==========================================
 export function subscribeToGlobalTheme(callback) {
   const themeDocRef = doc(db, "settings", "theme");
   return onSnapshot(themeDocRef, (snap) => {
     if (snap.exists()) {
-      // Devuelve el tema de animaciones y el color de fondo
       callback(snap.data().activeTheme || "estandar", snap.data().activeBg || "#0f172a");
     } else {
       callback("estandar", "#0f172a");
     }
   });
 }
-
 export async function setGlobalTheme(themeName) {
   await setDoc(doc(db, "settings", "theme"), { activeTheme: themeName, actualizadoEn: serverTimestamp() }, { merge: true });
 }
-
 export async function setGlobalBackground(bgColor) {
   await setDoc(doc(db, "settings", "theme"), { activeBg: bgColor, actualizadoEn: serverTimestamp() }, { merge: true });
 }
@@ -153,32 +172,24 @@ export async function getDepartments() {
   const snap = await getDocs(collection(db, "departments"));
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
-
 export async function createDepartment(nombre, descripcion) {
-  return await addDoc(collection(db, "departments"), {
-    nombre,
-    descripcion: descripcion || "",
-    creadoEn: serverTimestamp()
-  });
+  return await addDoc(collection(db, "departments"), { nombre, descripcion: descripcion || "", creadoEn: serverTimestamp() });
 }
-
 export async function deleteDepartment(docId) {
   await deleteDoc(doc(db, "departments", docId));
 }
 
 // ==========================================
-// 5. GESTIÓN DE USUARIOS (FIRESTORE)
+// 5. GESTIÓN DE USUARIOS
 // ==========================================
 export async function getAllUsers() {
   const snap = await getDocs(collection(db, "users"));
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
-
 export async function saveUserProfile(uid, userData) {
   const docRef = doc(db, "users", uid);
   await setDoc(docRef, { ...userData, actualizadoEn: serverTimestamp() }, { merge: true });
 }
-
 export async function deleteUserProfile(uid) {
   await deleteDoc(doc(db, "users", uid));
 }
