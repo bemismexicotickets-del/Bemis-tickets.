@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bemis Tickets - Panel de Super Administrador (Mario)</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  
+  <!-- ¡NUEVO! Librería XLSX con soporte para colores, bordes y estilos -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+  
   <script src="https://unpkg.com/lucide@latest"></script>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,900;1,900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -37,7 +40,7 @@
   <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-xl">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
       
-      <!-- LOGO BEMIS TICKETS ORIGINAL -->
+      <!-- LOGO BEMIS TICKETS -->
       <div class="flex items-center gap-3">
         <div class="relative flex items-center justify-center">
           <div class="absolute -inset-1 bg-cyan-400/30 rounded-2xl blur-sm"></div>
@@ -117,8 +120,9 @@
             <button id="btnImportExcel" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-lg shadow-blue-500/20 flex items-center gap-1.5 transition-all cursor-pointer">
               <i data-lucide="upload-cloud" class="w-4 h-4"></i><span class="hidden md:inline">Cargar Excel Viejo</span>
             </button>
+            
             <div class="h-4 w-px bg-slate-700 mx-1 hidden md:block"></div>
-            <!-- Filtros -->
+            
             <input type="text" id="filtroSearch" placeholder="Buscar..." class="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white">
             <select id="filtroEstado" class="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white">
               <option value="todos">Todos</option><option value="Pendiente">Pendiente</option><option value="En Proceso">En Proceso</option><option value="Resuelto">Resuelto</option>
@@ -247,7 +251,7 @@
     window.resolverTicket = async (docId) => await updateTicket(docId, { porcentajeHecho: 100, fechaTermino: new Date().toISOString().split("T")[0] });
     window.verEncuesta = (docId) => { const t = currentTickets.find(x => x.id === docId); if (!t) return; document.getElementById("modalSurveyPct").innerText = `${t.porcentajeSatisfaccion ?? t.encuestaDetalle?.porcentajeFinal ?? 100}%`; document.getElementById("modalSurveyComment").innerText = `"${t.comentarioUsuario || t.encuestaDetalle?.comentario || 'Sin comentario.'}"`; document.getElementById("surveyDetailModal").classList.remove("hidden"); };
 
-    // IMPORTACIÓN DE EXCEL VIEJO
+    // IMPORTACIÓN EXCEL
     document.getElementById("btnImportExcel").addEventListener("click", () => document.getElementById("inputImportExcel").click());
     document.getElementById("inputImportExcel").addEventListener("change", (e) => {
       const file = e.target.files[0];
@@ -255,19 +259,12 @@
       const btn = document.getElementById("btnImportExcel");
       const iconOriginal = btn.innerHTML;
       btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 text-cyan-400 animate-spin"></i> Cargando...';
-      
       procesarExcelImportacion(file, async (ticketsProcesados) => {
-        if(confirm(`Se encontraron ${ticketsProcesados.length} tickets históricos. ¿Subirlos a Firebase? (Puede tardar unos segundos)`)) {
-          try {
-            await importarTicketsMasivos(ticketsProcesados);
-            alert("¡Éxito! Todos los tickets fueron cargados al sistema.");
-          } catch(err) {
-            alert("Error al subir: " + err.message);
-          }
+        if(confirm(`Se encontraron ${ticketsProcesados.length} tickets. ¿Subirlos a Firebase?`)) {
+          try { await importarTicketsMasivos(ticketsProcesados); alert("¡Éxito! Tickets cargados."); } 
+          catch(err) { alert("Error: " + err.message); }
         }
-        btn.innerHTML = iconOriginal;
-        lucide.createIcons();
-        e.target.value = ''; 
+        btn.innerHTML = iconOriginal; lucide.createIcons(); e.target.value = ''; 
       });
     });
 
