@@ -1,36 +1,8 @@
-/**
- * BEMIS MÉXICO - CONFIGURACIÓN DE FIREBASE v9 (SDK MODULAR CDN)
- * Archivo: firebase-config.js
- * Compatible con GitHub Pages mediante <script type="module">
- */
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { 
-  getAuth, 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  updatePassword, 
-  signOut, 
-  onAuthStateChanged 
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { 
-  getFirestore, 
-  collection, 
-  doc, 
-  getDoc, 
-  getDocs, 
-  setDoc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy, 
-  onSnapshot, 
-  serverTimestamp 
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// Configuración exacta proporcionada por Bemis México
+// Configuración de tu proyecto
 export const firebaseConfig = {
   apiKey: "AIzaSyAy0kp2bv1DMcXic2wKENd6ccYimD7_Cng",
   authDomain: "bemis-tickets.firebaseapp.com",
@@ -41,12 +13,12 @@ export const firebaseConfig = {
   measurementId: "G-L97F4EFRNJ"
 };
 
-// Inicialización de la app y servicios
+// Inicialización de servicios exportados
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// Constantes globales
+// Credenciales Maestras
 export const ADMIN_EMAIL = "mario.ortiz@bemismfg.com";
 export const ADMIN_NAME = "Mario (Super Administrador)";
 export const ADMIN_DEFAULT_PASS = "425395";
