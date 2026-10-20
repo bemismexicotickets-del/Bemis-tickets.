@@ -26,27 +26,11 @@
       if(activeTab) { activeTab.classList.remove('hidden'); activeTab.classList.add('block'); }
       if(activeNav) { activeNav.classList.add('border-cyan-400', 'text-cyan-300'); activeNav.classList.remove('border-transparent', 'text-slate-400'); }
     };
-
-    // Función blindada para mostrar/ocultar contraseña al elegir Rol
-    window.verificarRol = () => {
-      const isAdm = document.getElementById("newUserRole").value === "admin";
-      const passCont = document.getElementById("passContainer");
-      const passInput = document.getElementById("newPass");
-      if (isAdm) {
-        passCont.classList.remove("hidden");
-        passInput.required = true;
-      } else {
-        passCont.classList.add("hidden");
-        passInput.required = false;
-        passInput.value = "";
-      }
-    };
   </script>
 
   <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-xl">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
       
-      <!-- LOGO BEMIS OFICIAL -->
       <div class="flex items-center gap-4">
         <div class="relative w-[180px] flex items-center pt-2">
           <span id="logoSeasonOrnament" class="absolute -top-3 right-0 text-2xl z-20 pointer-events-none animate-pulse"></span>
@@ -63,7 +47,7 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <button onclick="document.getElementById('modalCambiarPassword').classList.remove('hidden')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-all"><i data-lucide="key" class="w-4 h-4 inline"></i> Cambiar Contraseña</button>
+        <button onclick="document.getElementById('modalCambiarPassword').classList.remove('hidden')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-all"><i data-lucide="key" class="w-4 h-4 inline"></i> Cambiar Mi Contraseña</button>
         <button id="btnExportExcel" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all"><i data-lucide="file-spreadsheet" class="w-4 h-4 inline"></i> Exportar</button>
         <button id="btnLogout" class="p-2 rounded-xl bg-rose-600/20 hover:bg-rose-500 text-rose-400 hover:text-white transition-all"><i data-lucide="log-out" class="w-4 h-4"></i></button>
       </div>
@@ -88,16 +72,16 @@
       <div class="p-3 rounded-2xl bg-slate-900/90 border border-purple-500/30 shadow-xl"><span class="text-[10px] text-purple-300 uppercase font-bold tracking-wider">Satisfacción</span><div id="statSatisfaccion" class="text-2xl font-black text-purple-400">100%</div></div>
     </div>
 
-    <!-- TAB 1: TICKETS -->
+    <!-- TAB 1: TICKETS (CON FILTRO DE FECHAS Y LÍMITE 100) -->
     <div id="tab-tickets" class="block">
-      <section class="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-2xl backdrop-blur-md">
+      <section class="bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl">
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
           <h2 class="text-lg font-black text-white flex items-center gap-2"><i data-lucide="ticket" class="w-5 h-5 text-cyan-400"></i> Mesa de Tickets</h2>
           
           <div class="flex flex-wrap gap-2 items-center">
             <input type="file" id="inputImportExcel" accept=".xlsx, .xls" class="hidden" />
-            <button id="btnImportExcel" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-1.5 transition-colors"><i data-lucide="upload-cloud" class="w-4 h-4"></i> Excel Antiguo</button>
-            <button id="btnDeleteAll" onclick="window.confirmarBorrarTodo()" class="hidden px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold flex items-center gap-1.5 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i> Borrar Todos</button>
+            <button id="btnImportExcel" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-1.5"><i data-lucide="upload-cloud" class="w-4 h-4"></i> Excel Antiguo</button>
+            <button id="btnDeleteAll" onclick="window.confirmarBorrarTodo()" class="hidden px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold flex items-center gap-1.5"><i data-lucide="trash-2" class="w-4 h-4"></i> Borrar Todos</button>
             
             <div class="h-4 w-px bg-slate-700 mx-1"></div>
             
@@ -141,17 +125,17 @@
           </div>
           
           <div id="passContainer" class="hidden">
-             <label class="block text-amber-400 font-semibold mb-1 mt-2 text-[10px] uppercase tracking-wider">Contraseña Obligatoria:</label>
-             <input type="password" id="newPass" placeholder="Mínimo 6 caracteres..." class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white focus:border-amber-400 focus:outline-none">
+             <label class="block text-amber-400 font-semibold mb-1 mt-2 text-[10px] uppercase tracking-wider">Contraseña Inicial:</label>
+             <input type="text" id="newPass" placeholder="Mínimo 6 caracteres..." class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white focus:border-amber-400 focus:outline-none">
           </div>
           
           <button type="submit" id="btnCrearUsuario" class="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold transition-colors mt-2">Crear Cuenta</button>
         </form>
       </section>
       <section class="lg:col-span-8 bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-2xl backdrop-blur-md">
-        <h3 class="text-base font-bold text-white mb-4"><i data-lucide="users" class="inline w-4 h-4 text-cyan-400"></i> Directorio</h3>
+        <h3 class="text-base font-bold text-white mb-4"><i data-lucide="users" class="inline w-4 h-4 text-cyan-400"></i> Directorio y Accesos</h3>
         <div class="overflow-x-auto rounded-2xl border border-slate-800">
-          <table class="w-full text-left text-xs text-slate-300"><thead class="bg-slate-800/80 text-slate-400 uppercase text-[10px] font-bold"><tr><th class="p-3">Correo</th><th class="p-3">Nombre</th><th class="p-3">Depto / Rol</th><th class="p-3 text-right">Acción</th></tr></thead><tbody id="usuariosTableBody" class="divide-y divide-slate-800"></tbody></table>
+          <table class="w-full text-left text-xs text-slate-300"><thead class="bg-slate-800/80 text-slate-400 uppercase text-[10px] font-bold"><tr><th class="p-3">Correo / Clave</th><th class="p-3">Nombre</th><th class="p-3">Depto / Rol</th><th class="p-3 text-right">Acción</th></tr></thead><tbody id="usuariosTableBody" class="divide-y divide-slate-800"></tbody></table>
         </div>
       </section>
     </div>
@@ -193,13 +177,13 @@
   </div>
 
   <div id="modalCambiarPassword" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-    <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl max-w-sm w-full p-6 shadow-2xl relative"><h3 class="text-base font-bold text-white mb-4">Actualizar Mi Contraseña</h3><input type="password" id="adminNewPass" placeholder="Nueva Contraseña" class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white mb-2 focus:border-cyan-400 focus:outline-none"><button onclick="window.actualizarMiPass()" class="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs mt-2 transition-colors">Guardar Cambios</button><button onclick="document.getElementById('modalCambiarPassword').classList.add('hidden')" class="w-full py-2 rounded-xl bg-transparent hover:bg-slate-800 text-slate-400 text-xs mt-1 transition-colors">Cancelar</button></div>
+    <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl max-w-sm w-full p-6 shadow-2xl relative"><h3 class="text-base font-bold text-white mb-4">Actualizar Mi Contraseña</h3><input type="text" id="adminNewPass" placeholder="Nueva Contraseña" class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white mb-2 focus:border-cyan-400 focus:outline-none"><button onclick="window.actualizarMiPass()" class="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs mt-2 transition-colors">Guardar Cambios</button><button onclick="document.getElementById('modalCambiarPassword').classList.add('hidden')" class="w-full py-2 rounded-xl bg-transparent hover:bg-slate-800 text-slate-400 text-xs mt-1 transition-colors">Cancelar</button></div>
   </div>
 
   <script src="animations.js"></script>
   <script type="module">
     import { db, firebaseConfig } from "./firebase-config.js";
-    import { collection, getDocs, doc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { collection, getDocs, doc, deleteDoc, onSnapshot, query, orderBy, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { subscribeToTickets, updateTicket, createNews, saveUserProfile, subscribeToGlobalTheme, setGlobalTheme, setGlobalBackground, createDepartment, importarTicketsMasivos, logAdminAction, subscribeToAuditLogs, deleteAllTickets } from "./db.js";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updatePassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -210,23 +194,26 @@
     const secondaryAuth = getAuth(secondaryApp);
     const mainAuth = getAuth();
 
-    // SEGURIDAD Y PERFIL
+    // 1. SEGURIDAD Y PERFIL
     const currentUser = JSON.parse(sessionStorage.getItem("bemis_session_user") || "{}");
     if (!currentUser || currentUser.role !== "admin") window.location.href = "index.html";
     document.getElementById("headerAdminName").innerText = currentUser.nombreCompleto;
     
-    const isSuperAdmin = currentUser.email.includes("mario");
+    // MODO SUPER ADMINISTRADOR MARIO
+    const isSuperAdmin = currentUser.email.includes("mario"); 
     if (isSuperAdmin) {
       document.getElementById("roleSelectorDiv").classList.remove("hidden");
       document.getElementById("btnDeleteAll").classList.remove("hidden");
     }
 
+    // 2. AUDITORÍA
     subscribeToAuditLogs((logs) => {
       document.getElementById("auditTableBody").innerHTML = logs.map(l => `
         <tr class="border-b border-slate-800 hover:bg-slate-800/40 transition-colors"><td class="p-3 text-cyan-400 font-mono">${l.fechaExacta}</td><td class="p-3 text-white font-bold">${l.admin}</td><td class="p-3 text-slate-300">${l.accion}</td></tr>
       `).join('');
     });
 
+    // 3. TICKETS
     let currentTickets = []; let ticketAEliminarId = null;
     subscribeToTickets((tickets) => { currentTickets = tickets; renderizarTickets(); });
     
@@ -269,7 +256,7 @@
           <td class="p-3 text-white font-semibold">${t.usuario} <div class="text-[10px] text-slate-400 font-normal">${t.departamento}</div></td>
           <td class="p-3 text-slate-200 truncate max-w-xs font-medium">${t.nombreReporte}</td>
           <td class="p-3 text-[10px] text-slate-400 font-mono leading-relaxed">Abierto: ${t.fechaAperturaExacta || t.fechaTicket}<br>${t.fechaCierreExacta ? `<span class="text-emerald-400">Cierre: ${t.fechaCierreExacta}</span>` : ''}</td>
-          <td class="p-3">${estatusStr}</td>
+          <td class="p-3 font-bold">${estatusStr}</td>
           <td class="p-3 text-right flex items-center justify-end gap-1.5 mt-2">
             ${t.porcentajeHecho === 0 ? `<button onclick="window.cambiarEstatus('${t.id}', 50)" class="px-2.5 py-1 bg-amber-600 hover:bg-amber-500 rounded-lg text-white font-bold text-[10px] transition-colors shadow-lg shadow-amber-600/20">Atender</button>` : ''}
             ${t.porcentajeHecho !== 100 ? `<button onclick="window.cambiarEstatus('${t.id}', 100)" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white font-bold text-[10px] transition-colors shadow-lg shadow-emerald-600/20">Finalizar</button>` : ''}
@@ -280,10 +267,7 @@
       });
     }
 
-    document.getElementById("filtroSearch").addEventListener("input", renderizarTickets); 
-    document.getElementById("filtroEstado").addEventListener("change", renderizarTickets);
-    document.getElementById("filtroFechaInicio").addEventListener("change", renderizarTickets);
-    document.getElementById("filtroFechaFin").addEventListener("change", renderizarTickets);
+    document.getElementById("filtroSearch").addEventListener("input", renderizarTickets); document.getElementById("filtroEstado").addEventListener("change", renderizarTickets); document.getElementById("filtroFechaInicio").addEventListener("change", renderizarTickets); document.getElementById("filtroFechaFin").addEventListener("change", renderizarTickets);
     
     window.cambiarEstatus = async (docId, pct) => {
       const today = new Date();
@@ -334,66 +318,88 @@
       });
     });
 
+    // 4. DIRECTORIO CON VISIBILIDAD DE CONTRASEÑA SOLO PARA MARIO
     const loadUsers = async () => {
       const snap = await getDocs(collection(db, "users"));
-      document.getElementById('usuariosTableBody').innerHTML = snap.docs.map(d => { const u=d.data(); return `<tr class="border-b border-slate-800 hover:bg-slate-800/40 transition-colors"><td class="p-3 text-white font-mono">${u.email}</td><td class="p-3 font-semibold">${u.nombreCompleto}</td><td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.role==='admin'?'bg-amber-500/20 text-amber-300 border border-amber-500/30':'bg-slate-800 text-slate-300 border border-slate-700'}">${u.departamento} (${u.role})</span></td><td class="p-3 text-right"><button onclick="window.eliminarUsuario('${d.id}')" class="px-2 py-1 rounded bg-rose-500/20 hover:bg-rose-500 border border-rose-500/40 text-rose-400 hover:text-white text-[10px] font-bold transition-colors">Borrar</button></td></tr>`;}).join('');
+      document.getElementById('usuariosTableBody').innerHTML = snap.docs.map(d => { 
+        const u = d.data(); 
+        let actionBtns = '';
+        let passInfo = '';
+        
+        if (isSuperAdmin && u.email !== currentUser.email) {
+           // Mario ve la contraseña de otros admins
+           if (u.role === 'admin') {
+               passInfo = `<br><span class="text-[10px] text-amber-400 font-medium">Clave: ${u.passwordOriginal || 'No registrada'}</span>`;
+           }
+           actionBtns = `<button onclick="window.eliminarUsuario('${d.id}')" class="px-2 py-1 rounded bg-rose-500/20 hover:bg-rose-500 border border-rose-500/40 text-rose-400 hover:text-white text-[10px] font-bold transition-colors">Borrar</button>`;
+        } else if (!isSuperAdmin && u.role !== 'admin') {
+           actionBtns = `<button onclick="window.eliminarUsuario('${d.id}')" class="px-2 py-1 rounded bg-rose-500/20 hover:bg-rose-500 border border-rose-500/40 text-rose-400 hover:text-white text-[10px] font-bold transition-colors">Borrar</button>`;
+        } else {
+           actionBtns = '<span class="text-[10px] text-slate-500 font-semibold">Sin permisos</span>';
+        }
+
+        return `<tr class="border-b border-slate-800 hover:bg-slate-800/40 transition-colors"><td class="p-3 text-white font-mono leading-tight">${u.email}${passInfo}</td><td class="p-3 font-semibold">${u.nombreCompleto}</td><td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.role==='admin'?'bg-amber-500/20 text-amber-300 border border-amber-500/30':'bg-slate-800 text-slate-300 border border-slate-700'}">${u.departamento} (${u.role})</span></td><td class="p-3 text-right whitespace-nowrap">${actionBtns}</td></tr>`;
+      }).join('');
     };
 
-    // EL TRUCO PARA RECICLAR CORREOS BORRADOS ESTÁ AQUÍ
     document.getElementById("formCrearUsuario").addEventListener("submit", async (e) => {
-      e.preventDefault(); 
-      const btn = document.getElementById("btnCrearUsuario"); 
-      btn.disabled = true; 
-      btn.innerText = "Registrando...";
-      
-      const email = document.getElementById("newEmail").value.trim().toLowerCase();
-      const role = isSuperAdmin ? document.getElementById("newUserRole").value : "user";
-      const pass = role === "admin" ? document.getElementById("newPass").value : "BemisUser2026!";
-      
-      let finalUid = "";
-
+      e.preventDefault(); const btn = document.getElementById("btnCrearUsuario"); btn.disabled = true; btn.innerText = "Registrando...";
       try {
-        const userCred = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
-        finalUid = userCred.user.uid;
-        await signOut(secondaryAuth);
-        alert("¡Usuario registrado exitosamente!");
-      } catch (authErr) {
-        if (authErr.code === 'auth/email-already-in-use') {
-          // Si el correo es "fantasma", forzamos inicio de sesión invisible para actualizarle la contraseña
-          try {
-            const loginCred = await signInWithEmailAndPassword(secondaryAuth, email, "BemisUser2026!");
-            finalUid = loginCred.user.uid;
-            if (role === "admin") {
-              await updatePassword(loginCred.user, pass);
-            }
-            await signOut(secondaryAuth);
-            alert("El correo ya existía. Se ha restaurado su perfil con su nuevo rol y contraseña de administrador.");
-          } catch (loginErr) {
-            alert("El correo ya existe pero el usuario ya había cambiado su contraseña. Se restauró su perfil, pero deberá iniciar sesión con la contraseña que él ya tenía.");
-            finalUid = email; // Fallback ID
-          }
-        } else { throw authErr; }
-      }
+        const email = document.getElementById("newEmail").value.trim().toLowerCase();
+        const role = isSuperAdmin ? document.getElementById("newUserRole").value : "user";
+        const pass = role === "admin" ? document.getElementById("newPass").value : "BemisUser2026!";
+        let finalUid = "";
 
-      await saveUserProfile(finalUid, { email, nombreCompleto: document.getElementById("newFullName").value, departamento: document.getElementById("newUserDept").value, role, requiereCambioPassword: false, activo: true, creadoEn: new Date().toISOString() });
-      await logAdminAction(currentUser.nombreCompleto, `Creó/Restauró la cuenta ${email} (${role})`);
-      
-      document.getElementById("formCrearUsuario").reset(); 
-      if(document.getElementById("passContainer")) { document.getElementById("passContainer").classList.add("hidden"); document.getElementById("newPass").required = false; }
-      loadUsers(); 
+        try {
+          const userCred = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
+          finalUid = userCred.user.uid;
+          await signOut(secondaryAuth);
+          alert("¡Usuario registrado exitosamente!");
+        } catch (authErr) {
+          if (authErr.code === 'auth/email-already-in-use') {
+            try {
+              const loginCred = await signInWithEmailAndPassword(secondaryAuth, email, "BemisUser2026!");
+              finalUid = loginCred.user.uid;
+              if (role === "admin") { await updatePassword(loginCred.user, pass); }
+              await signOut(secondaryAuth);
+              alert("El correo ya existía. Se ha restaurado su perfil con su nuevo rol y contraseña de administrador.");
+            } catch (loginErr) {
+              alert("El correo ya existe pero el usuario ya había cambiado su contraseña. Se restauró su perfil, pero deberá iniciar sesión con la contraseña que él ya tenía.");
+              finalUid = email; 
+            }
+          } else { throw authErr; }
+        }
+
+        // GUARDADO DE PERFIL CON LA COPIA VISIBLE DE CONTRASEÑA
+        await saveUserProfile(finalUid, { 
+          email, nombreCompleto: document.getElementById("newFullName").value, 
+          departamento: document.getElementById("newUserDept").value, role, 
+          requiereCambioPassword: false, activo: true, creadoEn: new Date().toISOString(),
+          passwordOriginal: pass 
+        });
+
+        await logAdminAction(currentUser.nombreCompleto, `Creó/Restauró la cuenta ${email} (${role})`);
+        document.getElementById("formCrearUsuario").reset(); 
+        if(document.getElementById("passContainer")) { document.getElementById("passContainer").classList.add("hidden"); document.getElementById("newPass").required = false; }
+        loadUsers(); 
+      } catch (err) { alert("Error: " + err.message); }
       btn.disabled = false; btn.innerText = "Crear Cuenta";
     });
 
     window.eliminarUsuario = async (id) => { if(confirm("¿Borrar de la base de datos de perfiles?")) { await deleteDoc(doc(db, "users", id)); await logAdminAction(currentUser.nombreCompleto, `Eliminó un perfil de usuario`); loadUsers(); } };
 
+    // CAMBIAR CONTRASEÑA Y ACTUALIZAR COPIA EN BASE DE DATOS
     window.actualizarMiPass = async () => {
        const newP = document.getElementById("adminNewPass").value;
        if(newP.length < 6) { alert("Mínimo 6 caracteres"); return; }
        try {
          await updatePassword(mainAuth.currentUser, newP);
+         // Se actualiza la copia visible para Mario
+         await updateDoc(doc(db, "users", mainAuth.currentUser.uid), { passwordOriginal: newP });
          await logAdminAction(currentUser.nombreCompleto, `Cambió su contraseña de administrador`);
          alert("Contraseña actualizada con éxito.");
          document.getElementById('modalCambiarPassword').classList.add('hidden');
+         loadUsers();
        } catch(e) { alert("Error al cambiar: " + e.message); }
     };
 
