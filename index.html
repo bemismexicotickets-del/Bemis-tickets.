@@ -10,10 +10,7 @@
   <style>
     body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.5s ease; }
     .font-bemis { font-family: 'Montserrat', sans-serif; }
-    @keyframes loginFadeIn {
-      from { opacity: 0; transform: translateY(18px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes loginFadeIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
     .animate-login-entry { animation: loginFadeIn 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   </style>
 </head>
@@ -26,160 +23,102 @@
          Bemis México • Soporte de Sistemas
       </span>
     </div>
-    <div class="text-xs text-slate-400 font-mono">Autenticación Firebase v9</div>
   </header>
 
   <main class="relative z-20 max-w-md w-full mx-auto my-auto px-4 animate-login-entry">
     <div id="loginCard" class="bg-slate-900/90 backdrop-blur-xl border border-blue-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden transition-all duration-500">
       <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 via-cyan-400 to-indigo-600"></div>
       
-      <!-- LOGOTIPO ORIGINAL BEMIS TICKETS (SVG COMPLETO) -->
+      <!-- LOGOTIPO BEMIS OFICIAL -->
       <div class="flex flex-col items-center mb-6">
-        <div class="relative flex items-center gap-3">
-          <div class="relative flex items-center justify-center">
-            <div class="absolute -inset-1 bg-cyan-400/30 rounded-2xl blur-sm"></div>
-            <span id="logoSeasonOrnament" class="absolute -top-4 -right-4 text-3xl z-20 pointer-events-none animate-pulse"></span>
-            <svg width="72" height="72" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="relative drop-shadow-[0_4px_12px_rgba(0,180,255,0.4)] z-10">
-              <circle cx="28" cy="24" r="9" stroke="#38bdf8" stroke-width="2.5" stroke-dasharray="3 2" opacity="0.8" />
-              <circle cx="28" cy="24" r="4" fill="#38bdf8" opacity="0.8" />
-              <g transform="rotate(-18 35 48)">
-                <rect x="20" y="26" width="34" height="46" rx="5" fill="url(#gradTicketBack)" stroke="#67e8f9" stroke-width="2" />
-                <line x1="26" y1="38" x2="48" y2="38" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.7" />
-                <line x1="26" y1="46" x2="42" y2="46" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.7" />
-                <circle cx="20" cy="49" r="4" fill="#0f172a" />
-                <circle cx="54" cy="49" r="4" fill="#0f172a" />
-              </g>
-              <g transform="rotate(12 55 58)">
-                <rect x="40" y="30" width="40" height="56" rx="6" fill="url(#gradTicketFront)" stroke="#38bdf8" stroke-width="2.5" />
-                <circle cx="40" cy="58" r="4.5" fill="#0f172a" />
-                <circle cx="80" cy="58" r="4.5" fill="#0f172a" />
-                <circle cx="60" cy="58" r="13" fill="#0284c7" stroke="#ffffff" stroke-width="2.5" />
-                <path d="M54 58 L58 62 L67 53" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-              </g>
-              <rect x="82" y="70" width="3" height="3" fill="#38bdf8" />
-              <rect x="88" y="74" width="3" height="3" fill="#00e5ff" />
-              <rect x="78" y="78" width="4" height="2" fill="#38bdf8" />
-              <defs>
-                <linearGradient id="gradTicketBack" x1="20" y1="26" x2="54" y2="72" gradientUnits="userSpaceOnUse"><stop stop-color="#0284c7" /><stop offset="1" stop-color="#0c4a6e" /></linearGradient>
-                <linearGradient id="gradTicketFront" x1="40" y1="30" x2="80" y2="86" gradientUnits="userSpaceOnUse"><stop stop-color="#38bdf8" /><stop offset="1" stop-color="#0369a1" /></linearGradient>
-              </defs>
-            </svg>
-          </div>
-          <div class="flex flex-col relative">
-            <svg class="w-full h-3 md:h-4 text-white overflow-visible -mb-1 opacity-90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]" viewBox="0 0 160 20" fill="none">
-              <path d="M 5 18 Q 80 -4 155 18" stroke="white" stroke-width="4" stroke-linecap="round"/>
-            </svg>
-            <div class="font-bemis font-black italic tracking-wide text-4xl flex items-baseline gap-1">
-              <span class="text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">BEMIS</span><span class="text-cyan-300 drop-shadow-[0_2px_8px_rgba(0,180,255,0.7)]">TICKETS</span>
-            </div>
-          </div>
+        <div class="relative w-full max-w-[200px] mb-2 flex justify-center">
+          <span id="logoSeasonOrnament" class="absolute -top-3 -right-2 text-2xl z-20 pointer-events-none animate-pulse"></span>
+          <svg viewBox="0 0 400 150" class="w-full h-auto drop-shadow-lg" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 20 80 Q 200 -20 380 80 Q 360 40 200 10 Q 50 40 20 80 Z" fill="#0052cc"/>
+            <text x="50%" y="110" font-family="Montserrat, sans-serif" font-weight="900" font-style="italic" font-size="76" fill="#0052cc" text-anchor="middle">BEMIS</text>
+            <text x="50%" y="145" font-family="Montserrat, sans-serif" font-weight="900" font-size="28" fill="#38bdf8" text-anchor="middle" letter-spacing="4">TICKETS</text>
+          </svg>
         </div>
-        <div class="mt-1 flex items-center justify-center gap-1.5">
-          <div class="h-[1px] w-4 bg-cyan-400/40"></div>
-          <span class="text-[10px] font-semibold tracking-wider text-blue-100 uppercase text-center opacity-95 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
-            Mesa de Ayuda de TI • SOPORTE DE SISTEMAS
-          </span>
-          <div class="h-[1px] w-4 bg-cyan-400/40"></div>
+        <div class="mt-1 text-[10px] tracking-wider font-bold text-slate-300 uppercase text-center">
+          Mesa de Ayuda de TI • SOPORTE DE SISTEMAS
         </div>
-      </div>
-
-      <div class="text-center mb-5">
-        <h2 class="text-base font-black text-white">Inicio de Sesión</h2>
-        <p class="text-xs text-slate-400 mt-0.5">Ingresa tu correo corporativo y contraseña</p>
-      </div>
-
-      <div id="rememberedUserBox" class="hidden mb-4 p-3 rounded-2xl bg-slate-800/80 border border-cyan-500/30 flex items-center justify-between gap-3">
-        <div class="flex items-center gap-2.5 min-w-0">
-          <div class="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold text-xs shrink-0" id="rememberedInitial">U</div>
-          <div class="min-w-0">
-            <div class="text-[10px] uppercase font-bold text-cyan-400">Última sesión en este equipo:</div>
-            <div class="text-xs font-mono font-bold text-white truncate" id="rememberedEmailText">usuario@bemis.com</div>
-          </div>
-        </div>
-        <button type="button" id="clearRememberedBtn" class="text-slate-400 hover:text-rose-400 p-1" title="Usar otra cuenta">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
       </div>
 
       <div id="errorAlert" class="hidden mb-4 p-3 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs flex items-center gap-2">
-        <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
-        <span id="errorMsg">Usuario o contraseña incorrectos</span>
+        <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i><span id="errorMsg">Error</span>
       </div>
 
       <form id="loginForm" class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Correo Corporativo</label>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Selecciona tu Correo Corporativo</label>
           <div class="relative">
             <i data-lucide="mail" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-            <input type="email" id="emailInput" required placeholder="correo@bemismfg.com" class="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-mono transition-colors">
+            <!-- Datalist para autocompletar correos -->
+            <input type="email" id="emailInput" list="listaCorreos" required placeholder="Escribe o selecciona tu correo..." autocomplete="off" class="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-mono transition-colors">
+            <datalist id="listaCorreos"></datalist>
           </div>
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Contraseña</label>
+        
+        <!-- Contenedor de contraseña oculto por defecto -->
+        <div id="passwordContainer" class="hidden animate-fadeIn">
+          <label class="block text-xs font-semibold text-amber-400 mb-1.5"><i data-lucide="shield" class="inline w-3 h-3"></i> Contraseña de Administrador</label>
           <div class="relative">
             <i data-lucide="key" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-            <input type="password" id="passwordInput" required placeholder="••••••" class="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition-colors">
+            <input type="password" id="passwordInput" placeholder="Requerida solo para Admins" class="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 transition-colors">
           </div>
         </div>
-        <button type="submit" id="submitBtn" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-600 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 cursor-pointer transition-all active:scale-98">
-          <i data-lucide="log-in" class="w-4 h-4"></i> Ingresar al Portal
+
+        <button type="submit" id="submitBtn" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-600 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 cursor-pointer transition-all active:scale-98 mt-2">
+          <i data-lucide="log-in" class="w-4 h-4"></i> Ingresar al Sistema
         </button>
       </form>
     </div>
   </main>
 
-  <div id="passwordChangeModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-    <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
-      <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center mb-4 border border-cyan-500/30">
-        <i data-lucide="key-round" class="w-6 h-6"></i>
-      </div>
-      <h3 class="text-lg font-bold text-white mb-1">Cambio de Contraseña Obligatorio</h3>
-      <p class="text-xs text-slate-300 mb-4">Por seguridad de TI, debes cambiar tu contraseña en tu primer inicio de sesión.</p>
-      <div id="passErrorAlert" class="hidden mb-3 p-2.5 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs"></div>
-      <form id="changePassForm" class="space-y-3">
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Nueva Contraseña:</label>
-          <input type="password" id="newPassInput" required placeholder="Mínimo 6 caracteres" class="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Confirmar Contraseña:</label>
-          <input type="password" id="confirmPassInput" required placeholder="Repite la contraseña" class="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400">
-        </div>
-        <button type="submit" class="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs mt-2 cursor-pointer shadow-lg shadow-cyan-500/20">
-          Actualizar y Acceder al Sistema
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <footer class="relative z-20 max-w-md w-full mx-auto p-4 text-center text-xs text-slate-500">
-    Bemis México • Soporte de Tecnologías de la Información
-  </footer>
-
   <script src="animations.js"></script>
   <script type="module">
-    import { login, getRememberedEmail, setRememberedEmail, changePassword } from "./auth.js";
+    import { db, firebaseConfig } from "./firebase-config.js";
     import { subscribeToGlobalTheme } from "./db.js";
+    import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 
     lucide.createIcons();
-    const remembered = getRememberedEmail();
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
     const emailInput = document.getElementById("emailInput");
-    const rememberedBox = document.getElementById("rememberedUserBox");
-    if (remembered) {
-      rememberedBox.classList.remove("hidden");
-      document.getElementById("rememberedInitial").innerText = remembered.charAt(0).toUpperCase();
-      document.getElementById("rememberedEmailText").innerText = remembered;
-      emailInput.value = remembered;
+    const passwordContainer = document.getElementById("passwordContainer");
+    const passwordInput = document.getElementById("passwordInput");
+    const listaCorreos = document.getElementById("listaCorreos");
+    let allUsers = [];
+
+    // Cargar correos en la lista desplegable
+    async function cargarCorreos() {
+      const snap = await getDocs(collection(db, "users"));
+      allUsers = snap.docs.map(d => d.data());
+      allUsers.forEach(u => {
+        const option = document.createElement("option");
+        option.value = u.email;
+        listaCorreos.appendChild(option);
+      });
     }
-    document.getElementById("clearRememberedBtn").addEventListener("click", () => {
-      setRememberedEmail("");
-      rememberedBox.classList.add("hidden");
-      emailInput.value = "";
-      document.getElementById("passwordInput").value = "";
+    cargarCorreos();
+
+    // Detectar si el correo escrito pertenece a un Admin para mostrar la contraseña
+    emailInput.addEventListener("input", () => {
+      const selected = allUsers.find(u => u.email.toLowerCase() === emailInput.value.toLowerCase());
+      if (selected && selected.role === "admin") {
+        passwordContainer.classList.remove("hidden");
+        passwordInput.required = true;
+      } else {
+        passwordContainer.classList.add("hidden");
+        passwordInput.required = false;
+        passwordInput.value = "";
+      }
     });
 
     const themeOrnaments = { navidad: "🎅", halloween: "🎃", dia_muertos: "🏵️", san_valentin: "💖", primavera: "🌸", estandar: "" };
-    
     subscribeToGlobalTheme((activeTheme, activeBg) => {
       if (window.seasonalEngine) window.seasonalEngine.setTheme(activeTheme);
       const ornamentSpan = document.getElementById("logoSeasonOrnament");
@@ -187,57 +126,38 @@
       document.body.style.backgroundColor = activeBg;
     });
 
-    const loginForm = document.getElementById("loginForm");
-    const submitBtn = document.getElementById("submitBtn");
-    const errorAlert = document.getElementById("errorAlert");
-    const errorMsg = document.getElementById("errorMsg");
-    const passwordChangeModal = document.getElementById("passwordChangeModal");
-
-    loginForm.addEventListener("submit", async (e) => {
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = emailInput.value.trim();
-      const password = document.getElementById("passwordInput").value;
-      submitBtn.disabled = true;
-      submitBtn.innerText = "Autenticando en Firebase...";
-      errorAlert.classList.add("hidden");
-
-      const res = await login(email, password);
-      if (res.success) {
-        sessionStorage.setItem("bemis_session_user", JSON.stringify(res.user));
-        if (res.user.requiereCambioPassword) {
-          submitBtn.disabled = false;
-          submitBtn.innerText = "Ingresar al Portal";
-          passwordChangeModal.classList.remove("hidden");
-          return;
-        }
-        window.location.href = res.user.role === "admin" ? "admin.html" : "user.html";
-      } else {
-        errorAlert.classList.remove("hidden");
-        errorMsg.innerText = res.error;
-        submitBtn.disabled = false;
-        submitBtn.innerText = "Ingresar al Portal";
+      const btn = document.getElementById("submitBtn");
+      
+      const userDoc = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+      if (!userDoc) {
+        mostrarError("Correo no registrado en la base de datos.");
+        return;
       }
-    });
 
-    const changePassForm = document.getElementById("changePassForm");
-    const passErrorAlert = document.getElementById("passErrorAlert");
-    changePassForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const p1 = document.getElementById("newPassInput").value;
-      const p2 = document.getElementById("confirmPassInput").value;
-      if (p1.length < 6) { passErrorAlert.classList.remove("hidden"); passErrorAlert.innerText = "Mínimo 6 caracteres."; return; }
-      if (p1 !== p2) { passErrorAlert.classList.remove("hidden"); passErrorAlert.innerText = "Las contraseñas no coinciden."; return; }
+      btn.disabled = true; btn.innerText = "Iniciando...";
+      document.getElementById("errorAlert").classList.add("hidden");
+
+      // Si es usuario normal, usamos la contraseña universal secreta por detrás.
+      // Si es admin, usamos la que tecleó.
+      const pass = userDoc.role === "admin" ? passwordInput.value : "BemisUser2026!";
+
       try {
-        await changePassword(p1);
-        const stored = JSON.parse(sessionStorage.getItem("bemis_session_user") || "{}");
-        stored.requiereCambioPassword = false;
-        sessionStorage.setItem("bemis_session_user", JSON.stringify(stored));
-        window.location.href = stored.role === "admin" ? "admin.html" : "user.html";
-      } catch (err) {
-        passErrorAlert.classList.remove("hidden");
-        passErrorAlert.innerText = err.message || "Error al actualizar contraseña.";
+        const userCred = await signInWithEmailAndPassword(auth, email, pass);
+        sessionStorage.setItem("bemis_session_user", JSON.stringify(userDoc));
+        window.location.href = userDoc.role === "admin" ? "admin.html" : "user.html";
+      } catch (error) {
+        mostrarError(userDoc.role === "admin" ? "Contraseña de administrador incorrecta." : "Error de acceso.");
       }
+      btn.disabled = false; btn.innerText = "Ingresar al Sistema";
     });
+
+    function mostrarError(msg) {
+      document.getElementById("errorAlert").classList.remove("hidden");
+      document.getElementById("errorMsg").innerText = msg;
+    }
   </script>
 </body>
 </html>
