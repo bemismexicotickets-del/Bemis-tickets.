@@ -3,7 +3,6 @@
  * Archivo: app.js
  */
 
-// Función auxiliar para calcular el número de semana del año
 function getWeekNumber(dateStr) {
   if (!dateStr) return '00';
   const d = new Date(dateStr);
@@ -21,18 +20,15 @@ export function exportarTicketsAExcel(ticketsList) {
     return;
   }
 
-  // 1. Ordenar tickets por fecha (del más antiguo al más reciente) para agrupar por semana
   const sortedTickets = [...ticketsList].sort((a, b) => new Date(a.fechaTicket) - new Date(b.fechaTicket));
 
   const wsData = [];
   const headers = ['Ticket', 'Usuario Ticket', 'Nombre del reporte', 'Column4', 'Prioridad', 'Departamento', 'Categoria', 'Seguimiento', 'Fecha de Ticket', 'Fecha Estimada', 'Días transc.', 'Fecha de Termino', '% Hecho', 'Comentarios'];
   
-  // Fila 1: Título Principal
   wsData.push(['IT *LISTA DE PENDIENTES', '', '', '', '', '', '', '', '', '', '', '', '', '']);
 
   let currentWeek = null;
 
-  // 2. Construir filas agrupadas
   sortedTickets.forEach(t => {
     let dias = t.diasTranscurridos || 0;
     if (!dias && t.fechaTicket) {
@@ -52,7 +48,6 @@ export function exportarTicketsAExcel(ticketsList) {
 
     const week = getWeekNumber(t.fechaTicket);
     
-    // 3. Insertar Separador de Semana y Encabezados si la semana cambia
     if (week !== currentWeek) {
       currentWeek = week;
       wsData.push([`SEM${week}`, '', '', '', '', '', '', '', '', '', '', '', '', '']);
@@ -79,7 +74,6 @@ export function exportarTicketsAExcel(ticketsList) {
 
   const worksheet = XLSX.utils.aoa_to_sheet(wsData);
 
-  // 4. APLICAR COLORES Y DISEÑO EXACTO AL FORMATO
   const range = XLSX.utils.decode_range(worksheet['!ref']);
   for(let R = range.s.r; R <= range.e.r; ++R) {
     for(let C = range.s.c; C <= range.e.c; ++C) {
@@ -90,43 +84,34 @@ export function exportarTicketsAExcel(ticketsList) {
       const cell = worksheet[cell_ref];
       const val = String(cell.v);
 
-      // Bordes grises por defecto para todas las celdas
       let s = {
         font: { name: "Calibri", sz: 11 },
         border: {
-          top: { style: "thin", color: { rgb: "BFBFBF" } },
-          bottom: { style: "thin", color: { rgb: "BFBFBF" } },
-          left: { style: "thin", color: { rgb: "BFBFBF" } },
-          right: { style: "thin", color: { rgb: "BFBFBF" } }
+          top: { style: "thin", color: { rgb: "BFBFBF" } }, bottom: { style: "thin", color: { rgb: "BFBFBF" } },
+          left: { style: "thin", color: { rgb: "BFBFBF" } }, right: { style: "thin", color: { rgb: "BFBFBF" } }
         }
       };
 
       if (R === 0 && C === 0) {
-         // Fila 1: IT LISTA DE PENDIENTES
          s.font = { name: "Calibri", sz: 12, bold: true };
       } else if (val.startsWith("SEM") && C === 0) {
-         // Fila Separadora de Semana
          s.font = { name: "Calibri", sz: 12, bold: true };
-         s.fill = { fgColor: { rgb: "D9D9D9" } }; // Fondo Gris claro
+         s.fill = { fgColor: { rgb: "D9D9D9" } }; 
       } else if (headers.includes(val) && R !== 0) {
-         // Fila de Encabezados (Azul Marino con letras Blancas)
          s.font = { name: "Calibri", sz: 11, bold: true, color: { rgb: "FFFFFF" } };
-         s.fill = { fgColor: { rgb: "1E3A8A" } }; // Azul Corporativo Bemis
+         s.fill = { fgColor: { rgb: "1E3A8A" } }; 
          s.alignment = { horizontal: "center", vertical: "center" };
       } else if (R > 0) {
-         // Colores para la columna de % Hecho (Amarillo y Verde)
          if (C === 12 && val !== "% Hecho") {
             const num = Number(val);
-            if (num === 100) s.fill = { fgColor: { rgb: "86EFAC" } }; // Verde (Resuelto)
-            else s.fill = { fgColor: { rgb: "FDE047" } }; // Amarillo (Pendiente/Proceso)
+            if (num === 100) s.fill = { fgColor: { rgb: "86EFAC" } }; 
+            else s.fill = { fgColor: { rgb: "FDE047" } }; 
          }
       }
-
       cell.s = s;
     }
   }
 
-  // 5. Ajustar anchos exactos
   worksheet['!cols'] = [
     { wch: 12 }, { wch: 16 }, { wch: 45 }, { wch: 10 }, { wch: 12 }, { wch: 16 }, { wch: 22 }, 
     { wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 12 }, { wch: 16 }, { wch: 10 }, { wch: 55 }
@@ -156,11 +141,10 @@ export function procesarExcelImportacion(file, callbackExito) {
       const firstSheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[firstSheetName];
 
-      // range: 2 obliga al sistema a ignorar la fila 1 y 2, leyendo directo los encabezados en la fila 3
       const rows = XLSX.utils.sheet_to_json(worksheet, { range: 2 });
 
       if (rows.length === 0) {
-        alert("El archivo está vacío o no coincide con el formato de columnas de Bemis.");
+        alert("El archivo está vacío o no coincide con el formato.");
         return;
       }
 
@@ -175,8 +159,8 @@ export function procesarExcelImportacion(file, callbackExito) {
           return String(val);
         };
 
-        const pct = r['% Hecho'] !== undefined ? Number(r['% Hecho']) : 0;
-        const statusVal = pct > 100 ? 100 : (pct < 0 ? 0 : pct);
+        const fApertura = formatDate(r['Fecha de Ticket']);
+        const fCierre = formatDate(r['Fecha de Termino']);
 
         return {
           ticketId: String(r['Ticket'] || `TIK-OLD-${Math.floor(Math.random()*10000)}`),
@@ -189,12 +173,15 @@ export function procesarExcelImportacion(file, callbackExito) {
           departamento: String(r['Departamento'] || "General"),
           categoria: String(r['Categoria'] || "General"),
           seguimiento: String(r['Seguimiento'] || "Mario (Sistemas)"),
-          fechaTicket: formatDate(r['Fecha de Ticket']),
+          fechaTicket: fApertura,
           fechaEstimada: formatDate(r['Fecha Estimada']),
+          fechaAperturaExacta: fApertura, // Sin hora, solo la fecha histórica
           diasTranscurridos: Number(r['Días transc.'] || 0),
-          fechaTermino: formatDate(r['Fecha de Termino']),
-          porcentajeHecho: statusVal,
-          encuestaRespondida: false 
+          fechaTermino: fCierre,
+          fechaCierreExacta: fCierre,
+          porcentajeHecho: 100, // IMPORTANTE: Obligado a 100% finalizado
+          porcentajeSatisfaccion: 100, 
+          encuestaRespondida: true // Evita que se envíen encuestas viejas
         };
       });
 
