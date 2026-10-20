@@ -53,8 +53,10 @@
           <label class="block text-xs font-semibold text-slate-300 mb-1.5">Selecciona tu Correo Corporativo</label>
           <div class="relative">
             <i data-lucide="mail" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-            <!-- Datalist para autocompletar correos -->
-            <input type="email" id="emailInput" list="listaCorreos" required placeholder="Escribe o selecciona tu correo..." autocomplete="off" class="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-mono transition-colors">
+            
+            <!-- Lista Desplegable Autocompletable -->
+            <input type="email" id="emailInput" list="listaCorreos" required placeholder="Escribe tu correo..." autocomplete="off" class="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-mono transition-colors">
+            
             <datalist id="listaCorreos"></datalist>
           </div>
         </div>
@@ -79,8 +81,8 @@
   <script type="module">
     import { db, firebaseConfig } from "./firebase-config.js";
     import { subscribeToGlobalTheme } from "./db.js";
-    import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { collection, getDocs, setDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 
     lucide.createIcons();
@@ -91,24 +93,75 @@
     const passwordContainer = document.getElementById("passwordContainer");
     const passwordInput = document.getElementById("passwordInput");
     const listaCorreos = document.getElementById("listaCorreos");
-    let allUsers = [];
 
-    // Cargar correos en la lista desplegable
+    // BASE DE DATOS LOCAL EXTRÍDA DE LA IMAGEN DE BEMIS
+    const correosBemis = [
+      "samir.alonso@bemismfg.com", "juan.alvarado@bemismfg.com", "elias.arriaga@bemismfg.com",
+      "david.astudillo@bemismfg.com", "luis.barreras@bemismfg.com", "yahir.barrera@bemismfg.com",
+      "felipe.barrios@bemismfg.com", "nadia.bautista@bemismfg.com", "rogelio.bazaldua@bemismfg.com",
+      "bemis.mexico@bemismfg.com", "ana.botello@bemismfg.com", "javier.carrera@bemismfg.com",
+      "jose.cantu@bemismfg.com", "homero.cardenas@bemismfg.com", "diana.cavazos@bemismfg.com",
+      "mario.cerda@bemismfg.com", "rogelio.chapa@bemismfg.com", "andres.contreras@bemismfg.com",
+      "marco.coronado@bemismfg.com", "sara.de.la.cruz@bemismfg.com", "juana.diaz@bemismfg.com",
+      "ana.espinoza@bemismfg.com", "miguel.esquivel@bemismfg.com", "mauricio.estrada@bemismfg.com",
+      "joel.flores@bemismfg.com", "nancy.flores@bemismfg.com", "jesus.galicia@bemismfg.com",
+      "angel.garcia@bemismfg.com", "hector.garcia@bemismfg.com", "ivan.garcia@bemismfg.com",
+      "olga.garcia@bemismfg.com", "noe.gomez@bemismfg.com", "armando.gonzalez@bemismfg.com",
+      "barbara.gonzalez@bemismfg.com", "mauricio.gonzalez@bemismfg.com", "rubi.gonzalez@bemismfg.com",
+      "yanely.gonzalez@bemismfg.com", "carmen.hernandez@bemismfg.com", "gilberto.hernandez@bemismfg.com",
+      "julio.hernandez@bemismfg.com", "mario.holguin@bemismfg.com", "internet.guest.account@bemismfg.com",
+      "hernan.jaquez@bemismfg.com", "carlos.lopez@bemismfg.com", "daysi.lopez@bemismfg.com",
+      "francisco.lozano@bemismfg.com", "ulio.lucero@bemismfg.com", "rodolfo.madera@bemismfg.com",
+      "andres.martinez@bemismfg.com", "angelica.martinez@bemismfg.com", "cecilia.martinez@bemismfg.com",
+      "marco.martinez@bemismfg.com", "rafael.martinez@bemismfg.com", "yadira.martinez@bemismfg.com",
+      "materials.support@bemismfg.com", "juan.medina@bemismfg.com", "julio.medina@bemismfg.com",
+      "mexcommex@bemismfg.com", "mexflt2@bemismfg.com", "mexship@bemismfg.com", "david.morales@bemismfg.com",
+      "manuel.morales@bemismfg.com", "angel.navarro@bemismfg.com", "jesus.osorio@bemismfg.com",
+      "alvaro.pena@bemismfg.com", "miguel.pena@bemismfg.com", "julia.perez@bemismfg.com",
+      "manuel.perez@bemismfg.com", "oscar.pineda@bemismfg.com", "victor.ponce@bemismfg.com",
+      "prodclerk@bemismfg.com", "rafael.quintanilla@bemismfg.com", "juan.rangel@bemismfg.com",
+      "valeria.raygoza@bemismfg.com", "daniel.reyes@bemismfg.com", "maribel.reyes@bemismfg.com",
+      "ruben.reyes@bemismfg.com", "roberto.rios@bemismfg.com", "juan.rivas@bemismfg.com",
+      "ken.rivera@bemismfg.com", "alejandra.robles@bemismfg.com", "rodolfo.robles@bemismfg.com",
+      "enrique.rocha@bemismfg.com", "felipe.rodriguez@bemismfg.com", "ricardo.rodriguez@bemismfg.com",
+      "rogelio.rodriguez@bemismfg.com", "merari.rodriguez@bemismfg.com", "georgina.rosas@bemismfg.com",
+      "raymundo.salinas@bemismfg.com", "gerardo.sanchez@bemismfg.com", "luis.sandoval@bemismfg.com",
+      "jose.santos.delacruz@bemismfg.com", "daniel.santos@bemismfg.com", "jorge.santos@bemismfg.com",
+      "melissa.santos@bemismfg.com", "victor.semanog@bemismfg.com", "solomon@bemismfg.com",
+      "nancy.soto@bemismfg.com", "quality.support@bemismfg.com", "training.support@bemismfg.com",
+      "omar.urazanda@bemismfg.com", "adriana.valdez@bemismfg.com", "cielo.valdez@bemismfg.com",
+      "noe.vazquez@bemismfg.com", "miguel.vazquez@bemismfg.com", "benjamin.vega@bemismfg.com",
+      "marcela.velazquez@bemismfg.com", "sergio.velazquez@bemismfg.com", "leonel.villa@bemismfg.com",
+      "mario.ortiz@bemismfg.com", "itzel.yanez@bemismfg.com", "emilio.yea@bemismfg.com"
+    ];
+
+    let dbUsers = [];
+
+    // Llenar el desplegable combinando la base estática de Bemis con la de Firebase
     async function cargarCorreos() {
-      const snap = await getDocs(collection(db, "users"));
-      allUsers = snap.docs.map(d => d.data());
-      allUsers.forEach(u => {
-        const option = document.createElement("option");
-        option.value = u.email;
-        listaCorreos.appendChild(option);
-      });
+      try {
+        const snap = await getDocs(collection(db, "users"));
+        dbUsers = snap.docs.map(d => d.data());
+        
+        // Agregar los correos de Firestore al Set para evitar duplicados
+        const allEmails = new Set([...correosBemis, ...dbUsers.map(u => u.email.toLowerCase())]);
+        
+        allEmails.forEach(email => {
+          const option = document.createElement("option");
+          option.value = email;
+          listaCorreos.appendChild(option);
+        });
+      } catch (e) { console.error("Cargando base offline", e); }
     }
     cargarCorreos();
 
-    // Detectar si el correo escrito pertenece a un Admin para mostrar la contraseña
+    // Mostrar campo de contraseña SOLO si es Administrador (como Mario)
     emailInput.addEventListener("input", () => {
-      const selected = allUsers.find(u => u.email.toLowerCase() === emailInput.value.toLowerCase());
-      if (selected && selected.role === "admin") {
+      const selectedEmail = emailInput.value.toLowerCase();
+      const userInDb = dbUsers.find(u => u.email.toLowerCase() === selectedEmail);
+      
+      // Si el correo es de un administrador, pedimos contraseña
+      if (userInDb && userInDb.role === "admin") {
         passwordContainer.classList.remove("hidden");
         passwordInput.required = true;
       } else {
@@ -126,32 +179,68 @@
       document.body.style.backgroundColor = activeBg;
     });
 
+    // Auto-Crear Usuarios Nuvos al vuelo
+    async function autoCreateAndLogin(email) {
+      // Usamos el nombre formateado (ej: mario.cerda -> Mario Cerda)
+      let nombre = email.split('@')[0].split('.').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      let depto = "General";
+      
+      if(email.includes("fin")) depto = "Finanzas";
+      else if(email.includes("materials")) depto = "Materiales";
+      else if(email.includes("quality")) depto = "Calidad";
+      else if(email.includes("training")) depto = "Entrenamiento";
+
+      try {
+        // Registra al nuevo usuario con la contraseña genérica de sistema
+        const userCred = await createUserWithEmailAndPassword(auth, email, "BemisUser2026!");
+        const userData = { email, nombreCompleto: nombre, departamento: depto, role: "user", requiereCambioPassword: false, activo: true, creadoEn: new Date().toISOString() };
+        
+        await setDoc(doc(db, "users", userCred.user.uid), userData);
+        sessionStorage.setItem("bemis_session_user", JSON.stringify(userData));
+        window.location.href = "user.html";
+      } catch (err) {
+        if(err.code === "auth/email-already-in-use") {
+          // Si ya existe pero no estaba en nuestra variable local dbUsers, intentamos login directo
+          try {
+            await signInWithEmailAndPassword(auth, email, "BemisUser2026!");
+            const docRef = doc(db, "users", (auth.currentUser).uid);
+            const docSnap = await getDoc(docRef);
+            sessionStorage.setItem("bemis_session_user", JSON.stringify(docSnap.data()));
+            window.location.href = "user.html";
+          } catch(e) { mostrarError("No se pudo auto-iniciar sesión."); }
+        } else {
+          mostrarError("Error al validar el correo.");
+        }
+      }
+    }
+
     document.getElementById("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const email = emailInput.value.trim();
+      const email = emailInput.value.trim().toLowerCase();
       const btn = document.getElementById("submitBtn");
       
-      const userDoc = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
-      if (!userDoc) {
-        mostrarError("Correo no registrado en la base de datos.");
-        return;
-      }
-
       btn.disabled = true; btn.innerText = "Iniciando...";
       document.getElementById("errorAlert").classList.add("hidden");
 
-      // Si es usuario normal, usamos la contraseña universal secreta por detrás.
-      // Si es admin, usamos la que tecleó.
-      const pass = userDoc.role === "admin" ? passwordInput.value : "BemisUser2026!";
+      const userInDb = dbUsers.find(u => u.email.toLowerCase() === email);
+
+      if (!userInDb) {
+        // Si el usuario no existe en la BD de Firebase, lo creamos automáticamente y entra
+        await autoCreateAndLogin(email);
+        return;
+      }
+
+      // Si el usuario ya existe en Firebase, iniciamos sesión normal
+      const pass = userInDb.role === "admin" ? passwordInput.value : "BemisUser2026!";
 
       try {
-        const userCred = await signInWithEmailAndPassword(auth, email, pass);
-        sessionStorage.setItem("bemis_session_user", JSON.stringify(userDoc));
-        window.location.href = userDoc.role === "admin" ? "admin.html" : "user.html";
+        await signInWithEmailAndPassword(auth, email, pass);
+        sessionStorage.setItem("bemis_session_user", JSON.stringify(userInDb));
+        window.location.href = userInDb.role === "admin" ? "admin.html" : "user.html";
       } catch (error) {
-        mostrarError(userDoc.role === "admin" ? "Contraseña de administrador incorrecta." : "Error de acceso.");
+        mostrarError(userInDb.role === "admin" ? "Contraseña de administrador incorrecta." : "Error de acceso en el sistema.");
+        btn.disabled = false; btn.innerText = "Ingresar al Sistema";
       }
-      btn.disabled = false; btn.innerText = "Ingresar al Sistema";
     });
 
     function mostrarError(msg) {
