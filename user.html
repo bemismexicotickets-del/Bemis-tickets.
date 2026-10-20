@@ -10,7 +10,9 @@
   <style> body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.5s ease; } .font-bemis { font-family: 'Montserrat', sans-serif; } </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col relative overflow-x-hidden">
-  <canvas id="seasonalCanvas" class="fixed inset-0 pointer-events-none z-10 w-full h-full"></canvas>
+  
+  <!-- Animaciones siempre al fondo pero visibles -->
+  <canvas id="seasonalCanvas" class="fixed inset-0 pointer-events-none z-0 w-full h-full opacity-80"></canvas>
 
   <script>
     window.cambiarVista = (vista) => {
@@ -24,18 +26,20 @@
     };
   </script>
 
-  <header class="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 shadow-xl">
+  <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-xl">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="relative w-[140px] flex justify-center">
-          <span id="logoSeasonOrnament" class="absolute -top-2.5 -right-1 text-lg z-20 pointer-events-none animate-pulse"></span>
-          <svg viewBox="0 0 400 150" class="w-full h-auto drop-shadow-lg" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M 20 80 Q 200 -20 380 80 Q 360 40 200 10 Q 50 40 20 80 Z" fill="#0052cc"/>
-            <text x="50%" y="110" font-family="Montserrat, sans-serif" font-weight="900" font-style="italic" font-size="76" fill="#0052cc" text-anchor="middle">BEMIS</text>
-            <text x="50%" y="145" font-family="Montserrat, sans-serif" font-weight="900" font-size="28" fill="#38bdf8" text-anchor="middle" letter-spacing="4">TICKETS</text>
+      
+      <div class="flex items-center gap-4">
+        <div class="relative w-[180px] flex items-center pt-2">
+          <span id="logoSeasonOrnament" class="absolute -top-3 right-0 text-2xl z-20 pointer-events-none animate-pulse"></span>
+          <svg viewBox="0 0 400 160" class="w-full h-auto drop-shadow-lg" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 20 85 C 100 20, 250 -10, 380 65 L 360 85 C 240 25, 120 40, 20 85 Z" fill="#0052cc"/>
+            <text x="50%" y="115" font-family="Montserrat, sans-serif" font-weight="900" font-style="italic" font-size="76" fill="#ffffff" text-anchor="middle">BEMIS</text>
+            <text x="50%" y="150" font-family="Montserrat, sans-serif" font-weight="900" font-size="28" fill="#38bdf8" text-anchor="middle" letter-spacing="4">TICKETS</text>
           </svg>
         </div>
       </div>
+      
       <div class="flex items-center gap-3">
         <div class="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-slate-800 border border-slate-700 text-xs">
           <i data-lucide="user" class="w-3.5 h-3.5 text-cyan-400"></i>
@@ -52,33 +56,33 @@
 
   <main class="relative z-20 max-w-4xl mx-auto w-full px-4 sm:px-6 py-8">
     
-    <!-- VISTA 1: CREAR TICKET (Limpio y directo) -->
+    <!-- VISTA 1: CREAR TICKET -->
     <div id="vista-crear" class="block animate-fadeIn">
-      <div class="bg-slate-900/85 border border-blue-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl">
+      <div class="bg-slate-900/90 border border-blue-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-md">
         <h2 class="text-2xl font-black text-white mb-2 flex items-center gap-2"><i data-lucide="headphones" class="w-6 h-6 text-cyan-400"></i> ¿En qué podemos ayudarte hoy?</h2>
         <p class="text-sm text-slate-400 mb-6">Describe detalladamente la incidencia técnica para que el equipo de Soporte de Sistemas te asigne atención.</p>
         
         <form id="createTicketForm" class="space-y-4">
-          <input type="text" id="ticketSubject" required placeholder="Asunto o Título breve del problema..." class="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 text-white font-semibold">
+          <input type="text" id="ticketSubject" required placeholder="Asunto o Título breve del problema..." class="w-full p-3.5 rounded-xl bg-slate-800 border border-slate-700 text-white font-semibold focus:border-cyan-400 focus:outline-none transition-colors">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <select id="ticketCategory" class="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 text-slate-300">
+            <select id="ticketCategory" class="w-full p-3.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 focus:border-cyan-400 focus:outline-none transition-colors">
               <option value="Hardware / PC">Falla en PC / Laptop</option><option value="Software / SAP ERP">Error en SAP / Software</option><option value="Red e Internet">Falla de Red / Wi-Fi</option><option value="Impresoras">Problema de Impresión</option>
             </select>
-            <select id="ticketPriority" class="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 text-slate-300">
+            <select id="ticketPriority" class="w-full p-3.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 focus:border-cyan-400 focus:outline-none transition-colors">
               <option value="Baja">Prioridad Baja</option><option value="Media" selected>Prioridad Media</option><option value="Alta">Prioridad Alta</option><option value="Crítica">Crítica (Paro Operativo)</option>
             </select>
           </div>
-          <textarea id="ticketDesc" required rows="4" placeholder="Describe los pasos previos, mensajes de error en pantalla o números de equipo afectados..." class="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 text-white resize-none"></textarea>
-          <button type="submit" id="btnSendTicket" class="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-600 hover:scale-[1.02] text-white font-bold text-sm shadow-xl transition-all cursor-pointer">
+          <textarea id="ticketDesc" required rows="4" placeholder="Describe los pasos previos, mensajes de error en pantalla o números de equipo afectados..." class="w-full p-3.5 rounded-xl bg-slate-800 border border-slate-700 text-white resize-none focus:border-cyan-400 focus:outline-none transition-colors"></textarea>
+          <button type="submit" id="btnSendTicket" class="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-600 hover:scale-[1.02] text-white font-bold text-sm shadow-xl shadow-cyan-500/20 transition-all cursor-pointer">
             Generar y Enviar Solicitud de Soporte
           </button>
         </form>
       </div>
     </div>
 
-    <!-- VISTA 2: HISTORIAL DE TICKETS (Con hora exacta) -->
+    <!-- VISTA 2: HISTORIAL -->
     <div id="vista-historial" class="hidden animate-fadeIn">
-      <div class="bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-2xl backdrop-blur-md">
         <h2 class="text-lg font-black text-white mb-4"><i data-lucide="layers" class="inline w-5 h-5 text-cyan-400"></i> Historial Completo</h2>
         <div id="ticketsContainer" class="space-y-4"></div>
       </div>
@@ -86,20 +90,19 @@
 
   </main>
 
-  <!-- MODAL DE ENCUESTA (Igual) -->
   <div id="surveyModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/85 backdrop-blur-md overflow-y-auto">
     <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl max-w-xl w-full p-6 shadow-2xl relative my-auto">
       <h3 class="text-lg font-black text-white mb-4">Evaluación de Soporte Recibido</h3>
       <form id="surveyForm" class="space-y-3">
         <div class="space-y-2.5 max-h-[50vh] overflow-y-auto pr-1">
-          <div class="p-3 bg-slate-800/60 rounded-xl"><div class="flex justify-between text-xs text-white mb-1"><span>1. Rapidez inicial</span><span id="pts_q1" class="text-cyan-300">0 pts</span></div><div class="flex gap-1" id="stars_q1"></div></div>
-          <div class="p-3 bg-slate-800/60 rounded-xl"><div class="flex justify-between text-xs text-white mb-1"><span>2. Claridad comunicación</span><span id="pts_q2" class="text-cyan-300">0 pts</span></div><div class="flex gap-1" id="stars_q2"></div></div>
-          <div class="p-3 bg-slate-800/60 rounded-xl"><div class="flex justify-between text-xs text-white mb-1"><span>3. Solución definitiva</span><span id="pts_q3" class="text-cyan-300">0 pts</span></div><div class="flex gap-1" id="stars_q3"></div></div>
-          <div class="p-3 bg-slate-800/60 rounded-xl"><div class="flex justify-between text-xs text-white mb-1"><span>4. Amabilidad</span><span id="pts_q4" class="text-cyan-300">0 pts</span></div><div class="flex gap-1" id="stars_q4"></div></div>
-          <div class="p-3 bg-slate-800/60 rounded-xl"><div class="flex justify-between text-xs text-white mb-1"><span>5. Satisfacción general</span><span id="pts_q5" class="text-cyan-300">0 pts</span></div><div class="flex gap-1" id="stars_q5"></div></div>
+          <div class="p-3 bg-slate-800/60 border border-slate-700/50 rounded-xl"><div class="flex justify-between text-xs font-bold text-white mb-1"><span>1. Rapidez inicial</span><span id="pts_q1" class="text-cyan-300 font-mono">0 pts</span></div><div class="flex gap-1" id="stars_q1"></div></div>
+          <div class="p-3 bg-slate-800/60 border border-slate-700/50 rounded-xl"><div class="flex justify-between text-xs font-bold text-white mb-1"><span>2. Claridad comunicación</span><span id="pts_q2" class="text-cyan-300 font-mono">0 pts</span></div><div class="flex gap-1" id="stars_q2"></div></div>
+          <div class="p-3 bg-slate-800/60 border border-slate-700/50 rounded-xl"><div class="flex justify-between text-xs font-bold text-white mb-1"><span>3. Solución definitiva</span><span id="pts_q3" class="text-cyan-300 font-mono">0 pts</span></div><div class="flex gap-1" id="stars_q3"></div></div>
+          <div class="p-3 bg-slate-800/60 border border-slate-700/50 rounded-xl"><div class="flex justify-between text-xs font-bold text-white mb-1"><span>4. Amabilidad</span><span id="pts_q4" class="text-cyan-300 font-mono">0 pts</span></div><div class="flex gap-1" id="stars_q4"></div></div>
+          <div class="p-3 bg-slate-800/60 border border-slate-700/50 rounded-xl"><div class="flex justify-between text-xs font-bold text-white mb-1"><span>5. Satisfacción general</span><span id="pts_q5" class="text-cyan-300 font-mono">0 pts</span></div><div class="flex gap-1" id="stars_q5"></div></div>
         </div>
-        <textarea id="surveyComment" rows="2" class="w-full p-2 rounded-xl bg-slate-800 text-white text-xs" placeholder="Comentarios..."></textarea>
-        <button type="submit" id="btnSubmitSurvey" class="w-full py-2.5 bg-blue-600 text-white font-bold rounded-xl text-xs">Enviar Encuesta</button>
+        <textarea id="surveyComment" rows="2" class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs resize-none focus:border-cyan-400 focus:outline-none" placeholder="Comentarios adicionales..."></textarea>
+        <button type="submit" id="btnSubmitSurvey" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs transition-colors shadow-lg">Enviar Encuesta</button>
       </form>
     </div>
   </div>
@@ -115,8 +118,11 @@
     if (!currentUser || !currentUser.email) window.location.href = "index.html";
     document.getElementById("headerUserName").innerText = currentUser.nombreCompleto;
 
+    const themeOrnaments = { navidad: "🎅", halloween: "🎃", dia_muertos: "🏵️", san_valentin: "💖", primavera: "🌸", estandar: "" };
     subscribeToGlobalTheme((activeTheme, activeBg) => {
       if (window.seasonalEngine) window.seasonalEngine.setTheme(activeTheme);
+      const ornamentSpan = document.getElementById("logoSeasonOrnament");
+      if (ornamentSpan) ornamentSpan.innerText = themeOrnaments[activeTheme] || "";
       document.body.style.backgroundColor = activeBg; 
     });
 
@@ -124,20 +130,20 @@
     subscribeToTickets((allTickets) => {
       const myTickets = allTickets.filter(t => (t.usuario || "").toLowerCase() === currentUser.email.toLowerCase() || (t.usuario || "").toLowerCase() === currentUser.nombreCompleto.toLowerCase());
       
-      document.getElementById("ticketsContainer").innerHTML = myTickets.length === 0 ? '<div class="py-6 text-center text-slate-500 text-sm">No tienes tickets pasados.</div>' : myTickets.map(t => {
-        let estatusStr = '<span class="text-blue-400 border border-blue-400/30 bg-blue-400/10 px-2 py-0.5 rounded">Solicitado</span>';
-        if(t.porcentajeHecho > 0 && t.porcentajeHecho < 100) estatusStr = `<span class="text-amber-400 border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 rounded">En Proceso</span>`;
-        else if (t.porcentajeHecho === 100) estatusStr = '<span class="text-emerald-400 border border-emerald-400/30 bg-emerald-400/10 px-2 py-0.5 rounded">✅ Finalizado</span>';
+      document.getElementById("ticketsContainer").innerHTML = myTickets.length === 0 ? '<div class="py-6 text-center text-slate-500 text-sm font-medium">No tienes tickets registrados en el sistema.</div>' : myTickets.map(t => {
+        let estatusStr = '<span class="text-blue-400 border border-blue-400/30 bg-blue-400/10 px-2.5 py-1 rounded font-bold">Solicitado</span>';
+        if(t.porcentajeHecho > 0 && t.porcentajeHecho < 100) estatusStr = `<span class="text-amber-400 border border-amber-400/30 bg-amber-400/10 px-2.5 py-1 rounded font-bold">En Proceso</span>`;
+        else if (t.porcentajeHecho === 100) estatusStr = '<span class="text-emerald-400 border border-emerald-400/30 bg-emerald-400/10 px-2.5 py-1 rounded font-bold">✅ Finalizado</span>';
 
         return `
-        <div class="p-4 rounded-2xl bg-slate-800/70 border border-slate-700/60 mb-3 flex flex-col gap-2">
-          <div class="flex items-center justify-between text-xs font-bold"><span class="text-cyan-400 font-mono">${t.ticketId || t.id}</span> ${estatusStr}</div>
-          <div class="text-base font-bold text-white">${t.nombreReporte}</div>
-          <div class="text-xs text-slate-300 bg-slate-900/50 p-2 rounded-lg italic">"${t.descripcionDetallada}"</div>
-          <div class="text-[10px] text-slate-400 flex flex-col sm:flex-row justify-between gap-1 mt-1 border-t border-slate-700/50 pt-2">
-            <span><b>Apertura:</b> ${t.fechaAperturaExacta || t.fechaTicket}</span>
-            <span><b>Atiende:</b> ${t.seguimiento || 'Mario (Sistemas)'}</span>
-            ${t.fechaCierreExacta ? `<span class="text-emerald-400"><b>Cierre:</b> ${t.fechaCierreExacta}</span>` : ''}
+        <div class="p-5 rounded-3xl bg-slate-800/70 border border-slate-700/60 mb-4 flex flex-col gap-3 hover:bg-slate-800/90 transition-colors shadow-lg">
+          <div class="flex flex-wrap items-center justify-between text-xs gap-2"><span class="text-cyan-400 font-mono font-bold text-sm">${t.ticketId || t.id}</span> ${estatusStr}</div>
+          <div class="text-base font-bold text-white leading-snug">${t.nombreReporte}</div>
+          <div class="text-xs text-slate-300 bg-slate-900/50 p-3 rounded-xl border border-slate-800/80 italic">"${t.descripcionDetallada}"</div>
+          <div class="text-[11px] text-slate-400 flex flex-col sm:flex-row justify-between gap-2 mt-1 border-t border-slate-700/50 pt-3">
+            <span><strong class="text-slate-300">Apertura:</strong> ${t.fechaAperturaExacta || t.fechaTicket}</span>
+            <span><strong class="text-slate-300">Atiende:</strong> ${t.seguimiento || 'Mario (Sistemas)'}</span>
+            ${t.fechaCierreExacta ? `<span class="text-emerald-400"><strong class="text-emerald-300">Cierre:</strong> ${t.fechaCierreExacta}</span>` : ''}
           </div>
         </div>`;
       }).join('');
@@ -146,14 +152,13 @@
       if (pending) { pendingSurveyDocId = pending.id; renderStarRows(); document.getElementById("surveyModal").classList.remove("hidden"); }
     });
 
-    // ESTRELLAS ENCUESTA (Misma validación)
     let surveyRatings = { q1: 0, q2: 0, q3: 0, q4: 0, q5: 0 };
     function renderStarRows() {
       ['q1', 'q2', 'q3', 'q4', 'q5'].forEach(q => {
         const c = document.getElementById(`stars_${q}`); c.innerHTML = '';
         for (let s=1; s<=5; s++) {
           const b = document.createElement('button'); b.type = 'button'; b.innerText = '★';
-          b.className = `text-2xl transition-transform hover:scale-125 ${s <= surveyRatings[q] ? 'text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.6)]' : 'text-slate-600'}`;
+          b.className = `text-3xl transition-transform hover:scale-125 ${s <= surveyRatings[q] ? 'text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.6)]' : 'text-slate-600 hover:text-slate-500'}`;
           b.onclick = () => { surveyRatings[q] = s; document.getElementById(`pts_${q}`).innerText = `${s * 20} pts`; renderStarRows(); };
           c.appendChild(b);
         }
@@ -162,7 +167,7 @@
 
     document.getElementById("surveyForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      if (Object.values(surveyRatings).some(v => v === 0)) { alert("Califica todas las preguntas antes de enviar."); return; }
+      if (Object.values(surveyRatings).some(v => v === 0)) { alert("Por favor califica todas las preguntas antes de enviar."); return; }
       const btn = document.getElementById("btnSubmitSurvey"); btn.disabled = true; btn.innerText = "Guardando...";
       await submitSatisfactionSurvey(pendingSurveyDocId, { ...surveyRatings, comentario: document.getElementById("surveyComment").value });
       document.getElementById("surveyModal").classList.add("hidden");
@@ -171,7 +176,7 @@
     document.getElementById("createTicketForm").addEventListener("submit", async (e) => {
       e.preventDefault(); const btn = document.getElementById("btnSendTicket"); btn.disabled = true; btn.innerText = "Enviando Solicitud...";
       await createTicket({ usuario: currentUser.nombreCompleto || currentUser.email, usuarioUid: currentUser.uid || "", nombreReporte: document.getElementById("ticketSubject").value, categoria: document.getElementById("ticketCategory").value, prioridad: document.getElementById("ticketPriority").value, departamento: currentUser.departamento || "General", descripcionDetallada: document.getElementById("ticketDesc").value });
-      document.getElementById("createTicketForm").reset(); btn.disabled = false; btn.innerText = "Generar y Enviar Solicitud de Soporte"; alert("Ticket Enviado a Sistemas"); window.cambiarVista('historial');
+      document.getElementById("createTicketForm").reset(); btn.disabled = false; btn.innerText = "Generar y Enviar Solicitud de Soporte"; alert("Ticket Enviado Correctamente a Sistemas."); window.cambiarVista('historial');
     });
 
     document.getElementById("btnLogout").addEventListener("click", async () => { await signOut(auth); window.location.href = "index.html"; });
