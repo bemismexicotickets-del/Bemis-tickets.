@@ -50,7 +50,7 @@ export async function createTicket(ticketData) {
     seguimiento: ticketData.seguimiento || "Mario (Sistemas)",
     fechaTicket: now.toISOString().split("T")[0],
     fechaEstimada: ticketData.fechaEstimada || now.toISOString().split("T")[0],
-    fechaAperturaExacta: now.toLocaleString('es-MX'), // Fecha con hora y segundos
+    fechaAperturaExacta: now.toLocaleString('es-MX'),
     diasTranscurridos: 0,
     fechaTermino: "",
     fechaCierreExacta: "",
@@ -72,12 +72,18 @@ export async function deleteTicket(docId) {
   await deleteDoc(doc(db, "tickets", docId));
 }
 
-// Eliminar TODOS los tickets (Solo SuperAdmin)
+// ELIMINACIÓN MASIVA POR LOTES (Corrige el congelamiento)
 export async function deleteAllTickets() {
   const snap = await getDocs(collection(db, "tickets"));
-  const batch = writeBatch(db);
-  snap.docs.forEach(d => batch.delete(d.ref));
-  await batch.commit();
+  const docs = snap.docs;
+  const chunkSize = 400; // Máximo permitido por Firebase es 500
+  
+  for (let i = 0; i < docs.length; i += chunkSize) {
+    const chunk = docs.slice(i, i + chunkSize);
+    const batch = writeBatch(db);
+    chunk.forEach(d => batch.delete(d.ref));
+    await batch.commit();
+  }
 }
 
 export async function importarTicketsMasivos(ticketsList) {
