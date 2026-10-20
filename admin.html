@@ -26,17 +26,31 @@
       if(activeTab) { activeTab.classList.remove('hidden'); activeTab.classList.add('block'); }
       if(activeNav) { activeNav.classList.add('border-cyan-400', 'text-cyan-300'); activeNav.classList.remove('border-transparent', 'text-slate-400'); }
     };
+
+    // Función blindada para mostrar/ocultar contraseña al elegir Rol
+    window.verificarRol = () => {
+      const isAdm = document.getElementById("newUserRole").value === "admin";
+      const passCont = document.getElementById("passContainer");
+      const passInput = document.getElementById("newPass");
+      if (isAdm) {
+        passCont.classList.remove("hidden");
+        passInput.required = true;
+      } else {
+        passCont.classList.add("hidden");
+        passInput.required = false;
+        passInput.value = "";
+      }
+    };
   </script>
 
   <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-xl">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
       
-      <!-- LOGO BEMIS OFICIAL (CORREGIDO PARA EL HEADER) -->
+      <!-- LOGO BEMIS OFICIAL -->
       <div class="flex items-center gap-4">
         <div class="relative w-[180px] flex items-center pt-2">
           <span id="logoSeasonOrnament" class="absolute -top-3 right-0 text-2xl z-20 pointer-events-none animate-pulse"></span>
           <svg viewBox="0 0 400 160" class="w-full h-auto drop-shadow-lg" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- Arco oficial asimétrico -->
             <path d="M 20 85 C 100 20, 250 -10, 380 65 L 360 85 C 240 25, 120 40, 20 85 Z" fill="#0052cc"/>
             <text x="50%" y="115" font-family="Montserrat, sans-serif" font-weight="900" font-style="italic" font-size="76" fill="#ffffff" text-anchor="middle">BEMIS</text>
             <text x="50%" y="150" font-family="Montserrat, sans-serif" font-weight="900" font-size="28" fill="#38bdf8" text-anchor="middle" letter-spacing="4">TICKETS</text>
@@ -120,15 +134,19 @@
           
           <div id="roleSelectorDiv" class="hidden">
             <label class="block text-slate-400 font-semibold mb-1">Rol de Acceso:</label>
-            <select id="newUserRole" class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white focus:border-cyan-400 focus:outline-none">
+            <select id="newUserRole" onchange="window.verificarRol()" class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white focus:border-cyan-400 focus:outline-none">
               <option value="user">Usuario Normal (Sin contraseña)</option>
               <option value="admin">Administrador (Requiere contraseña)</option>
             </select>
           </div>
           
-          <input type="password" id="newPass" placeholder="Contraseña (Solo Admins)" class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white hidden focus:border-cyan-400 focus:outline-none">
+          <!-- CORRECCIÓN: CONTENEDOR DE CONTRASEÑA BLINDADO -->
+          <div id="passContainer" class="hidden">
+             <label class="block text-amber-400 font-semibold mb-1 mt-2 text-[10px] uppercase tracking-wider">Contraseña Obligatoria:</label>
+             <input type="password" id="newPass" placeholder="Mínimo 6 caracteres..." class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white focus:border-amber-400 focus:outline-none">
+          </div>
           
-          <button type="submit" id="btnCrearUsuario" class="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold transition-colors">Crear Cuenta</button>
+          <button type="submit" id="btnCrearUsuario" class="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold transition-colors mt-2">Crear Cuenta</button>
         </form>
       </section>
       <section class="lg:col-span-8 bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-2xl backdrop-blur-md">
@@ -181,7 +199,6 @@
 
   <script src="animations.js"></script>
   <script type="module">
-    import { logout } from "./auth.js";
     import { db, firebaseConfig } from "./firebase-config.js";
     import { collection, getDocs, doc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { subscribeToTickets, updateTicket, createNews, saveUserProfile, subscribeToGlobalTheme, setGlobalTheme, setGlobalBackground, createDepartment, importarTicketsMasivos, logAdminAction, subscribeToAuditLogs, deleteAllTickets } from "./db.js";
@@ -194,25 +211,22 @@
     const secondaryAuth = getAuth(secondaryApp);
     const mainAuth = getAuth();
 
-    // 1. SEGURIDAD Y PERFIL
     const currentUser = JSON.parse(sessionStorage.getItem("bemis_session_user") || "{}");
     if (!currentUser || currentUser.role !== "admin") window.location.href = "index.html";
     document.getElementById("headerAdminName").innerText = currentUser.nombreCompleto;
     
-    const isSuperAdmin = currentUser.email.includes("mario"); // Lógica Maestro
+    const isSuperAdmin = currentUser.email.includes("mario");
     if (isSuperAdmin) {
       document.getElementById("roleSelectorDiv").classList.remove("hidden");
       document.getElementById("btnDeleteAll").classList.remove("hidden");
     }
 
-    // 2. AUDITORÍA
     subscribeToAuditLogs((logs) => {
       document.getElementById("auditTableBody").innerHTML = logs.map(l => `
         <tr class="border-b border-slate-800 hover:bg-slate-800/40"><td class="p-3 text-cyan-400 font-mono">${l.fechaExacta}</td><td class="p-3 text-white font-bold">${l.admin}</td><td class="p-3 text-slate-300">${l.accion}</td></tr>
       `).join('');
     });
 
-    // 3. TICKETS
     let currentTickets = []; let ticketAEliminarId = null;
     subscribeToTickets((tickets) => { currentTickets = tickets; renderizarTickets(); });
     
@@ -280,7 +294,6 @@
       await logAdminAction(currentUser.nombreCompleto, `Cambió estatus de ticket a ${pct === 100 ? 'Finalizado' : 'En Proceso'}`);
     };
 
-    // ELIMINACIÓN
     window.confirmarEliminarTicket = (id) => { ticketAEliminarId = id; document.getElementById('deleteTicketPassword').value = ''; document.getElementById('deleteTicketModal').classList.remove('hidden'); };
     window.ejecutarEliminarTicket = async () => {
       if (document.getElementById('deleteTicketPassword').value === '1917') {
@@ -305,7 +318,25 @@
       } else { alert("PIN Incorrecto."); }
     };
 
-    // USUARIOS
+    document.getElementById("btnImportExcel").addEventListener("click", () => document.getElementById("inputImportExcel").click());
+    document.getElementById("inputImportExcel").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const btn = document.getElementById("btnImportExcel");
+      const iconOriginal = btn.innerHTML;
+      btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 text-cyan-400 animate-spin"></i> Cargando...';
+      procesarExcelImportacion(file, async (ticketsProcesados) => {
+        if(confirm(`Se encontraron ${ticketsProcesados.length} tickets. ¿Subirlos a Firebase?`)) {
+          try { 
+            await importarTicketsMasivos(ticketsProcesados); 
+            await logAdminAction(currentUser.nombreCompleto, `Importó ${ticketsProcesados.length} tickets históricos de Excel`);
+            alert("¡Éxito! Tickets cargados."); 
+          } catch(err) { alert("Error: " + err.message); }
+        }
+        btn.innerHTML = iconOriginal; lucide.createIcons(); e.target.value = ''; 
+      });
+    });
+
     const loadUsers = async () => {
       const snap = await getDocs(collection(db, "users"));
       document.getElementById('usuariosTableBody').innerHTML = snap.docs.map(d => { const u=d.data(); return `<tr class="border-b border-slate-800 hover:bg-slate-800/40 transition-colors"><td class="p-3 text-white font-mono">${u.email}</td><td class="p-3 font-semibold">${u.nombreCompleto}</td><td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.role==='admin'?'bg-amber-500/20 text-amber-300 border border-amber-500/30':'bg-slate-800 text-slate-300 border border-slate-700'}">${u.departamento} (${u.role})</span></td><td class="p-3 text-right"><button onclick="window.eliminarUsuario('${d.id}')" class="px-2 py-1 rounded bg-rose-500/20 hover:bg-rose-500 border border-rose-500/40 text-rose-400 hover:text-white text-[10px] font-bold transition-colors">Borrar</button></td></tr>`;}).join('');
@@ -326,6 +357,7 @@
       } catch (err) { alert("Error: " + err.message); }
       btn.disabled = false; btn.innerText = "Crear Cuenta";
     });
+
     window.eliminarUsuario = async (id) => { if(confirm("¿Borrar?")) { await deleteDoc(doc(db, "users", id)); await logAdminAction(currentUser.nombreCompleto, `Eliminó un usuario`); loadUsers(); } };
 
     window.actualizarMiPass = async () => {
@@ -341,12 +373,10 @@
 
     const loadDepts = async () => { const snap = await getDocs(collection(db, "departments")); document.getElementById('newUserDept').innerHTML = snap.docs.map(d => `<option value="${d.data().nombre}">${d.data().nombre}</option>`).join(''); };
     
-    // TEMAS Y FONDOS
     window.seleccionarTema = async (tema) => { await setGlobalTheme(tema); await logAdminAction(currentUser.nombreCompleto, `Cambió el tema a ${tema}`); };
     window.seleccionarFondo = async (color) => { await setGlobalBackground(color); await logAdminAction(currentUser.nombreCompleto, `Cambió el color de fondo`); };
     const themeOrnaments = { navidad: "🎅", halloween: "🎃", dia_muertos: "🏵️", san_valentin: "💖", primavera: "🌸", estandar: "" };
     
-    // FONDO Y ANIMACIÓN (Asegurado z-index para que la animación se vea pero el panel resalte)
     subscribeToGlobalTheme((activeTheme, activeBg) => { 
       if(window.seasonalEngine) window.seasonalEngine.setTheme(activeTheme); 
       const ornamentSpan = document.getElementById("logoSeasonOrnament");
@@ -355,26 +385,6 @@
     });
 
     document.getElementById("btnExportExcel").addEventListener("click", async () => { exportarTicketsAExcel(currentTickets); await logAdminAction(currentUser.nombreCompleto, `Descargó el reporte mensual Excel`); });
-    
-    document.getElementById("btnImportExcel").addEventListener("click", () => document.getElementById("inputImportExcel").click());
-    document.getElementById("inputImportExcel").addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const btn = document.getElementById("btnImportExcel");
-      const iconOriginal = btn.innerHTML;
-      btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 text-cyan-400 animate-spin"></i> Cargando...';
-      procesarExcelImportacion(file, async (ticketsProcesados) => {
-        if(confirm(`Se encontraron ${ticketsProcesados.length} tickets. ¿Subirlos a Firebase?`)) {
-          try { 
-            await importarTicketsMasivos(ticketsProcesados); 
-            await logAdminAction(currentUser.nombreCompleto, `Importó ${ticketsProcesados.length} tickets históricos de Excel`);
-            alert("¡Éxito! Tickets cargados."); 
-          } catch(err) { alert("Error: " + err.message); }
-        }
-        btn.innerHTML = iconOriginal; lucide.createIcons(); e.target.value = ''; 
-      });
-    });
-
     document.getElementById("btnLogout").addEventListener("click", async () => { await signOut(mainAuth); window.location.href = "index.html"; });
 
     loadUsers(); loadDepts();
