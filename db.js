@@ -1,6 +1,5 @@
 /**
  * BEMIS MÉXICO - MÓDULO DE BASE DE DATOS CLOUD FIRESTORE v9
- * Archivo: db.js
  */
 import { db } from "./firebase-config.js";
 import { 
@@ -9,13 +8,34 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ==========================================
-// 1. GESTIÓN DE TICKETS Y ENCUESTA
+// AUDITORÍA Y REGISTRO DE ADMINISTRADORES
+// ==========================================
+export async function logAdminAction(adminName, actionDescription) {
+  try {
+    await addDoc(collection(db, "audit_logs"), {
+      admin: adminName,
+      accion: actionDescription,
+      fechaExacta: new Date().toLocaleString('es-MX'),
+      creadoEn: serverTimestamp()
+    });
+  } catch(e) { console.error("Error guardando log:", e); }
+}
+
+export function subscribeToAuditLogs(callback) {
+  const q = query(collection(db, "audit_logs"), orderBy("creadoEn", "desc"));
+  return onSnapshot(q, (snapshot) => {
+    callback(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+  });
+}
+
+// ==========================================
+// GESTIÓN DE TICKETS
 // ==========================================
 export async function createTicket(ticketData) {
   const ticketsSnap = await getDocs(collection(db, "tickets"));
   const count = ticketsSnap.size;
   const ticketId = `TIK-${1001 + count}`;
-  const today = new Date().toISOString().split("T")[0];
+  const now = new Date();
 
   const newTicket = {
     ticketId,
@@ -28,10 +48,12 @@ export async function createTicket(ticketData) {
     departamento: ticketData.departamento || "General",
     categoria: ticketData.categoria || "Soporte TI",
     seguimiento: ticketData.seguimiento || "Mario (Sistemas)",
-    fechaTicket: today,
-    fechaEstimada: ticketData.fechaEstimada || today,
+    fechaTicket: now.toISOString().split("T")[0],
+    fechaEstimada: ticketData.fechaEstimada || now.toISOString().split("T")[0],
+    fechaAperturaExacta: now.toLocaleString('es-MX'), // Fecha con hora y segundos
     diasTranscurridos: 0,
     fechaTermino: "",
+    fechaCierreExacta: "",
     porcentajeHecho: 0,
     encuestaRespondida: false,
     creadoEn: serverTimestamp()
@@ -50,41 +72,34 @@ export async function deleteTicket(docId) {
   await deleteDoc(doc(db, "tickets", docId));
 }
 
-export async function getAllTickets() {
-  const q = query(collection(db, "tickets"), orderBy("fechaTicket", "desc"));
-  const snap = await getDocs(q);
-  return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+// Eliminar TODOS los tickets (Solo SuperAdmin)
+export async function deleteAllTickets() {
+  const snap = await getDocs(collection(db, "tickets"));
+  const batch = writeBatch(db);
+  snap.docs.forEach(d => batch.delete(d.ref));
+  await batch.commit();
 }
 
-export function subscribeToTickets(callback) {
-  const q = query(collection(db, "tickets"), orderBy("fechaTicket", "desc"));
-  return onSnapshot(q, (snapshot) => {
-    const list = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-    callback(list);
-  });
-}
-
-// IMPORTACIÓN MASIVA DE EXCEL HISTÓRICO
 export async function importarTicketsMasivos(ticketsList) {
   const ticketsRef = collection(db, "tickets");
-  
-  // Se dividen en bloques de 400 para no exceder el límite de seguridad de 500 de Firebase
   const chunkSize = 400;
   for (let i = 0; i < ticketsList.length; i += chunkSize) {
     const chunk = ticketsList.slice(i, i + chunkSize);
     const batch = writeBatch(db);
-    
     chunk.forEach(tData => {
-      const newDocRef = doc(ticketsRef); // Autogenera un ID único para la base de datos
-      batch.set(newDocRef, {
-        ...tData,
-        creadoEn: serverTimestamp()
-      });
+      const newDocRef = doc(ticketsRef);
+      batch.set(newDocRef, { ...tData, creadoEn: serverTimestamp() });
     });
-    
     await batch.commit();
   }
   return ticketsList.length;
+}
+
+export function subscribeToTickets(callback) {
+  const q = query(collection(db, "tickets"), orderBy("creadoEn", "desc"));
+  return onSnapshot(q, (snapshot) => {
+    callback(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+  });
 }
 
 export async function submitSatisfactionSurvey(docId, survey) {
@@ -96,100 +111,55 @@ export async function submitSatisfactionSurvey(docId, survey) {
     encuestaRespondida: true,
     porcentajeSatisfaccion: totalPercentage,
     comentarioUsuario: survey.comentario || "",
-    encuestaDetalle: {
-      q1_rapidez: survey.q1,
-      q2_comunicacion: survey.q2,
-      q3_eficacia: survey.q3,
-      q4_amabilidad: survey.q4,
-      q5_general: survey.q5,
-      porcentajeFinal: totalPercentage,
-      comentario: survey.comentario || "",
-      fechaRespuesta: new Date().toISOString().split("T")[0]
-    },
+    encuestaDetalle: { ...survey, porcentajeFinal: totalPercentage },
     actualizadoEn: serverTimestamp()
   });
   return { success: true, totalPercentage };
 }
 
 // ==========================================
-// 2. GESTIÓN DE NOTICIAS Y COMUNICADOS
+// NOTICIAS Y SETTINGS
 // ==========================================
 export async function createNews(newsData) {
   const newDoc = {
-    titulo: newsData.titulo,
-    contenido: newsData.contenido,
+    ...newsData,
     fecha: new Date().toISOString().split("T")[0],
-    esGlobal: !!newsData.esGlobal,
     departamentoDestino: newsData.esGlobal ? "TODOS" : (newsData.departamentoDestino || "General"),
-    autor: newsData.autor || "Mario (Sistemas)",
-    importancia: newsData.importancia || "Normal",
     creadoEn: serverTimestamp()
   };
   return await addDoc(collection(db, "news"), newDoc);
 }
-
-export async function deleteNews(docId) {
-  await deleteDoc(doc(db, "news", docId));
-}
-
+export async function deleteNews(docId) { await deleteDoc(doc(db, "news", docId)); }
 export function subscribeToNews(userDepartment, callback) {
   const q = query(collection(db, "news"), orderBy("fecha", "desc"));
   return onSnapshot(q, (snapshot) => {
     const all = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-    const filtered = all.filter(n => 
-      n.esGlobal || 
-      n.departamentoDestino === "TODOS" || 
-      (userDepartment && n.departamentoDestino.toLowerCase() === userDepartment.toLowerCase())
-    );
-    callback(filtered);
+    callback(all.filter(n => n.esGlobal || n.departamentoDestino === "TODOS" || (userDepartment && n.departamentoDestino.toLowerCase() === userDepartment.toLowerCase())));
   });
 }
 
-// ==========================================
-// 3. TEMA ESTACIONAL Y FONDO GLOBAL
-// ==========================================
 export function subscribeToGlobalTheme(callback) {
-  const themeDocRef = doc(db, "settings", "theme");
-  return onSnapshot(themeDocRef, (snap) => {
-    if (snap.exists()) {
-      callback(snap.data().activeTheme || "estandar", snap.data().activeBg || "#0f172a");
-    } else {
-      callback("estandar", "#0f172a");
-    }
+  return onSnapshot(doc(db, "settings", "theme"), (snap) => {
+    if (snap.exists()) callback(snap.data().activeTheme || "estandar", snap.data().activeBg || "#0f172a");
+    else callback("estandar", "#0f172a");
   });
 }
-export async function setGlobalTheme(themeName) {
-  await setDoc(doc(db, "settings", "theme"), { activeTheme: themeName, actualizadoEn: serverTimestamp() }, { merge: true });
-}
-export async function setGlobalBackground(bgColor) {
-  await setDoc(doc(db, "settings", "theme"), { activeBg: bgColor, actualizadoEn: serverTimestamp() }, { merge: true });
-}
+export async function setGlobalTheme(themeName) { await setDoc(doc(db, "settings", "theme"), { activeTheme: themeName, actualizadoEn: serverTimestamp() }, { merge: true }); }
+export async function setGlobalBackground(bgColor) { await setDoc(doc(db, "settings", "theme"), { activeBg: bgColor, actualizadoEn: serverTimestamp() }, { merge: true }); }
 
-// ==========================================
-// 4. DEPARTAMENTOS
-// ==========================================
 export async function getDepartments() {
   const snap = await getDocs(collection(db, "departments"));
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
-export async function createDepartment(nombre, descripcion) {
-  return await addDoc(collection(db, "departments"), { nombre, descripcion: descripcion || "", creadoEn: serverTimestamp() });
-}
-export async function deleteDepartment(docId) {
-  await deleteDoc(doc(db, "departments", docId));
-}
+export async function createDepartment(nombre, descripcion) { return await addDoc(collection(db, "departments"), { nombre, descripcion: descripcion || "", creadoEn: serverTimestamp() }); }
+export async function deleteDepartment(docId) { await deleteDoc(doc(db, "departments", docId)); }
 
 // ==========================================
-// 5. GESTIÓN DE USUARIOS
+// USUARIOS
 // ==========================================
 export async function getAllUsers() {
   const snap = await getDocs(collection(db, "users"));
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
-export async function saveUserProfile(uid, userData) {
-  const docRef = doc(db, "users", uid);
-  await setDoc(docRef, { ...userData, actualizadoEn: serverTimestamp() }, { merge: true });
-}
-export async function deleteUserProfile(uid) {
-  await deleteDoc(doc(db, "users", uid));
-}
+export async function saveUserProfile(uid, userData) { await setDoc(doc(db, "users", uid), { ...userData, actualizadoEn: serverTimestamp() }, { merge: true }); }
+export async function deleteUserProfile(uid) { await deleteDoc(doc(db, "users", uid)); }
