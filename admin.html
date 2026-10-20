@@ -114,6 +114,8 @@
           <input type="email" id="newEmail" required placeholder="correo corporativo..." class="w-full p-2.5 rounded-xl bg-slate-800 text-white">
           <input type="text" id="newFullName" required placeholder="Nombre Completo" class="w-full p-2.5 rounded-xl bg-slate-800 text-white">
           <select id="newUserDept" class="w-full p-2.5 rounded-xl bg-slate-800 text-white"></select>
+          
+          <!-- Selector de Rol (Solo visible para Mario) -->
           <div id="roleSelectorDiv" class="hidden">
             <label class="block text-slate-400 mb-1">Rol de Acceso:</label>
             <select id="newUserRole" class="w-full p-2.5 rounded-xl bg-slate-800 text-white">
@@ -121,7 +123,9 @@
               <option value="admin">Administrador (Requiere contraseña)</option>
             </select>
           </div>
+          
           <input type="password" id="newPass" placeholder="Contraseña (Solo Admins)" class="w-full p-2.5 rounded-xl bg-slate-800 text-white hidden">
+          
           <button type="submit" id="btnCrearUsuario" class="w-full py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-bold">Crear Cuenta</button>
         </form>
       </section>
@@ -133,8 +137,9 @@
       </section>
     </div>
 
-    <!-- TABS DEPTOS Y NOTICIAS OMITIDOS EN VISUAL PARA BREVEDAD -->
+    <!-- TABS DEPTOS Y NOTICIAS OMITIDOS EN VISUAL PARA BREVEDAD (SI EXISTEN EN CÓDIGO) -->
     <div id="tab-departamentos" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-6"><section class="bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl"><h3 class="text-base font-bold text-white mb-4">Nuevo Depto</h3><form id="formCrearDepto" class="space-y-3"><input type="text" id="newDeptName" required placeholder="Nombre" class="w-full p-2.5 rounded-xl bg-slate-800 text-white text-xs"><button type="submit" class="w-full py-2 bg-cyan-500 text-slate-950 text-xs font-bold rounded-xl">Guardar</button></form></section><section class="bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl"><div id="deptsContainer" class="space-y-2 text-xs"></div></section></div>
+    
     <div id="tab-noticias" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-6"><section class="bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl"><h3 class="text-base font-bold text-white mb-4">Publicar Aviso</h3><form id="formCrearNoticia" class="space-y-3 text-xs"><input type="text" id="newsTitle" required placeholder="Título" class="w-full p-2 rounded-xl bg-slate-800 text-white"><textarea id="newsContent" rows="3" required placeholder="Contenido" class="w-full p-2 rounded-xl bg-slate-800 text-white"></textarea><select id="newsScope" class="w-full p-2 rounded-xl bg-slate-800 text-white"><option value="GLOBAL">Para Todos</option></select><button type="submit" class="w-full py-2 bg-blue-600 text-white font-bold rounded-xl">Publicar</button></form></section><section class="bg-slate-900/85 border border-slate-800 rounded-3xl p-5 shadow-xl"><div id="newsContainer" class="space-y-3 text-xs"></div></section></div>
 
     <div id="tab-temas" class="hidden space-y-6">
@@ -162,7 +167,12 @@
 
   <!-- Eliminar TODOS los tickets -->
   <div id="deleteAllModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-    <div class="bg-slate-900 border border-rose-500/60 rounded-3xl max-w-md w-full p-6 shadow-2xl relative"><h3 class="text-lg font-black text-rose-500 mb-2">¡PELIGRO! Borrar Toda la Base de Datos</h3><p class="text-xs text-slate-300 mb-4">Estás a punto de borrar absolutamente TODOS los tickets históricos del sistema. Esta acción es irreversible.</p><input type="password" id="deleteAllPassword" autocomplete="new-password" placeholder="PIN Secreto" class="w-full p-2.5 rounded-xl bg-slate-800 text-white font-mono mb-4"><div class="flex justify-end gap-2"><button onclick="document.getElementById('deleteAllModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-400 text-xs">Cancelar</button><button onclick="window.ejecutarBorrarTodo()" class="px-4 py-2 rounded-xl bg-rose-600 text-white font-bold text-xs animate-pulse">DESTRUIR TICKETS</button></div></div>
+    <div class="bg-slate-900 border border-rose-500/60 rounded-3xl max-w-md w-full p-6 shadow-2xl relative"><h3 class="text-lg font-black text-rose-500 mb-2">¡PELIGRO! Borrar Toda la Base de Datos</h3><p class="text-xs text-slate-300 mb-4">Estás a punto de borrar absolutamente TODOS los tickets históricos del sistema. Esta acción es irreversible.</p><input type="password" id="deleteAllPassword" autocomplete="new-password" placeholder="PIN Secreto" class="w-full p-2.5 rounded-xl bg-slate-800 text-white font-mono mb-4">
+      <div class="flex justify-end gap-2">
+        <button onclick="document.getElementById('deleteAllModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-400 text-xs">Cancelar</button>
+        <button id="btnEjecutarDestruccion" onclick="window.ejecutarBorrarTodo()" class="px-4 py-2 rounded-xl bg-rose-600 text-white font-bold text-xs animate-pulse">DESTRUIR TICKETS</button>
+      </div>
+    </div>
   </div>
 
   <!-- Cambiar mi Contraseña -->
@@ -172,6 +182,7 @@
 
   <script src="animations.js"></script>
   <script type="module">
+    import { logout } from "./auth.js";
     import { db, firebaseConfig } from "./firebase-config.js";
     import { collection, getDocs, doc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { subscribeToTickets, updateTicket, createNews, saveUserProfile, subscribeToGlobalTheme, setGlobalTheme, setGlobalBackground, createDepartment, importarTicketsMasivos, logAdminAction, subscribeToAuditLogs, deleteAllTickets } from "./db.js";
@@ -189,7 +200,7 @@
     if (!currentUser || currentUser.role !== "admin") window.location.href = "index.html";
     document.getElementById("headerAdminName").innerText = currentUser.nombreCompleto;
     
-    const isSuperAdmin = currentUser.email.includes("mario"); 
+    const isSuperAdmin = currentUser.email.includes("mario"); // Lógica Maestro
     if (isSuperAdmin) {
       document.getElementById("roleSelectorDiv").classList.remove("hidden");
       document.getElementById("btnDeleteAll").classList.remove("hidden");
@@ -202,7 +213,7 @@
       `).join('');
     });
 
-    // 3. TICKETS (FILTROS DE FECHAS Y LÍMITE DE 100 EN DOM)
+    // 3. TICKETS
     let currentTickets = []; let ticketAEliminarId = null;
     subscribeToTickets((tickets) => { currentTickets = tickets; renderizarTickets(); });
     
@@ -241,6 +252,7 @@
 
       ticketsAMostrar.forEach(t => {
         const tr = document.createElement("tr"); tr.className = "border-b border-slate-800 hover:bg-slate-800/40";
+        // Convertimos lógicas
         let estatusStr = '<span class="text-blue-400">Solicitado</span>';
         if(t.porcentajeHecho > 0 && t.porcentajeHecho < 100) estatusStr = `<span class="text-amber-400">En Proceso (${t.porcentajeHecho}%)</span>`;
         else if (t.porcentajeHecho === 100) estatusStr = '<span class="text-emerald-400">Finalizado</span>';
@@ -281,35 +293,29 @@
         document.getElementById('deleteTicketModal').classList.add('hidden');
       } else { alert("PIN Incorrecto."); }
     };
+
     window.confirmarBorrarTodo = () => { document.getElementById('deleteAllPassword').value = ''; document.getElementById('deleteAllModal').classList.remove('hidden'); };
+    
+    // AQUÍ ESTÁ LA CORRECCIÓN: Botón "Destruyendo..."
     window.ejecutarBorrarTodo = async () => {
       if (document.getElementById('deleteAllPassword').value === '1917') {
-        document.getElementById('deleteAllModal').classList.add('hidden');
-        await deleteAllTickets();
-        await logAdminAction(currentUser.nombreCompleto, `VACIÓ LA BASE DE DATOS DE TICKETS (MASIVO)`);
-        alert("Todos los tickets han sido eliminados.");
+        const btn = document.getElementById("btnEjecutarDestruccion");
+        btn.innerText = "DESTRUYENDO...";
+        btn.disabled = true;
+        
+        try {
+          await deleteAllTickets();
+          await logAdminAction(currentUser.nombreCompleto, `VACIÓ LA BASE DE DATOS DE TICKETS (MASIVO)`);
+          document.getElementById('deleteAllModal').classList.add('hidden');
+          alert("Todos los tickets históricos han sido eliminados correctamente.");
+        } catch (error) {
+          alert("Hubo un error al borrar: " + error.message);
+        }
+        
+        btn.innerText = "DESTRUIR TICKETS";
+        btn.disabled = false;
       } else { alert("PIN Incorrecto."); }
     };
-
-    // IMPORTACIÓN EXCEL
-    document.getElementById("btnImportExcel").addEventListener("click", () => document.getElementById("inputImportExcel").click());
-    document.getElementById("inputImportExcel").addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const btn = document.getElementById("btnImportExcel");
-      const iconOriginal = btn.innerHTML;
-      btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 text-cyan-400 animate-spin"></i> Cargando...';
-      procesarExcelImportacion(file, async (ticketsProcesados) => {
-        if(confirm(`Se encontraron ${ticketsProcesados.length} tickets. ¿Subirlos a Firebase?`)) {
-          try { 
-            await importarTicketsMasivos(ticketsProcesados); 
-            await logAdminAction(currentUser.nombreCompleto, `Importó ${ticketsProcesados.length} tickets históricos de Excel`);
-            alert("¡Éxito! Tickets cargados."); 
-          } catch(err) { alert("Error: " + err.message); }
-        }
-        btn.innerHTML = iconOriginal; lucide.createIcons(); e.target.value = ''; 
-      });
-    });
 
     // 4. CREACIÓN DE USUARIOS MODO MIXTO (User = Sin pass | Admin = Con pass)
     document.getElementById("newUserRole")?.addEventListener("change", (e) => {
@@ -352,7 +358,7 @@
        } catch(e) { alert("Error al cambiar: " + e.message); }
     };
 
-    // OTROS DEPTOS Y NOTICIAS
+    // OTROS DEPTOS Y NOTICIAS... (Misma lógica, resumiendo renderizado)
     const loadDepts = async () => { const snap = await getDocs(collection(db, "departments")); document.getElementById('newUserDept').innerHTML = snap.docs.map(d => `<option value="${d.data().nombre}">${d.data().nombre}</option>`).join(''); };
     
     window.seleccionarTema = async (tema) => { await setGlobalTheme(tema); await logAdminAction(currentUser.nombreCompleto, `Cambió el tema a ${tema}`); };
@@ -360,6 +366,27 @@
     subscribeToGlobalTheme((activeTheme, activeBg) => { if(window.seasonalEngine) window.seasonalEngine.setTheme(activeTheme); document.body.style.backgroundColor = activeBg; });
 
     document.getElementById("btnExportExcel").addEventListener("click", async () => { exportarTicketsAExcel(currentTickets); await logAdminAction(currentUser.nombreCompleto, `Descargó el reporte mensual Excel`); });
+    
+    // IMPORTACIÓN EXCEL MUDADA AQUÍ ABAJO PARA QUE FUNCIONE BIEN EL LOG
+    document.getElementById("btnImportExcel").addEventListener("click", () => document.getElementById("inputImportExcel").click());
+    document.getElementById("inputImportExcel").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const btn = document.getElementById("btnImportExcel");
+      const iconOriginal = btn.innerHTML;
+      btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 text-cyan-400 animate-spin"></i> Cargando...';
+      procesarExcelImportacion(file, async (ticketsProcesados) => {
+        if(confirm(`Se encontraron ${ticketsProcesados.length} tickets. ¿Subirlos a Firebase?`)) {
+          try { 
+            await importarTicketsMasivos(ticketsProcesados); 
+            await logAdminAction(currentUser.nombreCompleto, `Importó ${ticketsProcesados.length} tickets históricos de Excel`);
+            alert("¡Éxito! Tickets cargados."); 
+          } catch(err) { alert("Error: " + err.message); }
+        }
+        btn.innerHTML = iconOriginal; lucide.createIcons(); e.target.value = ''; 
+      });
+    });
+
     document.getElementById("btnLogout").addEventListener("click", async () => { await signOut(mainAuth); window.location.href = "index.html"; });
 
     loadUsers(); loadDepts();
