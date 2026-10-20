@@ -12,7 +12,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col relative overflow-x-hidden">
 
-  <!-- Animaciones siempre al fondo pero visibles -->
+  <!-- Animaciones estacionales -->
   <canvas id="seasonalCanvas" class="fixed inset-0 pointer-events-none z-0 w-full h-full opacity-80"></canvas>
 
   <script>
@@ -27,7 +27,6 @@
       if(activeNav) { activeNav.classList.add('border-cyan-400', 'text-cyan-300'); activeNav.classList.remove('border-transparent', 'text-slate-400'); }
     };
 
-    // Función blindada para mostrar/ocultar contraseña al elegir Rol
     window.verificarRol = () => {
       const isAdm = document.getElementById("newUserRole").value === "admin";
       const passCont = document.getElementById("passContainer");
@@ -46,7 +45,6 @@
   <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-xl">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
       
-      <!-- LOGO BEMIS OFICIAL -->
       <div class="flex items-center gap-4">
         <div class="relative w-[180px] flex items-center pt-2">
           <span id="logoSeasonOrnament" class="absolute -top-3 right-0 text-2xl z-20 pointer-events-none animate-pulse"></span>
@@ -123,7 +121,7 @@
       </section>
     </div>
 
-    <!-- TAB 2: USUARIOS -->
+    <!-- TAB 2: USUARIOS (RESTAURACIÓN INTELIGENTE) -->
     <div id="tab-usuarios" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
       <section class="lg:col-span-4 bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-2xl backdrop-blur-md space-y-4">
         <h3 class="text-base font-bold text-white"><i data-lucide="user-plus" class="inline w-4 h-4 text-cyan-400"></i> Nuevo Usuario</h3>
@@ -140,7 +138,6 @@
             </select>
           </div>
           
-          <!-- CORRECCIÓN: CONTENEDOR DE CONTRASEÑA BLINDADO -->
           <div id="passContainer" class="hidden">
              <label class="block text-amber-400 font-semibold mb-1 mt-2 text-[10px] uppercase tracking-wider">Contraseña Obligatoria:</label>
              <input type="password" id="newPass" placeholder="Mínimo 6 caracteres..." class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white focus:border-amber-400 focus:outline-none">
@@ -222,42 +219,28 @@
     }
 
     subscribeToAuditLogs((logs) => {
-      document.getElementById("auditTableBody").innerHTML = logs.map(l => `
-        <tr class="border-b border-slate-800 hover:bg-slate-800/40"><td class="p-3 text-cyan-400 font-mono">${l.fechaExacta}</td><td class="p-3 text-white font-bold">${l.admin}</td><td class="p-3 text-slate-300">${l.accion}</td></tr>
-      `).join('');
+      document.getElementById("auditTableBody").innerHTML = logs.map(l => `<tr class="border-b border-slate-800 hover:bg-slate-800/40 transition-colors"><td class="p-3 text-cyan-400 font-mono">${l.fechaExacta}</td><td class="p-3 text-white font-bold">${l.admin}</td><td class="p-3 text-slate-300">${l.accion}</td></tr>`).join('');
     });
 
     let currentTickets = []; let ticketAEliminarId = null;
     subscribeToTickets((tickets) => { currentTickets = tickets; renderizarTickets(); });
     
     function renderizarTickets() {
-      const search = document.getElementById("filtroSearch").value.toLowerCase();
-      const estado = document.getElementById("filtroEstado").value;
-      const fInicio = document.getElementById("filtroFechaInicio").value;
-      const fFin = document.getElementById("filtroFechaFin").value;
-      const tbody = document.getElementById("ticketsTableBody");
-      
+      const search = document.getElementById("filtroSearch").value.toLowerCase(), estado = document.getElementById("filtroEstado").value, fInicio = document.getElementById("filtroFechaInicio").value, fFin = document.getElementById("filtroFechaFin").value, tbody = document.getElementById("ticketsTableBody");
       tbody.innerHTML = "";
       
       let filtrados = currentTickets.filter(t => {
         const matchText = (t.ticketId || t.id).toLowerCase().includes(search) || (t.usuario || "").toLowerCase().includes(search);
         if (!matchText) return false;
-        
         if (estado === "Solicitado" && t.porcentajeHecho !== 0) return false;
         if (estado === "En Proceso" && (t.porcentajeHecho === 0 || t.porcentajeHecho === 100)) return false;
         if (estado === "Finalizado" && t.porcentajeHecho !== 100) return false;
-        
         if (fInicio && t.fechaTicket < fInicio) return false;
         if (fFin && t.fechaTicket > fFin) return false;
-        
         return true;
       });
 
-      document.getElementById("statTotal").innerText = currentTickets.length; 
-      document.getElementById("statPendientes").innerText = currentTickets.filter(t => t.porcentajeHecho === 0).length; 
-      document.getElementById("statProceso").innerText = currentTickets.filter(t => t.porcentajeHecho > 0 && t.porcentajeHecho < 100).length; 
-      document.getElementById("statResueltos").innerText = currentTickets.filter(t => t.porcentajeHecho === 100).length;
-      
+      document.getElementById("statTotal").innerText = currentTickets.length; document.getElementById("statPendientes").innerText = currentTickets.filter(t => t.porcentajeHecho === 0).length; document.getElementById("statProceso").innerText = currentTickets.filter(t => t.porcentajeHecho > 0 && t.porcentajeHecho < 100).length; document.getElementById("statResueltos").innerText = currentTickets.filter(t => t.porcentajeHecho === 100).length;
       const ticketsAMostrar = filtrados.slice(0, 100);
       document.getElementById("count-tickets").innerText = `${ticketsAMostrar.length} de ${filtrados.length}`;
 
@@ -283,106 +266,65 @@
       });
     }
 
-    document.getElementById("filtroSearch").addEventListener("input", renderizarTickets); 
-    document.getElementById("filtroEstado").addEventListener("change", renderizarTickets);
-    document.getElementById("filtroFechaInicio").addEventListener("change", renderizarTickets);
-    document.getElementById("filtroFechaFin").addEventListener("change", renderizarTickets);
+    document.getElementById("filtroSearch").addEventListener("input", renderizarTickets); document.getElementById("filtroEstado").addEventListener("change", renderizarTickets); document.getElementById("filtroFechaInicio").addEventListener("change", renderizarTickets); document.getElementById("filtroFechaFin").addEventListener("change", renderizarTickets);
     
-    window.cambiarEstatus = async (docId, pct) => {
-      const today = new Date();
-      await updateTicket(docId, { porcentajeHecho: pct, fechaTermino: pct === 100 ? today.toISOString().split("T")[0] : "", fechaCierreExacta: pct === 100 ? today.toLocaleString('es-MX') : "" });
-      await logAdminAction(currentUser.nombreCompleto, `Cambió estatus de ticket a ${pct === 100 ? 'Finalizado' : 'En Proceso'}`);
-    };
+    window.cambiarEstatus = async (docId, pct) => { const today = new Date(); await updateTicket(docId, { porcentajeHecho: pct, fechaTermino: pct === 100 ? today.toISOString().split("T")[0] : "", fechaCierreExacta: pct === 100 ? today.toLocaleString('es-MX') : "" }); await logAdminAction(currentUser.nombreCompleto, `Cambió estatus de ticket a ${pct === 100 ? 'Finalizado' : 'En Proceso'}`); };
 
     window.confirmarEliminarTicket = (id) => { ticketAEliminarId = id; document.getElementById('deleteTicketPassword').value = ''; document.getElementById('deleteTicketModal').classList.remove('hidden'); };
-    window.ejecutarEliminarTicket = async () => {
-      if (document.getElementById('deleteTicketPassword').value === '1917') {
-        await deleteDoc(doc(db, "tickets", ticketAEliminarId));
-        await logAdminAction(currentUser.nombreCompleto, `Eliminó un ticket de prueba`);
-        document.getElementById('deleteTicketModal').classList.add('hidden');
-      } else { alert("PIN Incorrecto."); }
-    };
+    window.ejecutarEliminarTicket = async () => { if (document.getElementById('deleteTicketPassword').value === '1917') { await deleteDoc(doc(db, "tickets", ticketAEliminarId)); await logAdminAction(currentUser.nombreCompleto, `Eliminó un ticket de prueba`); document.getElementById('deleteTicketModal').classList.add('hidden'); } else { alert("PIN Incorrecto."); } };
 
     window.confirmarBorrarTodo = () => { document.getElementById('deleteAllPassword').value = ''; document.getElementById('deleteAllModal').classList.remove('hidden'); };
-    window.ejecutarBorrarTodo = async () => {
-      if (document.getElementById('deleteAllPassword').value === '1917') {
-        const btn = document.getElementById("btnEjecutarDestruccion");
-        btn.innerText = "DESTRUYENDO..."; btn.disabled = true;
-        try {
-          await deleteAllTickets();
-          await logAdminAction(currentUser.nombreCompleto, `VACIÓ LA BASE DE DATOS DE TICKETS (MASIVO)`);
-          document.getElementById('deleteAllModal').classList.add('hidden');
-          alert("Todos los tickets históricos han sido eliminados correctamente.");
-        } catch (error) { alert("Hubo un error al borrar: " + error.message); }
-        btn.innerText = "DESTRUIR TICKETS"; btn.disabled = false;
-      } else { alert("PIN Incorrecto."); }
-    };
+    window.ejecutarBorrarTodo = async () => { if (document.getElementById('deleteAllPassword').value === '1917') { const btn = document.getElementById("btnEjecutarDestruccion"); btn.innerText = "DESTRUYENDO..."; btn.disabled = true; try { await deleteAllTickets(); await logAdminAction(currentUser.nombreCompleto, `VACIÓ LA BASE DE DATOS DE TICKETS (MASIVO)`); document.getElementById('deleteAllModal').classList.add('hidden'); alert("Todos los tickets históricos han sido eliminados."); } catch (error) { alert("Error al borrar: " + error.message); } btn.innerText = "DESTRUIR TICKETS"; btn.disabled = false; } else { alert("PIN Incorrecto."); } };
 
     document.getElementById("btnImportExcel").addEventListener("click", () => document.getElementById("inputImportExcel").click());
-    document.getElementById("inputImportExcel").addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const btn = document.getElementById("btnImportExcel");
-      const iconOriginal = btn.innerHTML;
-      btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 text-cyan-400 animate-spin"></i> Cargando...';
-      procesarExcelImportacion(file, async (ticketsProcesados) => {
-        if(confirm(`Se encontraron ${ticketsProcesados.length} tickets. ¿Subirlos a Firebase?`)) {
-          try { 
-            await importarTicketsMasivos(ticketsProcesados); 
-            await logAdminAction(currentUser.nombreCompleto, `Importó ${ticketsProcesados.length} tickets históricos de Excel`);
-            alert("¡Éxito! Tickets cargados."); 
-          } catch(err) { alert("Error: " + err.message); }
-        }
-        btn.innerHTML = iconOriginal; lucide.createIcons(); e.target.value = ''; 
-      });
-    });
+    document.getElementById("inputImportExcel").addEventListener("change", (e) => { const file = e.target.files[0]; if (!file) return; const btn = document.getElementById("btnImportExcel"); const iconOriginal = btn.innerHTML; btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 text-cyan-400 animate-spin"></i> Cargando...'; procesarExcelImportacion(file, async (ticketsProcesados) => { if(confirm(`Se encontraron ${ticketsProcesados.length} tickets. ¿Subirlos a Firebase?`)) { try { await importarTicketsMasivos(ticketsProcesados); await logAdminAction(currentUser.nombreCompleto, `Importó ${ticketsProcesados.length} tickets de Excel`); alert("¡Éxito! Tickets cargados."); } catch(err) { alert("Error: " + err.message); } } btn.innerHTML = iconOriginal; lucide.createIcons(); e.target.value = ''; }); });
 
-    const loadUsers = async () => {
-      const snap = await getDocs(collection(db, "users"));
-      document.getElementById('usuariosTableBody').innerHTML = snap.docs.map(d => { const u=d.data(); return `<tr class="border-b border-slate-800 hover:bg-slate-800/40 transition-colors"><td class="p-3 text-white font-mono">${u.email}</td><td class="p-3 font-semibold">${u.nombreCompleto}</td><td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.role==='admin'?'bg-amber-500/20 text-amber-300 border border-amber-500/30':'bg-slate-800 text-slate-300 border border-slate-700'}">${u.departamento} (${u.role})</span></td><td class="p-3 text-right"><button onclick="window.eliminarUsuario('${d.id}')" class="px-2 py-1 rounded bg-rose-500/20 hover:bg-rose-500 border border-rose-500/40 text-rose-400 hover:text-white text-[10px] font-bold transition-colors">Borrar</button></td></tr>`;}).join('');
-    };
+    document.getElementById("newUserRole")?.addEventListener("change", (e) => { const isAdm = e.target.value === "admin"; document.getElementById("passContainer").classList.toggle("hidden", !isAdm); document.getElementById("newPass").required = isAdm; });
 
+    const loadUsers = async () => { const snap = await getDocs(collection(db, "users")); document.getElementById('usuariosTableBody').innerHTML = snap.docs.map(d => { const u=d.data(); return `<tr class="border-b border-slate-800 hover:bg-slate-800/40 transition-colors"><td class="p-3 text-white font-mono">${u.email}</td><td class="p-3 font-semibold">${u.nombreCompleto}</td><td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.role==='admin'?'bg-amber-500/20 text-amber-300 border border-amber-500/30':'bg-slate-800 text-slate-300 border border-slate-700'}">${u.departamento} (${u.role})</span></td><td class="p-3 text-right"><button onclick="window.eliminarUsuario('${d.id}')" class="px-2 py-1 rounded bg-rose-500/20 hover:bg-rose-500 border border-rose-500/40 text-rose-400 hover:text-white text-[10px] font-bold transition-colors">Borrar</button></td></tr>`;}).join(''); };
+
+    // CORRECCIÓN PRINCIPAL DEL REGISTRO CON RESTAURACIÓN
     document.getElementById("formCrearUsuario").addEventListener("submit", async (e) => {
       e.preventDefault(); const btn = document.getElementById("btnCrearUsuario"); btn.disabled = true; btn.innerText = "Registrando...";
       try {
-        const email = document.getElementById("newEmail").value;
+        const email = document.getElementById("newEmail").value.trim().toLowerCase();
         const role = isSuperAdmin ? document.getElementById("newUserRole").value : "user";
         const pass = role === "admin" ? document.getElementById("newPass").value : "BemisUser2026!";
+        
+        let finalUid = "";
 
-        const userCred = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
-        await signOut(secondaryAuth);
-        await saveUserProfile(userCred.user.uid, { email, nombreCompleto: document.getElementById("newFullName").value, departamento: document.getElementById("newUserDept").value, role, requiereCambioPassword: false, activo: true, creadoEn: new Date().toISOString() });
-        await logAdminAction(currentUser.nombreCompleto, `Creó la cuenta ${email} (${role})`);
-        document.getElementById("formCrearUsuario").reset(); loadUsers(); alert("¡Usuario registrado!");
+        try {
+          const userCred = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
+          finalUid = userCred.user.uid;
+          await signOut(secondaryAuth);
+          alert("¡Usuario registrado exitosamente!");
+        } catch (authErr) {
+          if (authErr.code === 'auth/email-already-in-use') {
+            alert("ATENCIÓN: Este correo ya estaba en el registro de seguridad. Se ha restaurado su perfil con el nuevo rol en el directorio.\n\nNOTA IMPORTANTE: No se pudo cambiar su contraseña. Si era un usuario normal, su contraseña sigue siendo la genérica oculta (BemisUser2026!). Deberá iniciar sesión con esa y cambiarla en su propio panel.");
+            finalUid = email; // Fallback para restaurarlo
+          } else { throw authErr; }
+        }
+
+        await saveUserProfile(finalUid, { email, nombreCompleto: document.getElementById("newFullName").value, departamento: document.getElementById("newUserDept").value, role, requiereCambioPassword: false, activo: true, creadoEn: new Date().toISOString() });
+        await logAdminAction(currentUser.nombreCompleto, `Creó/Restauró la cuenta ${email} (${role})`);
+        
+        document.getElementById("formCrearUsuario").reset(); 
+        if(document.getElementById("passContainer")) { document.getElementById("passContainer").classList.add("hidden"); document.getElementById("newPass").required = false; }
+        loadUsers(); 
       } catch (err) { alert("Error: " + err.message); }
       btn.disabled = false; btn.innerText = "Crear Cuenta";
     });
 
-    window.eliminarUsuario = async (id) => { if(confirm("¿Borrar?")) { await deleteDoc(doc(db, "users", id)); await logAdminAction(currentUser.nombreCompleto, `Eliminó un usuario`); loadUsers(); } };
+    window.eliminarUsuario = async (id) => { if(confirm("¿Borrar?")) { await deleteDoc(doc(db, "users", id)); await logAdminAction(currentUser.nombreCompleto, `Eliminó un usuario del directorio`); loadUsers(); } };
 
-    window.actualizarMiPass = async () => {
-       const newP = document.getElementById("adminNewPass").value;
-       if(newP.length < 6) { alert("Mínimo 6 caracteres"); return; }
-       try {
-         await updatePassword(mainAuth.currentUser, newP);
-         await logAdminAction(currentUser.nombreCompleto, `Cambió su contraseña de administrador`);
-         alert("Contraseña actualizada con éxito.");
-         document.getElementById('modalCambiarPassword').classList.add('hidden');
-       } catch(e) { alert("Error al cambiar: " + e.message); }
-    };
+    window.actualizarMiPass = async () => { const newP = document.getElementById("adminNewPass").value; if(newP.length < 6) { alert("Mínimo 6 caracteres"); return; } try { await updatePassword(mainAuth.currentUser, newP); await logAdminAction(currentUser.nombreCompleto, `Cambió su contraseña de administrador`); alert("Contraseña actualizada con éxito."); document.getElementById('modalCambiarPassword').classList.add('hidden'); } catch(e) { alert("Error al cambiar: " + e.message); } };
 
     const loadDepts = async () => { const snap = await getDocs(collection(db, "departments")); document.getElementById('newUserDept').innerHTML = snap.docs.map(d => `<option value="${d.data().nombre}">${d.data().nombre}</option>`).join(''); };
     
     window.seleccionarTema = async (tema) => { await setGlobalTheme(tema); await logAdminAction(currentUser.nombreCompleto, `Cambió el tema a ${tema}`); };
     window.seleccionarFondo = async (color) => { await setGlobalBackground(color); await logAdminAction(currentUser.nombreCompleto, `Cambió el color de fondo`); };
     const themeOrnaments = { navidad: "🎅", halloween: "🎃", dia_muertos: "🏵️", san_valentin: "💖", primavera: "🌸", estandar: "" };
-    
-    subscribeToGlobalTheme((activeTheme, activeBg) => { 
-      if(window.seasonalEngine) window.seasonalEngine.setTheme(activeTheme); 
-      const ornamentSpan = document.getElementById("logoSeasonOrnament");
-      if (ornamentSpan) ornamentSpan.innerText = themeOrnaments[activeTheme] || "";
-      document.body.style.backgroundColor = activeBg; 
-    });
+    subscribeToGlobalTheme((activeTheme, activeBg) => { if(window.seasonalEngine) window.seasonalEngine.setTheme(activeTheme); const ornamentSpan = document.getElementById("logoSeasonOrnament"); if (ornamentSpan) ornamentSpan.innerText = themeOrnaments[activeTheme] || ""; document.body.style.backgroundColor = activeBg; });
 
     document.getElementById("btnExportExcel").addEventListener("click", async () => { exportarTicketsAExcel(currentTickets); await logAdminAction(currentUser.nombreCompleto, `Descargó el reporte mensual Excel`); });
     document.getElementById("btnLogout").addEventListener("click", async () => { await signOut(mainAuth); window.location.href = "index.html"; });
