@@ -1,453 +1,326 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bemis Tickets - Administrador</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,900;1,900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style> body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.5s ease; } .font-bemis { font-family: 'Montserrat', sans-serif; } </style>
-</head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col relative overflow-x-hidden">
-
-  <!-- Animaciones siempre al fondo pero visibles -->
-  <canvas id="seasonalCanvas" class="fixed inset-0 pointer-events-none z-0 w-full h-full opacity-80"></canvas>
-
-  <script>
-    window.cambiarPestana = (pestana) => {
-      ['tickets', 'usuarios', 'departamentos', 'noticias', 'temas', 'auditoria'].forEach(p => {
-        const tab = document.getElementById(`tab-${p}`), nav = document.getElementById(`nav-${p}`);
-        if(tab) { tab.classList.add('hidden'); tab.classList.remove('block'); }
-        if(nav) { nav.classList.remove('border-cyan-400', 'text-cyan-300'); nav.classList.add('border-transparent', 'text-slate-400'); }
-      });
-      const activeTab = document.getElementById(`tab-${pestana}`), activeNav = document.getElementById(`nav-${pestana}`);
-      if(activeTab) { activeTab.classList.remove('hidden'); activeTab.classList.add('block'); }
-      if(activeNav) { activeNav.classList.add('border-cyan-400', 'text-cyan-300'); activeNav.classList.remove('border-transparent', 'text-slate-400'); }
-    };
-
-    // Función para manejar la visibilidad del campo de contraseña
-    window.verificarRol = () => {
-      const roleSelect = document.getElementById("newUserRole");
-      const passContainer = document.getElementById("passContainer");
-      const passInput = document.getElementById("newPass");
-      
-      if (roleSelect && passContainer && passInput) {
-        if (roleSelect.value === "admin") {
-          passContainer.classList.remove("hidden");
-          passInput.required = true;
-        } else {
-          passContainer.classList.add("hidden");
-          passInput.required = false;
-          passInput.value = ""; // Limpiar el valor si no es admin
-        }
-      }
-    };
-  </script>
-
-  <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-xl">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-      
-      <!-- LOGO BEMIS OFICIAL -->
-      <div class="flex items-center gap-4">
-        <div class="relative w-[180px] flex items-center pt-2">
-          <span id="logoSeasonOrnament" class="absolute -top-3 right-0 text-2xl z-20 pointer-events-none animate-pulse"></span>
-          <svg viewBox="0 0 400 160" class="w-full h-auto drop-shadow-lg" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M 20 85 C 100 20, 250 -10, 380 65 L 360 85 C 240 25, 120 40, 20 85 Z" fill="#0052cc"/>
-            <text x="50%" y="115" font-family="Montserrat, sans-serif" font-weight="900" font-style="italic" font-size="76" fill="#ffffff" text-anchor="middle">BEMIS</text>
-            <text x="50%" y="150" font-family="Montserrat, sans-serif" font-weight="900" font-size="28" fill="#38bdf8" text-anchor="middle" letter-spacing="4">TICKETS</text>
-          </svg>
-        </div>
-        <div class="flex flex-col border-l border-slate-700 pl-4 hidden md:flex">
-          <span class="text-xs font-bold text-white uppercase tracking-wider">Panel Administrador</span>
-          <span class="text-[10px] text-cyan-400 font-medium" id="headerAdminName">Cargando...</span>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <button onclick="document.getElementById('modalCambiarPassword').classList.remove('hidden')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-all"><i data-lucide="key" class="w-4 h-4 inline"></i> Cambiar Mi Contraseña</button>
-        <button id="btnExportExcel" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all"><i data-lucide="file-spreadsheet" class="w-4 h-4 inline"></i> Exportar</button>
-        <button id="btnLogout" class="p-2 rounded-xl bg-rose-600/20 hover:bg-rose-500 text-rose-400 hover:text-white transition-all"><i data-lucide="log-out" class="w-4 h-4"></i></button>
-      </div>
-    </div>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BEMIS Tickets - Admin</title>
+    <!-- Tailwind CSS y Google Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <!-- Chart.js y SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-2 overflow-x-auto border-t border-slate-800/80 text-xs font-semibold">
-      <button id="nav-tickets" onclick="cambiarPestana('tickets')" class="py-3 px-3.5 border-b-2 flex items-center gap-2 whitespace-nowrap cursor-pointer transition-all border-cyan-400 text-cyan-300"><i data-lucide="ticket" class="w-4 h-4"></i> Tickets (<span id="count-tickets">0</span>)</button>
-      <button id="nav-usuarios" onclick="cambiarPestana('usuarios')" class="py-3 px-3.5 border-b-2 flex items-center gap-2 whitespace-nowrap cursor-pointer transition-all border-transparent text-slate-400"><i data-lucide="users" class="w-4 h-4"></i> Usuarios</button>
-      <button id="nav-departamentos" onclick="cambiarPestana('departamentos')" class="py-3 px-3.5 border-b-2 flex items-center gap-2 whitespace-nowrap cursor-pointer transition-all border-transparent text-slate-400"><i data-lucide="building" class="w-4 h-4"></i> Deptos</button>
-      <button id="nav-noticias" onclick="cambiarPestana('noticias')" class="py-3 px-3.5 border-b-2 flex items-center gap-2 whitespace-nowrap cursor-pointer transition-all border-transparent text-slate-400"><i data-lucide="bell" class="w-4 h-4"></i> Avisos</button>
-      <button id="nav-temas" onclick="cambiarPestana('temas')" class="py-3 px-3.5 border-b-2 flex items-center gap-2 whitespace-nowrap cursor-pointer transition-all border-transparent text-slate-400"><i data-lucide="palette" class="w-4 h-4"></i> Temas</button>
-      <button id="nav-auditoria" onclick="cambiarPestana('auditoria')" class="py-3 px-3.5 border-b-2 flex items-center gap-2 whitespace-nowrap cursor-pointer transition-all border-transparent text-slate-400"><i data-lucide="history" class="w-4 h-4"></i> Auditoría</button>
-    </div>
-  </header>
+    <style>
+        :root { --bg-labs: #F8F7F4; --bemis-blue: #0047BA; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-labs); color: #111827; }
+        .font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-mono-code { font-family: 'JetBrains Mono', monospace; }
+        
+        .apple-card { background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
+        .apple-input { background-color: #F8F7F4; border: 1px solid #E5E7EB; border-radius: 12px; transition: all 0.2s; }
+        .apple-input:focus { background-color: #FFFFFF; border-color: var(--bemis-blue); outline: none; box-shadow: 0 0 0 3px rgba(0,71,186,0.1); }
+        
+        /* Nav Tabs estilo Píldora Labs */
+        .tab-btn { background-color: transparent; color: #4B5563; border-radius: 9999px; padding: 0.5rem 1.25rem; font-size: 0.875rem; font-weight: 600; transition: all 0.2s; border: 1px solid transparent; }
+        .tab-btn:hover { background-color: #F3F4F6; }
+        .tab-btn.active { background-color: #111827; color: #FFFFFF; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-color: #111827; }
+        
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Ajustes Tabla */
+        table th { text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.05em; font-weight: 700; color: #6B7280; padding-bottom: 0.75rem; border-bottom: 1px solid #F3F4F6; }
+        table td { padding: 1rem 0; border-bottom: 1px solid #F8F7F4; font-size: 0.875rem; }
+        tr:last-child td { border-bottom: none; }
+    </style>
+</head>
+<body id="adminBody" class="min-h-screen flex flex-col relative overflow-x-hidden">
+    
+    <!-- Animaciones -->
+    <canvas id="snowCanvas" class="fixed inset-0 pointer-events-none z-0 hidden"></canvas>
+    <div id="halloween-bats" class="fixed inset-0 pointer-events-none z-0 hidden overflow-hidden"></div>
+    <div id="muertos-flowers" class="fixed inset-0 pointer-events-none z-0 hidden overflow-hidden"></div>
 
-  <main class="relative z-20 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-    <div class="grid grid-cols-3 md:grid-cols-5 gap-3">
-      <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl"><span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total Histórico</span><div id="statTotal" class="text-2xl font-black text-white">0</div></div>
-      <div class="p-3 rounded-2xl bg-slate-900/90 border border-blue-500/30 shadow-xl"><span class="text-[10px] text-blue-300 uppercase font-bold tracking-wider">Solicitados</span><div id="statPendientes" class="text-2xl font-black text-cyan-400">0</div></div>
-      <div class="p-3 rounded-2xl bg-slate-900/90 border border-amber-500/30 shadow-xl"><span class="text-[10px] text-amber-300 uppercase font-bold tracking-wider">En Proceso</span><div id="statProceso" class="text-2xl font-black text-amber-400">0</div></div>
-      <div class="p-3 rounded-2xl bg-slate-900/90 border border-emerald-500/30 shadow-xl"><span class="text-[10px] text-emerald-300 uppercase font-bold tracking-wider">Finalizados</span><div id="statResueltos" class="text-2xl font-black text-emerald-400">0</div></div>
-      <div class="p-3 rounded-2xl bg-slate-900/90 border border-purple-500/30 shadow-xl"><span class="text-[10px] text-purple-300 uppercase font-bold tracking-wider">Satisfacción</span><div id="statSatisfaccion" class="text-2xl font-black text-purple-400">100%</div></div>
-    </div>
-
-    <!-- TAB 1: TICKETS -->
-    <div id="tab-tickets" class="block">
-      <section class="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-2xl backdrop-blur-md">
-        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
-          <h2 class="text-lg font-black text-white flex items-center gap-2"><i data-lucide="ticket" class="w-5 h-5 text-cyan-400"></i> Mesa de Tickets</h2>
-          
-          <div class="flex flex-wrap gap-2 items-center">
-            <input type="file" id="inputImportExcel" accept=".xlsx, .xls" class="hidden" />
-            <button id="btnImportExcel" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-1.5 transition-colors"><i data-lucide="upload-cloud" class="w-4 h-4"></i> Excel Antiguo</button>
-            <button id="btnDeleteAll" onclick="window.confirmarBorrarTodo()" class="hidden px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold flex items-center gap-1.5 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i> Borrar Todos</button>
+    <!-- HEADER SUPERIOR -->
+    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-neutral-200">
+        <div class="max-w-[1400px] mx-auto px-6 py-4 flex flex-wrap justify-between items-center gap-4">
             
-            <div class="h-4 w-px bg-slate-700 mx-1"></div>
-            
-            <div class="flex items-center gap-1 bg-slate-800 rounded-xl px-2 py-1 border border-slate-700">
-               <span class="text-[10px] text-slate-400 font-semibold">Del:</span>
-               <input type="date" id="filtroFechaInicio" class="bg-transparent text-xs text-white focus:outline-none">
-               <span class="text-[10px] text-slate-400 font-semibold ml-1">Al:</span>
-               <input type="date" id="filtroFechaFin" class="bg-transparent text-xs text-white focus:outline-none">
+            <div class="flex items-center gap-4">
+                <img src="https://file.notion.so/f/f/03c86e/image_03c86e.png" alt="Bemis" class="h-8 w-auto">
+                <div class="h-6 w-px bg-neutral-200 hidden sm:block"></div>
+                <div>
+                    <h1 class="text-[10px] font-bold tracking-widest uppercase text-neutral-400">Panel Administrador</h1>
+                    <p class="text-sm font-semibold text-neutral-900" id="adminNameDisplay">Cargando...</p>
+                </div>
             </div>
 
-            <input type="text" id="filtroSearch" placeholder="Buscar ticket o usuario..." class="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white w-48 focus:border-cyan-400 focus:outline-none transition-colors">
-            <select id="filtroEstado" class="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:border-cyan-400 focus:outline-none transition-colors">
-              <option value="todos">Todos</option><option value="Solicitado">Solicitados</option><option value="En Proceso">En Proceso</option><option value="Finalizado">Finalizados</option>
-            </select>
-          </div>
+            <div class="flex items-center gap-3">
+                <button id="changePasswordBtn" class="px-4 py-2 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-700 hover:bg-neutral-200 transition">
+                    Cambiar Clave
+                </button>
+                <button id="exportExcelBtn" class="px-4 py-2 rounded-full text-xs font-semibold bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm transition">
+                    Exportar
+                </button>
+                <button id="logoutBtn" class="p-2 rounded-full bg-neutral-100 text-neutral-500 hover:bg-red-50 hover:text-red-600 transition" title="Cerrar Sesión">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                </button>
+            </div>
         </div>
-        <div class="overflow-x-auto rounded-2xl border border-slate-800">
-          <table class="w-full text-left text-xs text-slate-300">
-            <thead class="bg-slate-800/80 text-slate-400 uppercase text-[10px] font-bold"><tr><th class="p-3">Ticket</th><th class="p-3">Usuario</th><th class="p-3">Reporte</th><th class="p-3">Fechas Exactas</th><th class="p-3">Estatus</th><th class="p-3 text-right">Acciones</th></tr></thead>
-            <tbody id="ticketsTableBody" class="divide-y divide-slate-800"></tbody>
-          </table>
+
+        <!-- TABS NAV -->
+        <div class="max-w-[1400px] mx-auto px-6 pb-4 flex overflow-x-auto gap-2 no-scrollbar">
+            <button class="tab-btn active whitespace-nowrap" data-target="tab-tickets" id="ticketsTabBtn">🎫 Tickets (<span id="tabTicketCount">0</span>)</button>
+            <button class="tab-btn whitespace-nowrap" data-target="tab-usuarios">👤 Usuarios</button>
+            <button class="tab-btn whitespace-nowrap" data-target="tab-deptos">🏢 Deptos</button>
+            <button class="tab-btn whitespace-nowrap" data-target="tab-avisos">📢 Avisos</button>
+            <button class="tab-btn whitespace-nowrap" data-target="tab-temas">🎨 Temas</button>
+            <button class="tab-btn whitespace-nowrap" data-target="tab-auditoria">📈 Auditoría</button>
         </div>
-      </section>
-    </div>
+    </header>
 
-    <!-- TAB 2: USUARIOS -->
-    <div id="tab-usuarios" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
-      <section class="lg:col-span-4 bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-2xl backdrop-blur-md space-y-4">
-        <h3 class="text-base font-bold text-white"><i data-lucide="user-plus" class="inline w-4 h-4 text-cyan-400"></i> Nuevo Usuario</h3>
-        <form id="formCrearUsuario" class="space-y-3 text-xs">
-          <input type="email" id="newEmail" required placeholder="Correo corporativo..." class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white focus:border-cyan-400 focus:outline-none">
-          <input type="text" id="newFullName" required placeholder="Nombre Completo" class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white focus:border-cyan-400 focus:outline-none">
-          <select id="newUserDept" class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white focus:border-cyan-400 focus:outline-none"></select>
-          
-          <div id="roleSelectorDiv" class="hidden">
-            <label class="block text-slate-400 font-semibold mb-1">Rol de Acceso:</label>
-            <!-- AQUI ES DONDE SE AGREGÓ onchange="window.verificarRol()" -->
-            <select id="newUserRole" onchange="window.verificarRol()" class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white focus:border-cyan-400 focus:outline-none">
-              <option value="user">Usuario Normal (Sin contraseña)</option>
-              <option value="admin">Administrador (Requiere contraseña)</option>
-            </select>
-          </div>
-          
-          <div id="passContainer" class="hidden">
-             <label class="block text-amber-400 font-semibold mb-1 mt-2 text-[10px] uppercase tracking-wider">Contraseña Obligatoria:</label>
-             <input type="password" id="newPass" placeholder="Mínimo 6 caracteres..." class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white focus:border-amber-400 focus:outline-none">
-          </div>
-          
-          <button type="submit" id="btnCrearUsuario" class="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold transition-colors mt-2">Crear Cuenta</button>
-        </form>
-      </section>
-      <section class="lg:col-span-8 bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-2xl backdrop-blur-md">
-        <h3 class="text-base font-bold text-white mb-4"><i data-lucide="users" class="inline w-4 h-4 text-cyan-400"></i> Directorio y Accesos</h3>
-        <div class="overflow-x-auto rounded-2xl border border-slate-800">
-          <table class="w-full text-left text-xs text-slate-300"><thead class="bg-slate-800/80 text-slate-400 uppercase text-[10px] font-bold"><tr><th class="p-3">Correo / Clave</th><th class="p-3">Nombre</th><th class="p-3">Depto / Rol</th><th class="p-3 text-right">Acción</th></tr></thead><tbody id="usuariosTableBody" class="divide-y divide-slate-800"></tbody></table>
+    <main class="max-w-[1400px] mx-auto w-full px-6 py-8 flex-1 relative z-10">
+        
+        <!-- KPIs ROW -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+            <div class="apple-card p-5">
+                <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wide mb-1">Total Histórico</p>
+                <h3 id="kpiTotal" class="font-display text-3xl font-bold text-neutral-900">0</h3>
+            </div>
+            <div class="apple-card p-5">
+                <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wide mb-1">Solicitados</p>
+                <h3 id="kpiSolicitados" class="font-display text-3xl font-bold text-[#0047BA]">0</h3>
+            </div>
+            <div class="apple-card p-5">
+                <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wide mb-1">En Proceso</p>
+                <h3 id="kpiProceso" class="font-display text-3xl font-bold text-amber-500">0</h3>
+            </div>
+            <div class="apple-card p-5">
+                <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wide mb-1">Finalizados</p>
+                <h3 id="kpiFinalizados" class="font-display text-3xl font-bold text-emerald-600">0</h3>
+            </div>
+            <div class="apple-card p-5">
+                <p class="text-[10px] font-bold text-neutral-400 uppercase tracking-wide mb-1">Satisfacción</p>
+                <h3 id="kpiSatisfaccion" class="font-display text-3xl font-bold text-violet-600">0%</h3>
+            </div>
         </div>
-      </section>
-    </div>
 
-    <!-- TABS DEPTOS Y NOTICIAS -->
-    <div id="tab-departamentos" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-6"><section class="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-2xl backdrop-blur-md"><h3 class="text-base font-bold text-white mb-4"><i data-lucide="plus" class="inline w-4 h-4 text-cyan-400"></i> Nuevo Depto</h3><form id="formCrearDepto" class="space-y-3"><input type="text" id="newDeptName" required placeholder="Nombre" class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs"><button type="submit" class="w-full py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold rounded-xl transition-colors">Guardar</button></form></section><section class="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-2xl backdrop-blur-md"><div id="deptsContainer" class="space-y-2 text-xs"></div></section></div>
-    
-    <div id="tab-noticias" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-6"><section class="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-2xl backdrop-blur-md"><h3 class="text-base font-bold text-white mb-4"><i data-lucide="send" class="inline w-4 h-4 text-cyan-400"></i> Publicar Aviso</h3><form id="formCrearNoticia" class="space-y-3 text-xs"><input type="text" id="newsTitle" required placeholder="Título" class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white"><textarea id="newsContent" rows="3" required placeholder="Contenido" class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white resize-none"></textarea><select id="newsScope" class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white"><option value="GLOBAL">Para Todos</option></select><button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-colors">Publicar</button></form></section><section class="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-2xl backdrop-blur-md"><div id="newsContainer" class="space-y-3 text-xs"></div></section></div>
-
-    <div id="tab-temas" class="hidden space-y-6">
-      <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-2xl backdrop-blur-md"><h2 class="text-lg font-black text-white mb-4"><i data-lucide="palette" class="inline w-5 h-5 text-cyan-400"></i> Animaciones Estacionales</h2><div class="grid grid-cols-2 md:grid-cols-4 gap-4"><button onclick="window.seleccionarTema('estandar')" class="p-3 rounded-2xl bg-slate-800/60 hover:border-cyan-400 border border-slate-700 text-white font-bold text-xs transition-colors">🏢 Estándar</button><button onclick="window.seleccionarTema('navidad')" class="p-3 rounded-2xl bg-slate-800/60 hover:border-emerald-400 border border-slate-700 text-white font-bold text-xs transition-colors">❄️ Navideño</button><button onclick="window.seleccionarTema('halloween')" class="p-3 rounded-2xl bg-slate-800/60 hover:border-orange-500 border border-slate-700 text-white font-bold text-xs transition-colors">🎃 Halloween</button><button onclick="window.seleccionarTema('dia_muertos')" class="p-3 rounded-2xl bg-slate-800/60 hover:border-amber-400 border border-slate-700 text-white font-bold text-xs transition-colors">💀 Día de Muertos</button></div></div>
-      <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-2xl backdrop-blur-md"><h2 class="text-lg font-black text-white mb-4"><i data-lucide="paint-bucket" class="inline w-5 h-5 text-cyan-400"></i> Color de Fondo Global</h2><div class="flex gap-3"><button onclick="window.seleccionarFondo('#020617')" class="w-8 h-8 rounded-full bg-[#020617] border-2 border-slate-600 hover:scale-110 transition-transform"></button><button onclick="window.seleccionarFondo('#0f172a')" class="w-8 h-8 rounded-full bg-[#0f172a] border-2 border-slate-600 hover:scale-110 transition-transform"></button><button onclick="window.seleccionarFondo('#1d4ed8')" class="w-8 h-8 rounded-full bg-[#1d4ed8] border-2 border-slate-600 hover:scale-110 transition-transform"></button><button onclick="window.seleccionarFondo('#ea580c')" class="w-8 h-8 rounded-full bg-[#ea580c] border-2 border-slate-600 hover:scale-110 transition-transform"></button></div></div>
-    </div>
-
-    <!-- TAB 6: AUDITORÍA -->
-    <div id="tab-auditoria" class="hidden">
-      <section class="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-2xl backdrop-blur-md">
-        <h2 class="text-lg font-black text-white mb-4 flex items-center gap-2"><i data-lucide="history" class="w-5 h-5 text-cyan-400"></i> Registro de Administradores</h2>
-        <div class="overflow-x-auto rounded-2xl border border-slate-800 max-h-96 overflow-y-auto">
-          <table class="w-full text-left text-xs text-slate-300"><thead class="bg-slate-800/80 text-slate-400 uppercase text-[10px] font-bold sticky top-0"><tr><th class="p-3">Fecha y Hora</th><th class="p-3">Administrador</th><th class="p-3">Acción Realizada</th></tr></thead><tbody id="auditTableBody" class="divide-y divide-slate-800"></tbody></table>
+        <!-- TAB: TICKETS -->
+        <div id="tab-tickets" class="tab-content active apple-card p-6">
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <h2 class="text-lg font-bold text-neutral-900 font-display">Mesa de Tickets</h2>
+                <div class="flex flex-wrap items-center gap-3">
+                    <button id="exportOldExcelBtn" class="px-4 py-2 rounded-full text-xs font-semibold bg-blue-50 text-[#0047BA] hover:bg-blue-100">📥 Excel Antiguo</button>
+                    <button id="deleteAllTicketsBtn" class="px-4 py-2 rounded-full text-xs font-semibold bg-red-50 text-red-600 hover:bg-red-100">🗑️ Borrar Todos</button>
+                    
+                    <div class="flex items-center gap-2 bg-neutral-50 border border-neutral-200 rounded-full px-3 py-1.5">
+                        <span class="text-xs text-neutral-400">Del:</span>
+                        <input type="date" id="filterStartDate" class="bg-transparent text-xs text-neutral-700 outline-none">
+                    </div>
+                    <div class="flex items-center gap-2 bg-neutral-50 border border-neutral-200 rounded-full px-3 py-1.5">
+                        <span class="text-xs text-neutral-400">Al:</span>
+                        <input type="date" id="filterEndDate" class="bg-transparent text-xs text-neutral-700 outline-none">
+                    </div>
+                    
+                    <input type="text" id="searchInput" placeholder="Buscar ticket o usuario..." class="apple-input px-4 py-2 text-xs w-48">
+                    <select id="statusFilter" class="apple-input px-4 py-2 text-xs">
+                        <option value="Todos">Todos</option>
+                        <option value="Solicitado">Solicitados</option>
+                        <option value="En Proceso">En Proceso</option>
+                        <option value="Finalizado">Finalizados</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr>
+                            <th class="px-2">Ticket</th>
+                            <th class="px-2">Usuario</th>
+                            <th class="px-2">Reporte</th>
+                            <th class="px-2">Fechas Exactas</th>
+                            <th class="px-2">Estatus</th>
+                            <th class="px-2 text-right">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ticketsTableBody">
+                        <!-- Llenado dinámico app.js -->
+                    </tbody>
+                </table>
+            </div>
         </div>
-      </section>
+
+        <!-- TAB: USUARIOS -->
+        <div id="tab-usuarios" class="tab-content">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="apple-card p-6 h-fit">
+                    <h3 class="text-base font-bold text-neutral-900 mb-4">👤 Nuevo Usuario</h3>
+                    <form id="userForm" class="space-y-4">
+                        <input type="email" id="userEmail" placeholder="correo@bemismfg.com" class="apple-input w-full px-4 py-2.5 text-sm" required>
+                        <input type="text" id="userName" placeholder="Nombre Completo" class="apple-input w-full px-4 py-2.5 text-sm" required>
+                        <select id="userDepto" class="apple-input w-full px-4 py-2.5 text-sm" required></select>
+                        <div>
+                            <label class="block text-[10px] uppercase tracking-wide text-neutral-500 mb-1">Rol de Acceso</label>
+                            <select id="userRole" class="apple-input w-full px-4 py-2.5 text-sm">
+                                <option value="user">Usuario Normal (Sin contraseña)</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full py-3 rounded-full bg-neutral-900 text-white font-semibold text-sm hover:bg-neutral-800">Crear Cuenta</button>
+                    </form>
+                </div>
+                <div class="apple-card p-6 lg:col-span-2">
+                    <h3 class="text-base font-bold text-neutral-900 mb-4">🛡️ Directorio y Accesos</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr>
+                                    <th class="px-2">Correo / Clave</th>
+                                    <th class="px-2">Nombre</th>
+                                    <th class="px-2">Depto / Rol</th>
+                                    <th class="px-2 text-right">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: DEPTOS -->
+        <div id="tab-deptos" class="tab-content">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="apple-card p-6 h-fit">
+                    <h3 class="text-base font-bold text-neutral-900 mb-4">🏢 Nuevo Depto</h3>
+                    <form id="deptoForm" class="space-y-4">
+                        <input type="text" id="deptoName" placeholder="Nombre del departamento" class="apple-input w-full px-4 py-2.5 text-sm" required>
+                        <button type="submit" class="w-full py-3 rounded-full bg-[#0047BA] text-white font-semibold text-sm">Guardar</button>
+                    </form>
+                </div>
+                <div class="apple-card p-6 lg:col-span-2">
+                    <h3 class="text-base font-bold text-neutral-900 mb-4">Departamentos Registrados</h3>
+                    <div id="deptosList" class="flex flex-wrap gap-2"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: AVISOS -->
+        <div id="tab-avisos" class="tab-content">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="apple-card p-6 h-fit">
+                    <h3 class="text-base font-bold text-neutral-900 mb-4">📢 Publicar Aviso</h3>
+                    <form id="avisoForm" class="space-y-4">
+                        <input type="text" id="avisoTitle" placeholder="Título del aviso" class="apple-input w-full px-4 py-2.5 text-sm" required>
+                        <textarea id="avisoContent" placeholder="Contenido..." rows="3" class="apple-input w-full px-4 py-2.5 text-sm" required></textarea>
+                        <select id="avisoTarget" class="apple-input w-full px-4 py-2.5 text-sm">
+                            <option value="Todos">Para Todos</option>
+                        </select>
+                        <button type="submit" class="w-full py-3 rounded-full bg-amber-500 text-white font-semibold text-sm">Publicar</button>
+                    </form>
+                </div>
+                <div class="apple-card p-6 lg:col-span-2">
+                    <h3 class="text-base font-bold text-neutral-900 mb-4">Avisos Activos</h3>
+                    <div id="avisosListAdmin" class="space-y-3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: TEMAS -->
+        <div id="tab-temas" class="tab-content space-y-6">
+            <div class="apple-card p-6">
+                <h3 class="text-base font-bold text-neutral-900 mb-4">✨ Animaciones Estacionales</h3>
+                <div class="flex flex-wrap gap-3">
+                    <button class="theme-anim-btn labs-pill px-5 py-2.5 text-sm font-medium" data-anim="none">🚫 Estándar</button>
+                    <button class="theme-anim-btn labs-pill px-5 py-2.5 text-sm font-medium" data-anim="snow">❄️ Navideño</button>
+                    <button class="theme-anim-btn labs-pill px-5 py-2.5 text-sm font-medium" data-anim="halloween">🎃 Halloween</button>
+                    <button class="theme-anim-btn labs-pill px-5 py-2.5 text-sm font-medium" data-anim="muertos">💀 Día de Muertos</button>
+                </div>
+            </div>
+            <div class="apple-card p-6">
+                <h3 class="text-base font-bold text-neutral-900 mb-4">🎨 Color de Fondo Global</h3>
+                <div class="flex gap-4">
+                    <button class="theme-color-btn w-10 h-10 rounded-full border border-neutral-300 shadow-sm" style="background-color: #F8F7F4;" data-color="#F8F7F4"></button>
+                    <button class="theme-color-btn w-10 h-10 rounded-full border border-neutral-300 shadow-sm" style="background-color: #FFFFFF;" data-color="#FFFFFF"></button>
+                    <button class="theme-color-btn w-10 h-10 rounded-full border border-neutral-300 shadow-sm" style="background-color: #F3F4F6;" data-color="#F3F4F6"></button>
+                    <button class="theme-color-btn w-10 h-10 rounded-full border border-blue-200 shadow-sm" style="background-color: #EFF6FF;" data-color="#EFF6FF"></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: AUDITORIA -->
+        <div id="tab-auditoria" class="tab-content apple-card p-6">
+            <h3 class="text-base font-bold text-neutral-900 mb-4">🕒 Registro de Administradores</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr>
+                            <th class="px-2">Fecha y Hora</th>
+                            <th class="px-2">Administrador</th>
+                            <th class="px-2">Acción Realizada</th>
+                        </tr>
+                    </thead>
+                    <tbody id="auditTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal Detalles Ticket -->
+    <div id="ticketModal" class="fixed inset-0 bg-neutral-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4 opacity-0 transition-opacity duration-300">
+        <div class="apple-card w-full max-w-lg p-6 transform scale-95 transition-transform duration-300">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-neutral-900">Detalles del Ticket</h3>
+                <button id="closeModalBtn" class="text-neutral-400 hover:text-neutral-900">✕</button>
+            </div>
+            <div id="modalContent" class="space-y-3 text-sm text-neutral-700"></div>
+            <div class="mt-6 flex justify-end gap-3" id="modalActions"></div>
+        </div>
     </div>
 
-  </main>
-
-  <!-- Modales Ocultos -->
-  <div id="deleteTicketModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-    <div class="bg-slate-900 border border-rose-500/40 rounded-3xl max-w-sm w-full p-6 shadow-2xl relative"><h3 class="text-base font-bold text-white mb-2">Eliminar Ticket</h3><p class="text-xs text-slate-400 mb-4">Ingresa el PIN de seguridad para borrar pruebas.</p><input type="password" id="deleteTicketPassword" autocomplete="new-password" placeholder="PIN Secreto" class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white font-mono mb-4 focus:border-rose-400 focus:outline-none"><div class="flex justify-end gap-2"><button onclick="document.getElementById('deleteTicketModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 text-xs transition-colors">Cancelar</button><button onclick="window.ejecutarEliminarTicket()" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition-colors">Borrar</button></div></div>
-  </div>
-
-  <div id="deleteAllModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-    <div class="bg-slate-900 border border-rose-500/60 rounded-3xl max-w-md w-full p-6 shadow-2xl relative"><h3 class="text-lg font-black text-rose-500 mb-2">¡PELIGRO! Borrar Toda la Base de Datos</h3><p class="text-xs text-slate-300 mb-4">Estás a punto de borrar absolutamente TODOS los tickets históricos del sistema. Esta acción es irreversible.</p><input type="password" id="deleteAllPassword" autocomplete="new-password" placeholder="PIN Secreto" class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white font-mono mb-4 focus:border-rose-400 focus:outline-none">
-      <div class="flex justify-end gap-2">
-        <button onclick="document.getElementById('deleteAllModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 text-xs transition-colors">Cancelar</button>
-        <button id="btnEjecutarDestruccion" onclick="window.ejecutarBorrarTodo()" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs animate-pulse transition-colors">DESTRUIR TICKETS</button>
-      </div>
+    <!-- Modal Cambio Contraseña -->
+    <div id="passwordModal" class="fixed inset-0 bg-neutral-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="apple-card w-full max-w-sm p-6">
+            <h3 class="text-lg font-bold text-neutral-900 mb-4">Cambiar Contraseña</h3>
+            <form id="passwordForm" class="space-y-4">
+                <input type="password" id="newPassword" placeholder="Nueva contraseña" class="apple-input w-full px-4 py-2.5 text-sm" required>
+                <input type="password" id="confirmPassword" placeholder="Confirmar contraseña" class="apple-input w-full px-4 py-2.5 text-sm" required>
+                <div class="flex justify-end gap-2 mt-4">
+                    <button type="button" id="closePasswordModalBtn" class="px-4 py-2 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-600">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 rounded-full text-xs font-semibold bg-neutral-900 text-white">Actualizar</button>
+                </div>
+            </form>
+        </div>
     </div>
-  </div>
 
-  <div id="modalCambiarPassword" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-    <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl max-w-sm w-full p-6 shadow-2xl relative"><h3 class="text-base font-bold text-white mb-4">Actualizar Mi Contraseña</h3><input type="text" id="adminNewPass" placeholder="Nueva Contraseña" class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white mb-2 focus:border-cyan-400 focus:outline-none"><button onclick="window.actualizarMiPass()" class="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs mt-2 transition-colors">Guardar Cambios</button><button onclick="document.getElementById('modalCambiarPassword').classList.add('hidden')" class="w-full py-2 rounded-xl bg-transparent hover:bg-slate-800 text-slate-400 text-xs mt-1 transition-colors">Cancelar</button></div>
-  </div>
-
-  <script src="animations.js"></script>
-  <script type="module">
-    import { db, firebaseConfig } from "./firebase-config.js";
-    import { collection, getDocs, doc, deleteDoc, onSnapshot, query, orderBy, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { subscribeToTickets, updateTicket, createNews, saveUserProfile, subscribeToGlobalTheme, setGlobalTheme, setGlobalBackground, createDepartment, importarTicketsMasivos, logAdminAction, subscribeToAuditLogs, deleteAllTickets } from "./db.js";
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updatePassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { exportarTicketsAExcel, procesarExcelImportacion } from "./app.js";
-
-    lucide.createIcons();
-    const secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
-    const secondaryAuth = getAuth(secondaryApp);
-    const mainAuth = getAuth();
-
-    // 1. SEGURIDAD Y PERFIL
-    const currentUser = JSON.parse(sessionStorage.getItem("bemis_session_user") || "{}");
-    if (!currentUser || currentUser.role !== "admin") window.location.href = "index.html";
-    document.getElementById("headerAdminName").innerText = currentUser.nombreCompleto;
-    
-    // MODO SUPER ADMINISTRADOR MARIO
-    const isSuperAdmin = currentUser.email.includes("mario"); 
-    if (isSuperAdmin) {
-      document.getElementById("roleSelectorDiv").classList.remove("hidden");
-      document.getElementById("btnDeleteAll").classList.remove("hidden");
-    }
-
-    // 2. AUDITORÍA
-    subscribeToAuditLogs((logs) => {
-      document.getElementById("auditTableBody").innerHTML = logs.map(l => `
-        <tr class="border-b border-slate-800 hover:bg-slate-800/40 transition-colors"><td class="p-3 text-cyan-400 font-mono">${l.fechaExacta}</td><td class="p-3 text-white font-bold">${l.admin}</td><td class="p-3 text-slate-300">${l.accion}</td></tr>
-      `).join('');
-    });
-
-    // 3. TICKETS
-    let currentTickets = []; let ticketAEliminarId = null;
-    subscribeToTickets((tickets) => { currentTickets = tickets; renderizarTickets(); });
-    
-    function renderizarTickets() {
-      const search = document.getElementById("filtroSearch").value.toLowerCase();
-      const estado = document.getElementById("filtroEstado").value;
-      const fInicio = document.getElementById("filtroFechaInicio").value;
-      const fFin = document.getElementById("filtroFechaFin").value;
-      const tbody = document.getElementById("ticketsTableBody");
-      
-      tbody.innerHTML = "";
-      
-      let filtrados = currentTickets.filter(t => {
-        const matchText = (t.ticketId || t.id).toLowerCase().includes(search) || (t.usuario || "").toLowerCase().includes(search);
-        if (!matchText) return false;
-        
-        if (estado === "Solicitado" && t.porcentajeHecho !== 0) return false;
-        if (estado === "En Proceso" && (t.porcentajeHecho === 0 || t.porcentajeHecho === 100)) return false;
-        if (estado === "Finalizado" && t.porcentajeHecho !== 100) return false;
-        
-        if (fInicio && t.fechaTicket < fInicio) return false;
-        if (fFin && t.fechaTicket > fFin) return false;
-        
-        return true;
-      });
-
-      // Actualizar contadores totales
-      document.getElementById("statTotal").innerText = currentTickets.length; 
-      document.getElementById("statPendientes").innerText = currentTickets.filter(t => t.porcentajeHecho === 0).length; 
-      document.getElementById("statProceso").innerText = currentTickets.filter(t => t.porcentajeHecho > 0 && t.porcentajeHecho < 100).length; 
-      document.getElementById("statResueltos").innerText = currentTickets.filter(t => t.porcentajeHecho === 100).length;
-      
-      // Límite de seguridad en pantalla (Para que no se congele el navegador)
-      const ticketsAMostrar = filtrados.slice(0, 100);
-      document.getElementById("count-tickets").innerText = `${ticketsAMostrar.length} de ${filtrados.length}`;
-
-      ticketsAMostrar.forEach(t => {
-        const tr = document.createElement("tr"); tr.className = "border-b border-slate-800 hover:bg-slate-800/40 transition-colors";
-        let estatusStr = '<span class="text-blue-400 bg-blue-400/10 border border-blue-400/30 px-2 py-0.5 rounded">Solicitado</span>';
-        if(t.porcentajeHecho > 0 && t.porcentajeHecho < 100) estatusStr = `<span class="text-amber-400 bg-amber-400/10 border border-amber-400/30 px-2 py-0.5 rounded">En Proceso (${t.porcentajeHecho}%)</span>`;
-        else if (t.porcentajeHecho === 100) estatusStr = '<span class="text-emerald-400 bg-emerald-400/10 border border-emerald-400/30 px-2 py-0.5 rounded font-bold">Finalizado</span>';
-
-        tr.innerHTML = `
-          <td class="p-3 font-mono text-cyan-400 font-bold">${t.ticketId || t.id}</td>
-          <td class="p-3 text-white font-semibold">${t.usuario} <div class="text-[10px] text-slate-400 font-normal">${t.departamento}</div></td>
-          <td class="p-3 text-slate-200 truncate max-w-xs font-medium">${t.nombreReporte}</td>
-          <td class="p-3 text-[10px] text-slate-400 font-mono leading-relaxed">Abierto: ${t.fechaAperturaExacta || t.fechaTicket}<br>${t.fechaCierreExacta ? `<span class="text-emerald-400">Cierre: ${t.fechaCierreExacta}</span>` : ''}</td>
-          <td class="p-3 font-bold">${estatusStr}</td>
-          <td class="p-3 text-right flex items-center justify-end gap-1.5 mt-2">
-            ${t.porcentajeHecho === 0 ? `<button onclick="window.cambiarEstatus('${t.id}', 50)" class="px-2.5 py-1 bg-amber-600 hover:bg-amber-500 rounded-lg text-white font-bold text-[10px] transition-colors shadow-lg shadow-amber-600/20">Atender</button>` : ''}
-            ${t.porcentajeHecho !== 100 ? `<button onclick="window.cambiarEstatus('${t.id}', 100)" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white font-bold text-[10px] transition-colors shadow-lg shadow-emerald-600/20">Finalizar</button>` : ''}
-            <button onclick="window.confirmarEliminarTicket('${t.id}')" class="px-2.5 py-1 bg-rose-600/20 hover:bg-rose-500 border border-rose-500/40 rounded-lg text-rose-400 hover:text-white font-bold text-[10px] transition-colors">Borrar</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    document.getElementById("filtroSearch").addEventListener("input", renderizarTickets); 
-    document.getElementById("filtroEstado").addEventListener("change", renderizarTickets);
-    document.getElementById("filtroFechaInicio").addEventListener("change", renderizarTickets);
-    document.getElementById("filtroFechaFin").addEventListener("change", renderizarTickets);
-    
-    window.cambiarEstatus = async (docId, pct) => {
-      const today = new Date();
-      await updateTicket(docId, { porcentajeHecho: pct, fechaTermino: pct === 100 ? today.toISOString().split("T")[0] : "", fechaCierreExacta: pct === 100 ? today.toLocaleString('es-MX') : "" });
-      await logAdminAction(currentUser.nombreCompleto, `Cambió estatus de ticket a ${pct === 100 ? 'Finalizado' : 'En Proceso'}`);
-    };
-
-    window.confirmarEliminarTicket = (id) => { ticketAEliminarId = id; document.getElementById('deleteTicketPassword').value = ''; document.getElementById('deleteTicketModal').classList.remove('hidden'); };
-    window.ejecutarEliminarTicket = async () => {
-      if (document.getElementById('deleteTicketPassword').value === '1917') {
-        await deleteDoc(doc(db, "tickets", ticketAEliminarId));
-        await logAdminAction(currentUser.nombreCompleto, `Eliminó un ticket de prueba`);
-        document.getElementById('deleteTicketModal').classList.add('hidden');
-      } else { alert("PIN Incorrecto."); }
-    };
-
-    window.confirmarBorrarTodo = () => { document.getElementById('deleteAllPassword').value = ''; document.getElementById('deleteAllModal').classList.remove('hidden'); };
-    window.ejecutarBorrarTodo = async () => {
-      if (document.getElementById('deleteAllPassword').value === '1917') {
-        const btn = document.getElementById("btnEjecutarDestruccion");
-        btn.innerText = "DESTRUYENDO..."; btn.disabled = true;
-        try {
-          await deleteAllTickets();
-          await logAdminAction(currentUser.nombreCompleto, `VACIÓ LA BASE DE DATOS DE TICKETS (MASIVO)`);
-          document.getElementById('deleteAllModal').classList.add('hidden');
-          alert("Todos los tickets históricos han sido eliminados correctamente.");
-        } catch (error) { alert("Hubo un error al borrar: " + error.message); }
-        btn.innerText = "DESTRUIR TICKETS"; btn.disabled = false;
-      } else { alert("PIN Incorrecto."); }
-    };
-
-    document.getElementById("btnImportExcel").addEventListener("click", () => document.getElementById("inputImportExcel").click());
-    document.getElementById("inputImportExcel").addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const btn = document.getElementById("btnImportExcel");
-      const iconOriginal = btn.innerHTML;
-      btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 text-cyan-400 animate-spin"></i> Cargando...';
-      procesarExcelImportacion(file, async (ticketsProcesados) => {
-        if(confirm(`Se encontraron ${ticketsProcesados.length} tickets. ¿Subirlos a Firebase?`)) {
-          try { 
-            await importarTicketsMasivos(ticketsProcesados); 
-            await logAdminAction(currentUser.nombreCompleto, `Importó ${ticketsProcesados.length} tickets históricos de Excel`);
-            alert("¡Éxito! Tickets cargados."); 
-          } catch(err) { alert("Error: " + err.message); }
-        }
-        btn.innerHTML = iconOriginal; lucide.createIcons(); e.target.value = ''; 
-      });
-    });
-
-    // 4. DIRECTORIO CON VISIBILIDAD DE CONTRASEÑA SOLO PARA MARIO
-    const loadUsers = async () => {
-      const snap = await getDocs(collection(db, "users"));
-      document.getElementById('usuariosTableBody').innerHTML = snap.docs.map(d => { 
-        const u = d.data(); 
-        let actionBtns = '';
-        let passInfo = '';
-        
-        if (isSuperAdmin && u.email !== currentUser.email) {
-           // Mario ve la contraseña de otros admins
-           if (u.role === 'admin') {
-               passInfo = `<br><span class="text-[10px] text-amber-400 font-medium">Clave: ${u.passwordOriginal || 'No registrada'}</span>`;
-           }
-           actionBtns = `<button onclick="window.eliminarUsuario('${d.id}')" class="px-2 py-1 rounded bg-rose-500/20 hover:bg-rose-500 border border-rose-500/40 text-rose-400 hover:text-white text-[10px] font-bold transition-colors">Borrar</button>`;
-        } else if (!isSuperAdmin && u.role !== 'admin') {
-           actionBtns = `<button onclick="window.eliminarUsuario('${d.id}')" class="px-2 py-1 rounded bg-rose-500/20 hover:bg-rose-500 border border-rose-500/40 text-rose-400 hover:text-white text-[10px] font-bold transition-colors">Borrar</button>`;
-        } else {
-           actionBtns = '<span class="text-[10px] text-slate-500 font-semibold">Sin permisos</span>';
-        }
-
-        return `<tr class="border-b border-slate-800 hover:bg-slate-800/40 transition-colors"><td class="p-3 text-white font-mono leading-tight">${u.email}${passInfo}</td><td class="p-3 font-semibold">${u.nombreCompleto}</td><td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.role==='admin'?'bg-amber-500/20 text-amber-300 border border-amber-500/30':'bg-slate-800 text-slate-300 border border-slate-700'}">${u.departamento} (${u.role})</span></td><td class="p-3 text-right whitespace-nowrap">${actionBtns}</td></tr>`;
-      }).join('');
-    };
-
-    document.getElementById("formCrearUsuario").addEventListener("submit", async (e) => {
-      e.preventDefault(); const btn = document.getElementById("btnCrearUsuario"); btn.disabled = true; btn.innerText = "Registrando...";
-      try {
-        const email = document.getElementById("newEmail").value.trim().toLowerCase();
-        const role = isSuperAdmin ? document.getElementById("newUserRole").value : "user";
-        const pass = role === "admin" ? document.getElementById("newPass").value : "BemisUser2026!";
-        let finalUid = "";
-
-        try {
-          const userCred = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
-          finalUid = userCred.user.uid;
-          await signOut(secondaryAuth);
-          alert("¡Usuario registrado exitosamente!");
-        } catch (authErr) {
-          if (authErr.code === 'auth/email-already-in-use') {
-            try {
-              const loginCred = await signInWithEmailAndPassword(secondaryAuth, email, "BemisUser2026!");
-              finalUid = loginCred.user.uid;
-              if (role === "admin") { await updatePassword(loginCred.user, pass); }
-              await signOut(secondaryAuth);
-              alert("El correo ya existía. Se ha restaurado su perfil con su nuevo rol y contraseña de administrador.");
-            } catch (loginErr) {
-              alert("El correo ya existe pero el usuario ya había cambiado su contraseña. Se restauró su perfil, pero deberá iniciar sesión con la contraseña que él ya tenía.");
-              finalUid = email; 
-            }
-          } else { throw authErr; }
-        }
-
-        // GUARDADO DE PERFIL CON LA COPIA VISIBLE DE CONTRASEÑA
-        await saveUserProfile(finalUid, { 
-          email, nombreCompleto: document.getElementById("newFullName").value, 
-          departamento: document.getElementById("newUserDept").value, role, 
-          requiereCambioPassword: false, activo: true, creadoEn: new Date().toISOString(),
-          passwordOriginal: pass 
+    <!-- Configuración JS local -->
+    <script>
+        // Lógica visual para Tabs (No afecta firebase)
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.getAttribute('data-target')).classList.add('active');
+            });
         });
-
-        await logAdminAction(currentUser.nombreCompleto, `Creó/Restauró la cuenta ${email} (${role})`);
-        document.getElementById("formCrearUsuario").reset(); 
-        if(document.getElementById("passContainer")) { document.getElementById("passContainer").classList.add("hidden"); document.getElementById("newPass").required = false; }
-        loadUsers(); 
-      } catch (err) { alert("Error: " + err.message); }
-      btn.disabled = false; btn.innerText = "Crear Cuenta";
-    });
-
-    window.eliminarUsuario = async (id) => { if(confirm("¿Borrar de la base de datos de perfiles?")) { await deleteDoc(doc(db, "users", id)); await logAdminAction(currentUser.nombreCompleto, `Eliminó un perfil de usuario`); loadUsers(); } };
-
-    // CAMBIAR CONTRASEÑA Y ACTUALIZAR COPIA EN BASE DE DATOS
-    window.actualizarMiPass = async () => {
-       const newP = document.getElementById("adminNewPass").value;
-       if(newP.length < 6) { alert("Mínimo 6 caracteres"); return; }
-       try {
-         await updatePassword(mainAuth.currentUser, newP);
-         // Se actualiza la copia visible para Mario
-         await updateDoc(doc(db, "users", mainAuth.currentUser.uid), { passwordOriginal: newP });
-         await logAdminAction(currentUser.nombreCompleto, `Cambió su contraseña de administrador`);
-         alert("Contraseña actualizada con éxito.");
-         document.getElementById('modalCambiarPassword').classList.add('hidden');
-         loadUsers();
-       } catch(e) { alert("Error al cambiar: " + e.message); }
-    };
-
-    const loadDepts = async () => { const snap = await getDocs(collection(db, "departments")); document.getElementById('newUserDept').innerHTML = snap.docs.map(d => `<option value="${d.data().nombre}">${d.data().nombre}</option>`).join(''); };
+        
+        // Modal UI
+        document.getElementById('closeModalBtn').addEventListener('click', () => {
+            document.getElementById('ticketModal').classList.remove('flex');
+            document.getElementById('ticketModal').classList.add('hidden');
+        });
+    </script>
     
-    window.seleccionarTema = async (tema) => { await setGlobalTheme(tema); await logAdminAction(currentUser.nombreCompleto, `Cambió el tema a ${tema}`); };
-    window.seleccionarFondo = async (color) => { await setGlobalBackground(color); await logAdminAction(currentUser.nombreCompleto, `Cambió el color de fondo`); };
-    const themeOrnaments = { navidad: "🎅", halloween: "🎃", dia_muertos: "🏵️", san_valentin: "💖", primavera: "🌸", estandar: "" };
-    
-    subscribeToGlobalTheme((activeTheme, activeBg) => { 
-      if(window.seasonalEngine) window.seasonalEngine.setTheme(activeTheme); 
-      const ornamentSpan = document.getElementById("logoSeasonOrnament");
-      if (ornamentSpan) ornamentSpan.innerText = themeOrnaments[activeTheme] || "";
-      document.body.style.backgroundColor = activeBg; 
-    });
-
-    document.getElementById("btnExportExcel").addEventListener("click", async () => { exportarTicketsAExcel(currentTickets); await logAdminAction(currentUser.nombreCompleto, `Descargó el reporte mensual Excel`); });
-    document.getElementById("btnLogout").addEventListener("click", async () => { await signOut(mainAuth); window.location.href = "index.html"; });
-
-    loadUsers(); loadDepts();
-  </script>
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="db.js"></script>
+    <script type="module" src="animations.js"></script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>
