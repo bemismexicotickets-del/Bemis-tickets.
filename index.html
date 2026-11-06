@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
@@ -31,7 +31,7 @@
         .apple-input {
             background-color: #F8F7F4;
             border: 1px solid #E5E7EB;
-            border-radius: 16px;
+            border-radius: 12px;
             transition: all 0.2s ease;
         }
         .apple-input:focus {
@@ -40,12 +40,6 @@
             box-shadow: 0 0 0 3px rgba(0, 71, 186, 0.12);
             outline: none;
         }
-        .btn-primary {
-            background-color: var(--bemis-blue);
-            border-radius: 9999px;
-            transition: all 0.2s ease;
-        }
-        .btn-primary:hover { background-color: #00368c; transform: translateY(-1px); }
         .btn-secondary {
             background-color: #111827;
             border-radius: 9999px;
@@ -56,7 +50,7 @@
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden" id="loginBody">
     
-    <!-- Elementos de fondo decorativos (Canvas para animaciones de animations.js) -->
+    <!-- Elementos de fondo decorativos (Canvas para animaciones) -->
     <canvas id="snowCanvas" class="fixed inset-0 pointer-events-none z-0 hidden"></canvas>
     <div id="halloween-bats" class="fixed inset-0 pointer-events-none z-0 hidden overflow-hidden"></div>
     <div id="muertos-flowers" class="fixed inset-0 pointer-events-none z-0 hidden overflow-hidden"></div>
@@ -72,63 +66,34 @@
     <!-- Tarjeta Central de Login -->
     <div class="apple-card w-full max-w-md p-8 sm:p-10 z-10 relative">
         <div class="text-center mb-8 flex flex-col items-center">
-            <!-- Logo Bemis -->
-            <img src="https://file.notion.so/f/f/03c86e/image_03c86e.png" alt="Bemis Logo" class="h-14 w-auto mb-4 object-contain">
             
-            <h1 class="text-2xl font-display font-bold text-neutral-900 mb-1">BEMIS TICKETS</h1>
-            <p class="text-[10px] font-bold tracking-widest text-neutral-400 uppercase">Mesa de Ayuda de TI</p>
+            <!-- LOGO BEMIS OFICIAL VECTORIZADO -->
+            <svg viewBox="0 0 800 350" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-16 w-auto mb-4">
+              <!-- Arco -->
+              <path d="M0 134.5C216.5 12.5 540 -16 685 89L662 173C533.5 60 216.5 83 0 134.5Z" fill="#0047BA"/>
+              <!-- Letra B -->
+              <path d="M129 167H55.5L34 338H111C152.5 338 181 328 198 308C215 288 223 261 223 227C223 207 217.5 191.5 206.5 180.5C195.5 169.5 178 167 154 167H129ZM89 198.5H116C131 198.5 142.5 201 150.5 206C158.5 211 162.5 218.5 162.5 228.5C162.5 239.5 157.5 248.5 147.5 255.5C137.5 262.5 123 266 104 266H79.5L89 198.5ZM72.5 292H98C117 292 131.5 294.5 141.5 299.5C151.5 304.5 156.5 311 156.5 319C156.5 325.5 153.5 330.5 147.5 334C141.5 337.5 131 339 116 339H66.5L72.5 292Z" fill="#0047BA"/>
+              <!-- Letra E -->
+              <path d="M228 167H323L317 206.5H254L245.5 237.5H301.5L295.5 277H240.5L231.5 338H331L325 377.5H196L228 167Z" fill="#0047BA"/>
+              <!-- Letra M -->
+              <path d="M336 338L375 167H423.5L435 283.5L478.5 167H525L496 338H463L483.5 227L437 338H407.5L392.5 227L369 338H336Z" fill="#0047BA"/>
+              <!-- Letra I -->
+              <path d="M532 338L559 167H594L567 338H532Z" fill="#0047BA"/>
+              <!-- Letra S -->
+              <path d="M608 296C617 312.5 631 324.5 650 332C669 339.5 690 343 713 343C735 343 753 338 767 328C781 318 788 304 788 286C788 268 782.5 253.5 771.5 242.5C760.5 231.5 744.5 224 723.5 220L678.5 212C657.5 208 642.5 202 633.5 194C624.5 186 620 175.5 620 162.5C620 145.5 628 131 644 119C660 107 680.5 101 705.5 101C730.5 101 751.5 106 768.5 116C785.5 126 798 141 806 161L771.5 174.5C765.5 161.5 756 151.5 743 144.5C730 137.5 715.5 134 699.5 134C679.5 134 663.5 138.5 651.5 147.5C639.5 156.5 633.5 167 633.5 179C633.5 191 639.5 201 651.5 209C663.5 217 679.5 223 699.5 227L742.5 235C763.5 239 779 246 789 256C799 266 804 278.5 804 293.5C804 313.5 795 330.5 777 344.5C759 358.5 735 365.5 705 365.5C677 365.5 653 359 633 346C613 333 598.5 316 589.5 295L608 296Z" fill="#0047BA"/>
+            </svg>
+            
+            <h1 class="text-xl font-display font-bold text-neutral-900 mb-1 tracking-tight">BEMIS TICKETS</h1>
+            <p class="text-[9px] font-bold tracking-widest text-neutral-400 uppercase">Mesa de Ayuda de TI</p>
         </div>
 
-        <!-- Formulario (Mantiene IDs intactos para app.js/auth.js) -->
         <form id="loginForm" class="space-y-5">
             <div>
-                <label class="block text-xs font-semibold text-neutral-600 mb-2">Selecciona tu Correo Corporativo</label>
+                <label class="block text-[11px] font-semibold text-neutral-500 uppercase tracking-wider mb-2">Selecciona tu Correo</label>
                 <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-neutral-400">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-neutral-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                     </span>
-                    <!-- Selector dinámico llenado por JS -->
-                    <select id="emailSelect" class="apple-input w-full pl-11 pr-10 py-3.5 text-sm text-neutral-900 font-medium cursor-pointer appearance-none" required>
-                        <option value="" disabled selected>Cargando correos...</option>
-                    </select>
-                    <span class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-neutral-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                    </span>
-                </div>
-            </div>
-
-            <!-- Contenedor Contraseña (Se muestra dinámicamente) -->
-            <div id="passwordContainer" class="hidden transform transition-all duration-300">
-                <label class="flex items-center gap-1.5 text-xs font-semibold text-neutral-600 mb-2">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                    Contraseña de Administrador
-                </label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-neutral-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                    </span>
-                    <input type="password" id="adminPassword" placeholder="••••••••" class="apple-input w-full pl-11 pr-12 py-3.5 text-sm text-neutral-900">
-                    <button type="button" id="togglePasswordBtn" class="absolute inset-y-0 right-0 pr-4 flex items-center text-neutral-400 hover:text-neutral-600 focus:outline-none">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                    </button>
-                </div>
-            </div>
-
-            <button type="submit" id="loginBtn" class="btn-secondary w-full py-3.5 px-6 text-white font-semibold text-sm shadow-md flex justify-center items-center gap-2 mt-2">
-                <span>Ingresar al Sistema</span>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-            </button>
-        </form>
-        
-        <div class="mt-6 text-center">
-             <p class="text-[10px] text-neutral-400">© 2026 Bemis Manufacturing Company</p>
-        </div>
-    </div>
-
-    <!-- Scripts de Firebase y Lógica -->
-    <script type="module" src="firebase-config.js"></script>
-    <script type="module" src="db.js"></script>
-    <script type="module" src="animations.js"></script>
-    <script type="module" src="auth.js"></script>
-</body>
-</html>
+                    
+                    <!-- SELECT CORREGIDO: Opción vacía por defecto para que los scripts la lean bien -->
+                    <select id="emailSelect" class="apple-input w
