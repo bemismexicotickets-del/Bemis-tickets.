@@ -1,231 +1,134 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bemis Tickets - Mesa de Ayuda TI | Inicio de Sesión</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,900;1,900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.5s ease; }
-    .font-bemis { font-family: 'Montserrat', sans-serif; }
-    @keyframes loginFadeIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
-    .animate-login-entry { animation: loginFadeIn 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BEMIS Tickets - Login</title>
+    <!-- Tailwind CSS y Google Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        :root {
+            --bg-labs: #F8F7F4;
+            --bemis-blue: #0047BA;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-labs);
+            color: #111827;
+        }
+        h1, h2, h3, .font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .apple-card {
+            background: #FFFFFF;
+            border: 1px solid rgba(229, 231, 235, 0.85);
+            border-radius: 28px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+        }
+        .apple-input {
+            background-color: #F8F7F4;
+            border: 1px solid #E5E7EB;
+            border-radius: 16px;
+            transition: all 0.2s ease;
+        }
+        .apple-input:focus {
+            background-color: #FFFFFF;
+            border-color: var(--bemis-blue);
+            box-shadow: 0 0 0 3px rgba(0, 71, 186, 0.12);
+            outline: none;
+        }
+        .btn-primary {
+            background-color: var(--bemis-blue);
+            border-radius: 9999px;
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover { background-color: #00368c; transform: translateY(-1px); }
+        .btn-secondary {
+            background-color: #111827;
+            border-radius: 9999px;
+            transition: all 0.2s ease;
+        }
+        .btn-secondary:hover { background-color: #374151; }
+    </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between relative overflow-x-hidden">
-  <canvas id="seasonalCanvas" class="fixed inset-0 pointer-events-none z-10 w-full h-full"></canvas>
+<body class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden" id="loginBody">
+    
+    <!-- Elementos de fondo decorativos (Canvas para animaciones de animations.js) -->
+    <canvas id="snowCanvas" class="fixed inset-0 pointer-events-none z-0 hidden"></canvas>
+    <div id="halloween-bats" class="fixed inset-0 pointer-events-none z-0 hidden overflow-hidden"></div>
+    <div id="muertos-flowers" class="fixed inset-0 pointer-events-none z-0 hidden overflow-hidden"></div>
 
-  <header class="relative z-20 max-w-6xl mx-auto w-full p-4 sm:p-6 flex items-center justify-between">
-    <div class="flex items-center gap-2">
-      <span class="px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-slate-700/80 text-xs font-semibold text-slate-300 backdrop-blur-md">
-         Bemis México • Soporte de Sistemas
-      </span>
+    <!-- Píldora de marca superior -->
+    <div class="absolute top-6 left-6 z-10 hidden sm:flex">
+        <span class="inline-flex items-center gap-2 bg-white border border-neutral-200 px-4 py-2 rounded-full text-xs font-semibold text-neutral-600 shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-[#0047BA]"></span>
+            Bemis México • Soporte de Sistemas
+        </span>
     </div>
-  </header>
 
-  <main class="relative z-20 max-w-md w-full mx-auto my-auto px-4 animate-login-entry">
-    <div id="loginCard" class="bg-slate-900/90 backdrop-blur-xl border border-blue-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden transition-all duration-500">
-      <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 via-cyan-400 to-indigo-600"></div>
-      
-      <!-- LOGOTIPO BEMIS OFICIAL (ARCO CORREGIDO) -->
-      <div class="flex flex-col items-center mb-6">
-        <div class="relative w-full max-w-[220px] mb-2 flex justify-center">
-          <span id="logoSeasonOrnament" class="absolute -top-3 right-0 text-3xl z-20 pointer-events-none animate-pulse"></span>
-          <svg viewBox="0 0 400 160" class="w-full h-auto drop-shadow-lg" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- Arco oficial asimétrico -->
-            <path d="M 20 85 C 100 20, 250 -10, 380 65 L 360 85 C 240 25, 120 40, 20 85 Z" fill="#0052cc"/>
-            <text x="50%" y="115" font-family="Montserrat, sans-serif" font-weight="900" font-style="italic" font-size="76" fill="#ffffff" text-anchor="middle">BEMIS</text>
-            <text x="50%" y="150" font-family="Montserrat, sans-serif" font-weight="900" font-size="28" fill="#38bdf8" text-anchor="middle" letter-spacing="4">TICKETS</text>
-          </svg>
+    <!-- Tarjeta Central de Login -->
+    <div class="apple-card w-full max-w-md p-8 sm:p-10 z-10 relative">
+        <div class="text-center mb-8 flex flex-col items-center">
+            <!-- Logo Bemis -->
+            <img src="https://file.notion.so/f/f/03c86e/image_03c86e.png" alt="Bemis Logo" class="h-14 w-auto mb-4 object-contain">
+            
+            <h1 class="text-2xl font-display font-bold text-neutral-900 mb-1">BEMIS TICKETS</h1>
+            <p class="text-[10px] font-bold tracking-widest text-neutral-400 uppercase">Mesa de Ayuda de TI</p>
         </div>
-        <div class="mt-1 text-[10px] tracking-wider font-bold text-slate-300 uppercase text-center">
-          Mesa de Ayuda de TI • SOPORTE DE SISTEMAS
-        </div>
-      </div>
 
-      <div id="errorAlert" class="hidden mb-4 p-3 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs flex items-center gap-2">
-        <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i><span id="errorMsg">Error</span>
-      </div>
+        <!-- Formulario (Mantiene IDs intactos para app.js/auth.js) -->
+        <form id="loginForm" class="space-y-5">
+            <div>
+                <label class="block text-xs font-semibold text-neutral-600 mb-2">Selecciona tu Correo Corporativo</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-neutral-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    </span>
+                    <!-- Selector dinámico llenado por JS -->
+                    <select id="emailSelect" class="apple-input w-full pl-11 pr-10 py-3.5 text-sm text-neutral-900 font-medium cursor-pointer appearance-none" required>
+                        <option value="" disabled selected>Cargando correos...</option>
+                    </select>
+                    <span class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-neutral-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </span>
+                </div>
+            </div>
 
-      <form id="loginForm" class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Selecciona tu Correo Corporativo</label>
-          <div class="relative">
-            <i data-lucide="mail" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-            <input type="email" id="emailInput" list="listaCorreos" required placeholder="Escribe tu correo..." autocomplete="off" class="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-mono transition-colors">
-            <datalist id="listaCorreos"></datalist>
-          </div>
-        </div>
+            <!-- Contenedor Contraseña (Se muestra dinámicamente) -->
+            <div id="passwordContainer" class="hidden transform transition-all duration-300">
+                <label class="flex items-center gap-1.5 text-xs font-semibold text-neutral-600 mb-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                    Contraseña de Administrador
+                </label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-neutral-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    </span>
+                    <input type="password" id="adminPassword" placeholder="••••••••" class="apple-input w-full pl-11 pr-12 py-3.5 text-sm text-neutral-900">
+                    <button type="button" id="togglePasswordBtn" class="absolute inset-y-0 right-0 pr-4 flex items-center text-neutral-400 hover:text-neutral-600 focus:outline-none">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" id="loginBtn" class="btn-secondary w-full py-3.5 px-6 text-white font-semibold text-sm shadow-md flex justify-center items-center gap-2 mt-2">
+                <span>Ingresar al Sistema</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </button>
+        </form>
         
-        <div id="passwordContainer" class="hidden animate-fadeIn">
-          <label class="block text-xs font-semibold text-amber-400 mb-1.5"><i data-lucide="shield" class="inline w-3 h-3"></i> Contraseña de Administrador</label>
-          <div class="relative">
-            <i data-lucide="key" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-            <input type="password" id="passwordInput" placeholder="Requerida solo para Admins" class="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 transition-colors">
-          </div>
+        <div class="mt-6 text-center">
+             <p class="text-[10px] text-neutral-400">© 2026 Bemis Manufacturing Company</p>
         </div>
-
-        <button type="submit" id="submitBtn" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-600 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 cursor-pointer transition-all active:scale-98 mt-2">
-          <i data-lucide="log-in" class="w-4 h-4"></i> Ingresar al Sistema
-        </button>
-      </form>
     </div>
-  </main>
 
-  <script src="animations.js"></script>
-  <script type="module">
-    import { db, firebaseConfig } from "./firebase-config.js";
-    import { subscribeToGlobalTheme } from "./db.js";
-    import { collection, getDocs, setDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-
-    lucide.createIcons();
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-
-    const emailInput = document.getElementById("emailInput");
-    const passwordContainer = document.getElementById("passwordContainer");
-    const passwordInput = document.getElementById("passwordInput");
-    const listaCorreos = document.getElementById("listaCorreos");
-
-    const correosBemis = [
-      "samir.alonso@bemismfg.com", "juan.alvarado@bemismfg.com", "elias.arriaga@bemismfg.com",
-      "david.astudillo@bemismfg.com", "luis.barreras@bemismfg.com", "yahir.barrera@bemismfg.com",
-      "felipe.barrios@bemismfg.com", "nadia.bautista@bemismfg.com", "rogelio.bazaldua@bemismfg.com",
-      "bemis.mexico@bemismfg.com", "ana.botello@bemismfg.com", "javier.carrera@bemismfg.com",
-      "jose.cantu@bemismfg.com", "homero.cardenas@bemismfg.com", "diana.cavazos@bemismfg.com",
-      "mario.cerda@bemismfg.com", "rogelio.chapa@bemismfg.com", "andres.contreras@bemismfg.com",
-      "marco.coronado@bemismfg.com", "sara.de.la.cruz@bemismfg.com", "juana.diaz@bemismfg.com",
-      "ana.espinoza@bemismfg.com", "miguel.esquivel@bemismfg.com", "mauricio.estrada@bemismfg.com",
-      "joel.flores@bemismfg.com", "nancy.flores@bemismfg.com", "jesus.galicia@bemismfg.com",
-      "angel.garcia@bemismfg.com", "hector.garcia@bemismfg.com", "ivan.garcia@bemismfg.com",
-      "olga.garcia@bemismfg.com", "noe.gomez@bemismfg.com", "armando.gonzalez@bemismfg.com",
-      "barbara.gonzalez@bemismfg.com", "mauricio.gonzalez@bemismfg.com", "rubi.gonzalez@bemismfg.com",
-      "yanely.gonzalez@bemismfg.com", "carmen.hernandez@bemismfg.com", "gilberto.hernandez@bemismfg.com",
-      "julio.hernandez@bemismfg.com", "mario.holguin@bemismfg.com", "internet.guest.account@bemismfg.com",
-      "hernan.jaquez@bemismfg.com", "carlos.lopez@bemismfg.com", "daysi.lopez@bemismfg.com",
-      "francisco.lozano@bemismfg.com", "ulio.lucero@bemismfg.com", "rodolfo.madera@bemismfg.com",
-      "andres.martinez@bemismfg.com", "angelica.martinez@bemismfg.com", "cecilia.martinez@bemismfg.com",
-      "marco.martinez@bemismfg.com", "rafael.martinez@bemismfg.com", "yadira.martinez@bemismfg.com",
-      "materials.support@bemismfg.com", "juan.medina@bemismfg.com", "julio.medina@bemismfg.com",
-      "mexcommex@bemismfg.com", "mexflt2@bemismfg.com", "mexship@bemismfg.com", "david.morales@bemismfg.com",
-      "manuel.morales@bemismfg.com", "angel.navarro@bemismfg.com", "jesus.osorio@bemismfg.com",
-      "alvaro.pena@bemismfg.com", "miguel.pena@bemismfg.com", "julia.perez@bemismfg.com",
-      "manuel.perez@bemismfg.com", "oscar.pineda@bemismfg.com", "victor.ponce@bemismfg.com",
-      "prodclerk@bemismfg.com", "rafael.quintanilla@bemismfg.com", "juan.rangel@bemismfg.com",
-      "valeria.raygoza@bemismfg.com", "daniel.reyes@bemismfg.com", "maribel.reyes@bemismfg.com",
-      "ruben.reyes@bemismfg.com", "roberto.rios@bemismfg.com", "juan.rivas@bemismfg.com",
-      "ken.rivera@bemismfg.com", "alejandra.robles@bemismfg.com", "rodolfo.robles@bemismfg.com",
-      "enrique.rocha@bemismfg.com", "felipe.rodriguez@bemismfg.com", "ricardo.rodriguez@bemismfg.com",
-      "rogelio.rodriguez@bemismfg.com", "merari.rodriguez@bemismfg.com", "georgina.rosas@bemismfg.com",
-      "raymundo.salinas@bemismfg.com", "gerardo.sanchez@bemismfg.com", "luis.sandoval@bemismfg.com",
-      "jose.santos.delacruz@bemismfg.com", "daniel.santos@bemismfg.com", "jorge.santos@bemismfg.com",
-      "melissa.santos@bemismfg.com", "victor.semanog@bemismfg.com", "solomon@bemismfg.com",
-      "nancy.soto@bemismfg.com", "quality.support@bemismfg.com", "training.support@bemismfg.com",
-      "omar.urazanda@bemismfg.com", "adriana.valdez@bemismfg.com", "cielo.valdez@bemismfg.com",
-      "noe.vazquez@bemismfg.com", "miguel.vazquez@bemismfg.com", "benjamin.vega@bemismfg.com",
-      "marcela.velazquez@bemismfg.com", "sergio.velazquez@bemismfg.com", "leonel.villa@bemismfg.com",
-      "mario.ortiz@bemismfg.com", "itzel.yanez@bemismfg.com", "emilio.yea@bemismfg.com"
-    ];
-
-    let dbUsers = [];
-
-    async function cargarCorreos() {
-      try {
-        const snap = await getDocs(collection(db, "users"));
-        dbUsers = snap.docs.map(d => d.data());
-        const allEmails = new Set([...correosBemis, ...dbUsers.map(u => u.email.toLowerCase())]);
-        allEmails.forEach(email => {
-          const option = document.createElement("option");
-          option.value = email;
-          listaCorreos.appendChild(option);
-        });
-      } catch (e) { console.error("Cargando base offline", e); }
-    }
-    cargarCorreos();
-
-    emailInput.addEventListener("input", () => {
-      const selectedEmail = emailInput.value.toLowerCase();
-      const userInDb = dbUsers.find(u => u.email.toLowerCase() === selectedEmail);
-      if (userInDb && userInDb.role === "admin") {
-        passwordContainer.classList.remove("hidden");
-        passwordInput.required = true;
-      } else {
-        passwordContainer.classList.add("hidden");
-        passwordInput.required = false;
-        passwordInput.value = "";
-      }
-    });
-
-    const themeOrnaments = { navidad: "🎅", halloween: "🎃", dia_muertos: "🏵️", san_valentin: "💖", primavera: "🌸", estandar: "" };
-    subscribeToGlobalTheme((activeTheme, activeBg) => {
-      if (window.seasonalEngine) window.seasonalEngine.setTheme(activeTheme);
-      const ornamentSpan = document.getElementById("logoSeasonOrnament");
-      if (ornamentSpan) ornamentSpan.innerText = themeOrnaments[activeTheme] || "";
-      document.body.style.backgroundColor = activeBg;
-    });
-
-    async function autoCreateAndLogin(email) {
-      let nombre = email.split('@')[0].split('.').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-      let depto = "General";
-      if(email.includes("fin")) depto = "Finanzas";
-      else if(email.includes("materials")) depto = "Materiales";
-      else if(email.includes("quality")) depto = "Calidad";
-      else if(email.includes("training")) depto = "Entrenamiento";
-
-      try {
-        const userCred = await createUserWithEmailAndPassword(auth, email, "BemisUser2026!");
-        const userData = { email, nombreCompleto: nombre, departamento: depto, role: "user", requiereCambioPassword: false, activo: true, creadoEn: new Date().toISOString() };
-        await setDoc(doc(db, "users", userCred.user.uid), userData);
-        sessionStorage.setItem("bemis_session_user", JSON.stringify(userData));
-        window.location.href = "user.html";
-      } catch (err) {
-        if(err.code === "auth/email-already-in-use") {
-          try {
-            await signInWithEmailAndPassword(auth, email, "BemisUser2026!");
-            const docRef = doc(db, "users", (auth.currentUser).uid);
-            const docSnap = await getDoc(docRef);
-            sessionStorage.setItem("bemis_session_user", JSON.stringify(docSnap.data()));
-            window.location.href = "user.html";
-          } catch(e) { mostrarError("No se pudo auto-iniciar sesión."); }
-        } else { mostrarError("Error al validar el correo."); }
-      }
-    }
-
-    document.getElementById("loginForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = emailInput.value.trim().toLowerCase();
-      const btn = document.getElementById("submitBtn");
-      
-      btn.disabled = true; btn.innerText = "Iniciando...";
-      document.getElementById("errorAlert").classList.add("hidden");
-
-      const userInDb = dbUsers.find(u => u.email.toLowerCase() === email);
-
-      if (!userInDb) {
-        await autoCreateAndLogin(email);
-        return;
-      }
-
-      const pass = userInDb.role === "admin" ? passwordInput.value : "BemisUser2026!";
-
-      try {
-        await signInWithEmailAndPassword(auth, email, pass);
-        sessionStorage.setItem("bemis_session_user", JSON.stringify(userInDb));
-        window.location.href = userInDb.role === "admin" ? "admin.html" : "user.html";
-      } catch (error) {
-        mostrarError(userInDb.role === "admin" ? "Contraseña de administrador incorrecta." : "Error de acceso en el sistema.");
-        btn.disabled = false; btn.innerText = "Ingresar al Sistema";
-      }
-    });
-
-    function mostrarError(msg) {
-      document.getElementById("errorAlert").classList.remove("hidden");
-      document.getElementById("errorMsg").innerText = msg;
-    }
-  </script>
+    <!-- Scripts de Firebase y Lógica -->
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="db.js"></script>
+    <script type="module" src="animations.js"></script>
+    <script type="module" src="auth.js"></script>
 </body>
 </html>
