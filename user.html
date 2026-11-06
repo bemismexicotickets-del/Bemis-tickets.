@@ -4,102 +4,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BEMIS Tickets - Usuario</title>
+    <!-- Tailwind CSS y Google Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
         :root { --bg-labs: #F8F7F4; --bemis-blue: #0047BA; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-labs); color: #111827; }
-        .font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .font-mono-code { font-family: 'JetBrains Mono', monospace; }
-        
         .apple-card { background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
         .apple-input { background-color: #F8F7F4; border: 1px solid #E5E7EB; border-radius: 12px; transition: all 0.2s; }
-        .apple-input:focus { background-color: #FFFFFF; border-color: var(--bemis-blue); outline: none; box-shadow: 0 0 0 3px rgba(0,71,186,0.1); }
-        
+        .apple-input:focus { background-color: #FFFFFF; border-color: var(--bemis-blue); outline: none; }
         table th { text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.05em; font-weight: 700; color: #6B7280; padding-bottom: 0.75rem; border-bottom: 1px solid #F3F4F6; }
         table td { padding: 1rem 0; border-bottom: 1px solid #F8F7F4; font-size: 0.875rem; }
+        .bemis-header-logo { max-height: 38px; width: auto; object-fit: contain; }
     </style>
 </head>
 <body id="userBody" class="min-h-screen flex flex-col relative overflow-x-hidden">
     
-    <!-- Animaciones -->
     <canvas id="snowCanvas" class="fixed inset-0 pointer-events-none z-0 hidden"></canvas>
-    <div id="halloween-bats" class="fixed inset-0 pointer-events-none z-0 hidden overflow-hidden"></div>
-    <div id="muertos-flowers" class="fixed inset-0 pointer-events-none z-0 hidden overflow-hidden"></div>
+    <div id="halloween-bats" class="fixed inset-0 pointer-events-none z-0 hidden"></div>
+    <div id="muertos-flowers" class="fixed inset-0 pointer-events-none z-0 hidden"></div>
 
-    <!-- HEADER SUPERIOR -->
     <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-neutral-200">
         <div class="max-w-[1000px] mx-auto px-6 py-4 flex flex-wrap justify-between items-center gap-4">
             <div class="flex items-center gap-4">
-                <img src="https://file.notion.so/f/f/03c86e/image_03c86e.png" alt="Bemis" class="h-8 w-auto">
+                <img src="" alt="Bemis" class="bemis-header-logo hidden">
                 <div class="h-6 w-px bg-neutral-200 hidden sm:block"></div>
                 <div>
                     <h1 class="text-[10px] font-bold tracking-widest uppercase text-neutral-400">Portal de Ayuda</h1>
                     <p class="text-sm font-semibold text-neutral-900" id="userNameDisplay">Cargando...</p>
                 </div>
             </div>
-            <button id="logoutBtn" class="px-4 py-2 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-600 hover:bg-neutral-200 transition">
-                Salir
-            </button>
+            <button id="logoutBtn" class="px-4 py-2 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-600 hover:bg-neutral-200">Salir</button>
         </div>
     </header>
 
     <main class="max-w-[1000px] mx-auto w-full px-6 py-8 flex-1 relative z-10 grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        <!-- Columna Izquierda: Crear Ticket y Avisos -->
         <div class="space-y-6">
             <div class="apple-card p-6">
-                <h2 class="text-lg font-bold text-neutral-900 mb-4">🎫 Crear Ticket</h2>
+                <h2 class="text-lg font-bold mb-4">🎫 Crear Ticket</h2>
                 <form id="newTicketForm" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-medium text-neutral-500 mb-1">Tu Departamento</label>
-                        <input type="text" id="userDeptoDisplay" class="apple-input w-full px-4 py-2.5 text-sm font-semibold text-neutral-700" readonly disabled>
+                        <label class="block text-xs text-neutral-500 mb-1">Tu Departamento</label>
+                        <input type="text" id="userDeptoDisplay" class="apple-input w-full px-4 py-2.5 text-sm font-semibold" readonly disabled>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-neutral-500 mb-1">¿En qué podemos ayudarte?</label>
-                        <textarea id="ticketReport" rows="4" placeholder="Describe tu problema o solicitud..." class="apple-input w-full px-4 py-2.5 text-sm resize-none" required></textarea>
+                        <label class="block text-xs text-neutral-500 mb-1">¿En qué podemos ayudarte?</label>
+                        <textarea id="ticketReport" rows="4" class="apple-input w-full px-4 py-2.5 text-sm resize-none" required></textarea>
                     </div>
-                    <button type="submit" class="w-full py-3 rounded-full bg-[#0047BA] hover:bg-[#003996] text-white font-semibold text-sm transition">
-                        Enviar Ticket
-                    </button>
+                    <button type="submit" class="w-full py-3 rounded-full bg-[#0047BA] text-white font-semibold text-sm">Enviar Ticket</button>
                 </form>
             </div>
-
             <div class="apple-card p-6 bg-amber-50/50 border-amber-100">
-                <h3 class="text-sm font-bold text-amber-900 mb-3 flex items-center gap-2">📢 Avisos Importantes</h3>
-                <div id="userAvisosList" class="space-y-3 text-sm text-neutral-700">
-                    <!-- Avisos generados desde DB -->
-                </div>
+                <h3 class="text-sm font-bold text-amber-900 mb-3">📢 Avisos Importantes</h3>
+                <div id="userAvisosList" class="space-y-3 text-sm text-neutral-700"></div>
             </div>
         </div>
 
-        <!-- Columna Derecha: Mis Tickets -->
         <div class="md:col-span-2 apple-card p-6 h-fit">
-            <h2 class="text-lg font-bold text-neutral-900 mb-6">Mis Solicitudes</h2>
-            
+            <h2 class="text-lg font-bold mb-6">Mis Solicitudes</h2>
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
-                    <thead>
-                        <tr>
-                            <th class="px-2">Folio</th>
-                            <th class="px-2">Reporte</th>
-                            <th class="px-2">Fecha</th>
-                            <th class="px-2">Estatus</th>
-                            <th class="px-2 text-right">Calificar</th>
-                        </tr>
-                    </thead>
-                    <tbody id="userTicketsTableBody">
-                        <!-- Tickets del usuario desde app.js -->
-                    </tbody>
+                    <thead><tr><th class="px-2">Folio</th><th class="px-2">Reporte</th><th class="px-2">Fecha</th><th class="px-2">Estatus</th><th class="px-2 text-right">Calificar</th></tr></thead>
+                    <tbody id="userTicketsTableBody"></tbody>
                 </table>
             </div>
         </div>
-
     </main>
 
-    <!-- Scripts -->
+    <script>
+        const DEFAULT_LOGO = 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 120"><path d="M15 52C95 6,235-4,312 42L298 64C225 22,98 24,15 52Z" fill="#003B73"/><text x="28" y="105" fill="#003B73" font-family="Arial Black,sans-serif" font-weight="900" font-style="italic" font-size="68">BEMIS</text></svg>`);
+        document.addEventListener("DOMContentLoaded", () => {
+            const logoSrc = localStorage.getItem('bemis_official_custom_logo') || DEFAULT_LOGO;
+            document.querySelectorAll('.bemis-header-logo').forEach(el => { el.src = logoSrc; el.classList.remove('hidden'); });
+        });
+    </script>
+    
     <script type="module" src="firebase-config.js"></script>
     <script type="module" src="db.js"></script>
     <script type="module" src="animations.js"></script>
