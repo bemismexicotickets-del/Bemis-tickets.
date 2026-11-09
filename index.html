@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -51,7 +50,7 @@
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden" id="loginBody">
     
-    <!-- Elementos de fondo decorativos (Canvas para animaciones) -->
+    <!-- Elementos de fondo decorativos (Canvas para animaciones originales) -->
     <canvas id="snowCanvas" class="fixed inset-0 pointer-events-none z-0 hidden"></canvas>
     <div id="halloween-bats" class="fixed inset-0 pointer-events-none z-0 hidden overflow-hidden"></div>
     <div id="muertos-flowers" class="fixed inset-0 pointer-events-none z-0 hidden overflow-hidden"></div>
@@ -66,21 +65,15 @@
 
     <!-- Tarjeta Central de Login -->
     <div class="apple-card w-full max-w-md p-8 sm:p-10 z-10 relative">
-        <div class="text-center mb-6 flex flex-col items-center">
+        <div class="text-center mb-8 flex flex-col items-center">
             
             <!-- LOGO BEMIS OFICIAL VECTORIZADO -->
-            <svg viewBox="0 0 800 350" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-16 w-auto mb-4">
-              <!-- Arco -->
+            <svg viewBox="0 0 800 350" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-16 w-auto mb-4 bemis-custom-logo-img">
               <path d="M0 134.5C216.5 12.5 540 -16 685 89L662 173C533.5 60 216.5 83 0 134.5Z" fill="#0047BA"/>
-              <!-- Letra B -->
               <path d="M129 167H55.5L34 338H111C152.5 338 181 328 198 308C215 288 223 261 223 227C223 207 217.5 191.5 206.5 180.5C195.5 169.5 178 167 154 167H129ZM89 198.5H116C131 198.5 142.5 201 150.5 206C158.5 211 162.5 218.5 162.5 228.5C162.5 239.5 157.5 248.5 147.5 255.5C137.5 262.5 123 266 104 266H79.5L89 198.5ZM72.5 292H98C117 292 131.5 294.5 141.5 299.5C151.5 304.5 156.5 311 156.5 319C156.5 325.5 153.5 330.5 147.5 334C141.5 337.5 131 339 116 339H66.5L72.5 292Z" fill="#0047BA"/>
-              <!-- Letra E -->
               <path d="M228 167H323L317 206.5H254L245.5 237.5H301.5L295.5 277H240.5L231.5 338H331L325 377.5H196L228 167Z" fill="#0047BA"/>
-              <!-- Letra M -->
               <path d="M336 338L375 167H423.5L435 283.5L478.5 167H525L496 338H463L483.5 227L437 338H407.5L392.5 227L369 338H336Z" fill="#0047BA"/>
-              <!-- Letra I -->
               <path d="M532 338L559 167H594L567 338H532Z" fill="#0047BA"/>
-              <!-- Letra S -->
               <path d="M608 296C617 312.5 631 324.5 650 332C669 339.5 690 343 713 343C735 343 753 338 767 328C781 318 788 304 788 286C788 268 782.5 253.5 771.5 242.5C760.5 231.5 744.5 224 723.5 220L678.5 212C657.5 208 642.5 202 633.5 194C624.5 186 620 175.5 620 162.5C620 145.5 628 131 644 119C660 107 680.5 101 705.5 101C730.5 101 751.5 106 768.5 116C785.5 126 798 141 806 161L771.5 174.5C765.5 161.5 756 151.5 743 144.5C730 137.5 715.5 134 699.5 134C679.5 134 663.5 138.5 651.5 147.5C639.5 156.5 633.5 167 633.5 179C633.5 191 639.5 201 651.5 209C663.5 217 679.5 223 699.5 227L742.5 235C763.5 239 779 246 789 256C799 266 804 278.5 804 293.5C804 313.5 795 330.5 777 344.5C759 358.5 735 365.5 705 365.5C677 365.5 653 359 633 346C613 333 598.5 316 589.5 295L608 296Z" fill="#0047BA"/>
             </svg>
             
@@ -88,14 +81,13 @@
             <p class="text-[9px] font-bold tracking-widest text-neutral-400 uppercase">Mesa de Ayuda de TI</p>
         </div>
 
-        <form id="loginForm" class="space-y-4">
-            
-            <!-- OPCION 1: SELECTOR -->
+        <!-- FORMULARIO ORIGINAL (Sin inputs adicionales, solo el diseño Tailwind) -->
+        <form id="loginForm" class="space-y-5">
             <div>
-                <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-2">1. Selecciona de la lista</label>
+                <label class="block text-[11px] font-semibold text-neutral-500 uppercase tracking-wider mb-2">Selecciona tu Correo Corporativo</label>
                 <div class="relative">
                     <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-neutral-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                     </span>
                     
                     <select id="emailSelect" class="apple-input w-full pl-10 pr-10 py-3 text-sm text-neutral-900 font-medium cursor-pointer appearance-none" required>
@@ -108,26 +100,7 @@
                 </div>
             </div>
 
-            <!-- DIVISOR -->
-            <div class="flex items-center gap-3 py-1">
-                <div class="h-px w-full bg-neutral-100"></div>
-                <span class="text-[10px] text-neutral-300 font-bold uppercase">O</span>
-                <div class="h-px w-full bg-neutral-100"></div>
-            </div>
-
-            <!-- OPCION 2: MANUAL -->
-            <div>
-                <label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-2">2. Escríbelo manualmente</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-neutral-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                    </span>
-                    <input type="email" id="manualEmailInput" placeholder="usuario@bemismfg.com" class="apple-input w-full pl-10 pr-4 py-3 text-sm text-neutral-900 font-medium">
-                </div>
-            </div>
-
-            <!-- Contenedor Contraseña (Se muestra por JS si es administrador) -->
-            <div id="passwordContainer" class="hidden transform transition-all duration-300 mt-4">
+            <div id="passwordContainer" class="hidden transform transition-all duration-300">
                 <label class="flex items-center gap-1.5 text-[11px] font-semibold text-neutral-500 uppercase tracking-wider mb-2">
                     <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
                     Clave de Administrador
@@ -143,7 +116,7 @@
                 </div>
             </div>
 
-            <button type="submit" id="loginBtn" class="btn-secondary w-full py-3.5 px-6 text-white font-semibold text-sm shadow-md flex justify-center items-center gap-2 mt-6">
+            <button type="submit" id="loginBtn" class="btn-secondary w-full py-3.5 px-6 text-white font-semibold text-sm shadow-md flex justify-center items-center gap-2 mt-4">
                 <span>Ingresar al Sistema</span>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
             </button>
@@ -154,38 +127,23 @@
         </div>
     </div>
 
-    <!-- SCRIPT DE SINCRONIZACIÓN (Soluciona el problema sin tocar auth.js) -->
+    <!-- Script de Logo Dinámico (Por si se cambia desde el Admin) -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const manualInput = document.getElementById('manualEmailInput');
-            const emailSelect = document.getElementById('emailSelect');
-
-            // Si el usuario escribe manualmente, copiamos el texto al selector original
-            manualInput.addEventListener('input', function() {
-                let manualOpt = document.getElementById('manualOption');
-                if(!manualOpt) {
-                    manualOpt = document.createElement('option');
-                    manualOpt.id = 'manualOption';
-                    emailSelect.appendChild(manualOpt);
+        document.addEventListener("DOMContentLoaded", () => {
+            const logoSrc = localStorage.getItem('bemis_official_custom_logo');
+            if (logoSrc) {
+                const imgEl = document.createElement('img');
+                imgEl.src = logoSrc;
+                imgEl.className = 'bemis-custom-logo-img mb-4';
+                const svgEl = document.querySelector('svg.bemis-custom-logo-img');
+                if(svgEl) {
+                    svgEl.parentNode.replaceChild(imgEl, svgEl);
                 }
-                manualOpt.value = this.value;
-                manualOpt.text = this.value;
-                emailSelect.value = this.value;
-                
-                // Disparamos el evento 'change' para que auth.js muestre la contraseña si detecta un admin
-                emailSelect.dispatchEvent(new Event('change'));
-            });
-
-            // Si el usuario usa la lista desplegable, limpiamos el campo manual para no confundir
-            emailSelect.addEventListener('change', function() {
-                if (this.value !== manualInput.value) {
-                    manualInput.value = '';
-                }
-            });
+            }
         });
     </script>
 
-    <!-- Scripts de Lógica Original Firebase -->
+    <!-- Scripts de Lógica Original Firebase INTACTOS -->
     <script type="module" src="firebase-config.js"></script>
     <script type="module" src="db.js"></script>
     <script type="module" src="animations.js"></script>
