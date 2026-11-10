@@ -24,7 +24,6 @@
   <!-- Animaciones estacionales al fondo -->
   <canvas id="seasonalCanvas" class="fixed inset-0 pointer-events-none z-0 w-full h-full opacity-80"></canvas>
 
-  <!-- Funciones globales de interfaz (Pestañas, Rol y Logo) -->
   <script>
     const LOGO_STORAGE_KEY = 'bemis_official_custom_logo';
     const DEFAULT_BEMIS_SVG = 'data:image/svg+xml;utf8,' + encodeURIComponent(
@@ -339,7 +338,7 @@
       </section>
     </div>
 
-    <!-- TAB 5: TEMAS -->
+    <!-- TAB 5: TEMAS (Con más opciones estacionales y de color) -->
     <div id="tab-temas" class="hidden space-y-5">
       <div class="bg-white border border-slate-100 rounded-[28px] p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -362,6 +361,7 @@
         </div>
       </div>
 
+      <!-- Más Temas / Animaciones Estacionales -->
       <div class="bg-white border border-slate-100 rounded-[28px] p-6 shadow-sm">
         <h2 class="text-sm font-extrabold text-slate-900 mb-4 flex items-center gap-2">
           <span>✨</span> Animaciones Estacionales
@@ -371,29 +371,35 @@
           <button onclick="window.seleccionarTema('navidad')" class="px-5 py-2.5 rounded-full bg-white hover:bg-emerald-50 border border-slate-200 text-slate-700 font-bold text-xs transition-colors">❄️ Navideño</button>
           <button onclick="window.seleccionarTema('halloween')" class="px-5 py-2.5 rounded-full bg-white hover:bg-orange-50 border border-slate-200 text-slate-700 font-bold text-xs transition-colors">🎃 Halloween</button>
           <button onclick="window.seleccionarTema('dia_muertos')" class="px-5 py-2.5 rounded-full bg-white hover:bg-amber-50 border border-slate-200 text-slate-700 font-bold text-xs transition-colors">💀 Día de Muertos</button>
+          <button onclick="window.seleccionarTema('san_valentin')" class="px-5 py-2.5 rounded-full bg-white hover:bg-rose-50 border border-slate-200 text-slate-700 font-bold text-xs transition-colors">💖 San Valentín</button>
+          <button onclick="window.seleccionarTema('primavera')" class="px-5 py-2.5 rounded-full bg-white hover:bg-lime-50 border border-slate-200 text-slate-700 font-bold text-xs transition-colors">🌸 Primavera</button>
         </div>
       </div>
 
+      <!-- Más Paletas de Colores de Fondo -->
       <div class="bg-white border border-slate-100 rounded-[28px] p-6 shadow-sm">
         <h2 class="text-sm font-extrabold text-slate-900 mb-4 flex items-center gap-2">
-          <span>🎨</span> Color de Fondo Global
+          <span>🎨</span> Paletas de Color de Fondo
         </h2>
-        <div class="flex flex-wrap gap-3">
-          <button onclick="window.seleccionarFondo('#f8f7f2')" title="Crema Original" class="w-9 h-9 rounded-full bg-[#f8f7f2] border-2 border-slate-300 hover:scale-110 transition-transform"></button>
-          <button onclick="window.seleccionarFondo('#ffffff')" title="Blanco Puro" class="w-9 h-9 rounded-full bg-[#ffffff] border-2 border-slate-300 hover:scale-110 transition-transform"></button>
-          <button onclick="window.seleccionarFondo('#f1f5f9')" title="Gris Suave" class="w-9 h-9 rounded-full bg-[#f1f5f9] border-2 border-slate-300 hover:scale-110 transition-transform"></button>
-          <button onclick="window.seleccionarFondo('#eff6ff')" title="Azul Claro" class="w-9 h-9 rounded-full bg-[#eff6ff] border-2 border-blue-300 hover:scale-110 transition-transform"></button>
+        <div class="flex flex-wrap gap-4 items-center">
+          <button onclick="window.seleccionarFondo('#f8f7f2')" title="Crema Original" class="w-10 h-10 rounded-full bg-[#f8f7f2] border-2 border-slate-300 hover:scale-110 transition-transform shadow-sm"></button>
+          <button onclick="window.seleccionarFondo('#ffffff')" title="Blanco Puro" class="w-10 h-10 rounded-full bg-[#ffffff] border-2 border-slate-300 hover:scale-110 transition-transform shadow-sm"></button>
+          <button onclick="window.seleccionarFondo('#f1f5f9')" title="Gris Grafito Suave" class="w-10 h-10 rounded-full bg-[#f1f5f9] border-2 border-slate-300 hover:scale-110 transition-transform shadow-sm"></button>
+          <button onclick="window.seleccionarFondo('#eff6ff')" title="Azul Ejecutivo" class="w-10 h-10 rounded-full bg-[#eff6ff] border-2 border-blue-300 hover:scale-110 transition-transform shadow-sm"></button>
+          <button onclick="window.seleccionarFondo('#ecfdf5')" title="Verde Menta Suave" class="w-10 h-10 rounded-full bg-[#ecfdf5] border-2 border-emerald-300 hover:scale-110 transition-transform shadow-sm"></button>
+          <button onclick="window.seleccionarFondo('#fff1f2')" title="Rosa Pastel" class="w-10 h-10 rounded-full bg-[#fff1f2] border-2 border-rose-300 hover:scale-110 transition-transform shadow-sm"></button>
+          <button onclick="window.seleccionarFondo('#0f172a')" title="Oscuro Nocturno" class="w-10 h-10 rounded-full bg-[#0f172a] border-2 border-slate-600 hover:scale-110 transition-transform shadow-sm"></button>
         </div>
       </div>
     </div>
 
-    <!-- TAB 6: HISTORIAL (Antes Auditoría) -->
+    <!-- TAB 6: HISTORIAL -->
     <div id="tab-auditoria" class="hidden">
       <section class="bg-white border border-slate-100 rounded-[28px] p-6 shadow-sm">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
           <div>
             <h2 class="text-base font-extrabold text-slate-900">Historial de Actividad</h2>
-            <p class="text-xs text-slate-400">Registro en tiempo real de tickets levantados por usuarios y movimientos de administradores con dirección IP.</p>
+            <p class="text-xs text-slate-400">Registro en tiempo real de tickets levantados por usuarios y movimientos de administradores con dirección IP[cite: 8].</p>
           </div>
         </div>
         <div class="overflow-x-auto max-h-96 overflow-y-auto">
@@ -491,7 +497,6 @@
     const secondaryAuth = getAuth(secondaryApp);
     const mainAuth = getAuth();
 
-    // 1. RECUPERACIÓN SEGURA DE SESIÓN
     function obtenerSesionLocal() {
       try {
         const s = sessionStorage.getItem("bemis_session_user") || localStorage.getItem("bemis_session_user");
@@ -547,7 +552,6 @@
       }
     });
 
-    // 2. HISTORIAL (Usuarios y Administradores con Dirección IP)
     try {
       subscribeToAuditLogs((logs) => {
         const auditBody = document.getElementById("auditTableBody");
@@ -582,7 +586,6 @@
       console.warn("Error en suscripción de historial:", e);
     }
 
-    // 3. TICKETS Y CONTADORES
     let currentTickets = [];
     let ticketAEliminarId = null;
 
@@ -756,7 +759,6 @@
       });
     });
 
-    // 4. DIRECTORIO DE USUARIOS
     const loadUsers = async () => {
       try {
         const snap = await getDocs(collection(db, "users"));
@@ -884,7 +886,6 @@
       }
     };
 
-    // 5. DEPARTAMENTOS
     const loadDepts = async () => {
       try {
         const snap = await getDocs(collection(db, "departments"));
@@ -932,7 +933,6 @@
       }
     };
 
-    // 6. AVISOS / NOTICIAS
     try {
       subscribeToNews("TODOS", (noticias) => {
         const container = document.getElementById("newsContainer");
@@ -969,7 +969,6 @@
       await deleteNews(id);
     };
 
-    // 7. TEMAS Y EXPORTACIÓN
     window.seleccionarTema = async (tema) => {
       await setGlobalTheme(tema);
       await logAdminAction(currentUser.nombreCompleto || "Admin", `Cambió el tema a ${tema}`);
@@ -979,7 +978,15 @@
       await logAdminAction(currentUser.nombreCompleto || "Admin", "Cambió el color de fondo");
     };
 
-    const themeOrnaments = { navidad: "🎅", halloween: "🎃", dia_muertos: "🏵️", san_valentin: "💖", primavera: "🌸", estandar: "" };
+    const themeOrnaments = { 
+      navidad: "🎅", 
+      halloween: "🎃", 
+      dia_muertos: "🏵️", 
+      san_valentin: "💖", 
+      primavera: "🌸", 
+      estandar: "" 
+    };
+
     subscribeToGlobalTheme((activeTheme, activeBg) => {
       if (window.seasonalEngine) window.seasonalEngine.setTheme(activeTheme);
       const ornamentSpan = document.getElementById("logoSeasonOrnament");
@@ -987,7 +994,7 @@
       if (activeBg && activeBg !== "#0f172a" && activeBg !== "#020617") {
         document.body.style.backgroundColor = activeBg;
       } else {
-        document.body.style.backgroundColor = "#f8f7f2";
+        document.body.style.backgroundColor = activeBg || "#f8f7f2";
       }
     });
 
