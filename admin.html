@@ -172,7 +172,7 @@
           <span>🎨</span> Temas
         </button>
         <button id="nav-auditoria" onclick="cambiarPestana('auditoria')" class="py-2 px-4 rounded-full flex items-center gap-2 whitespace-nowrap cursor-pointer transition-all text-slate-600 hover:bg-slate-100">
-          <span>📈</span> Auditoría
+          <span>📋</span> Historial
         </button>
       </div>
     </div>
@@ -339,9 +339,8 @@
       </section>
     </div>
 
-    <!-- TAB 5: TEMAS (Incluye Logotipo del Sistema, Animaciones y Color de Fondo) -->
+    <!-- TAB 5: TEMAS -->
     <div id="tab-temas" class="hidden space-y-5">
-      <!-- Logotipo del Sistema -->
       <div class="bg-white border border-slate-100 rounded-[28px] p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
@@ -363,7 +362,6 @@
         </div>
       </div>
 
-      <!-- Animaciones Estacionales -->
       <div class="bg-white border border-slate-100 rounded-[28px] p-6 shadow-sm">
         <h2 class="text-sm font-extrabold text-slate-900 mb-4 flex items-center gap-2">
           <span>✨</span> Animaciones Estacionales
@@ -376,7 +374,6 @@
         </div>
       </div>
 
-      <!-- Color de Fondo Global -->
       <div class="bg-white border border-slate-100 rounded-[28px] p-6 shadow-sm">
         <h2 class="text-sm font-extrabold text-slate-900 mb-4 flex items-center gap-2">
           <span>🎨</span> Color de Fondo Global
@@ -390,16 +387,22 @@
       </div>
     </div>
 
-    <!-- TAB 6: AUDITORÍA -->
+    <!-- TAB 6: HISTORIAL (Antes Auditoría) -->
     <div id="tab-auditoria" class="hidden">
       <section class="bg-white border border-slate-100 rounded-[28px] p-6 shadow-sm">
-        <h2 class="text-base font-extrabold text-slate-900 mb-4">Registro de Administradores</h2>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+          <div>
+            <h2 class="text-base font-extrabold text-slate-900">Historial de Actividad</h2>
+            <p class="text-xs text-slate-400">Registro en tiempo real de tickets levantados por usuarios y movimientos de administradores con dirección IP.</p>
+          </div>
+        </div>
         <div class="overflow-x-auto max-h-96 overflow-y-auto">
           <table class="w-full text-left text-xs text-slate-600">
             <thead class="bg-slate-50 text-slate-400 uppercase text-[10px] font-extrabold sticky top-0">
               <tr>
                 <th class="p-3">Fecha y Hora</th>
-                <th class="p-3">Administrador</th>
+                <th class="p-3">Usuario / Administrador</th>
+                <th class="p-3">Dirección IP</th>
                 <th class="p-3">Acción Realizada</th>
               </tr>
             </thead>
@@ -488,7 +491,7 @@
     const secondaryAuth = getAuth(secondaryApp);
     const mainAuth = getAuth();
 
-    // 1. RECUPERACIÓN SEGURA DE SESIÓN (sessionStorage, localStorage o Firebase Auth)
+    // 1. RECUPERACIÓN SEGURA DE SESIÓN
     function obtenerSesionLocal() {
       try {
         const s = sessionStorage.getItem("bemis_session_user") || localStorage.getItem("bemis_session_user");
@@ -527,7 +530,6 @@
 
     let isSuperAdmin = actualizarCabeceraAdmin(currentUser);
 
-    // Sincronizar con Firebase Auth si hay usuario activo en el navegador
     onAuthStateChanged(mainAuth, async (fbUser) => {
       if (fbUser) {
         try {
@@ -545,21 +547,39 @@
       }
     });
 
-    // 2. AUDITORÍA
+    // 2. HISTORIAL (Usuarios y Administradores con Dirección IP)
     try {
       subscribeToAuditLogs((logs) => {
         const auditBody = document.getElementById("auditTableBody");
         if (!auditBody) return;
-        auditBody.innerHTML = logs.map(l => `
-          <tr class="hover:bg-slate-50 transition-colors">
-            <td class="p-3 text-blue-600 font-mono font-semibold">${l.fechaExacta || ""}</td>
-            <td class="p-3 text-slate-900 font-bold">${l.admin || ""}</td>
-            <td class="p-3 text-slate-600">${l.accion || ""}</td>
-          </tr>
-        `).join('');
+
+        if (!logs || logs.length === 0) {
+          auditBody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 font-medium">Aún no hay registros en el historial.</td></tr>`;
+          return;
+        }
+
+        auditBody.innerHTML = logs.map(l => {
+          const esUsuario = l.rol === "Usuario" || String(l.accion || "").startsWith("Levantó el ticket");
+          const rolBadge = esUsuario
+            ? `<span class="ml-1.5 px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-50 text-blue-700 border border-blue-200">Usuario</span>`
+            : `<span class="ml-1.5 px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200">Admin</span>`;
+
+          return `
+            <tr class="hover:bg-slate-50 transition-colors">
+              <td class="p-3 text-blue-600 font-mono font-semibold whitespace-nowrap">${l.fechaExacta || ""}</td>
+              <td class="p-3 text-slate-900 font-bold">${l.admin || "Usuario"}${rolBadge}</td>
+              <td class="p-3">
+                <span class="px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 font-mono text-[11px] font-semibold">
+                  ${l.ip || "No registrada"}
+                </span>
+              </td>
+              <td class="p-3 text-slate-600">${l.accion || ""}</td>
+            </tr>
+          `;
+        }).join('');
       });
     } catch (e) {
-      console.warn("Error en suscripción de auditoría:", e);
+      console.warn("Error en suscripción de historial:", e);
     }
 
     // 3. TICKETS Y CONTADORES
@@ -636,7 +656,7 @@
 
         tr.innerHTML = `
           <td class="p-3 font-mono text-blue-700 font-bold">${t.ticketId || t.id}</td>
-          <td class="p-3 text-slate-900 font-bold">${t.usuario || "Usuario"} <div class="text-[10px] text-slate-400 font-medium">${t.departamento || "General"}</div></td>
+          <td class="p-3 text-slate-900 font-bold">${t.usuario || "Usuario"} <div class="text-[10px] text-slate-400 font-medium">${t.departamento || "General"}${t.ipUsuario ? ` • IP: ${t.ipUsuario}` : ""}</div></td>
           <td class="p-3 text-slate-700 max-w-xs">
             <div class="font-bold truncate">${t.nombreReporte || ""}</div>
             <div class="text-[11px] text-slate-400 truncate">${t.descripcionDetallada || ""}</div>
