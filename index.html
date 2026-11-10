@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BEMIS Tickets - Login</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,900;1,900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     body {
@@ -20,13 +19,13 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between p-6 relative overflow-x-hidden select-none text-slate-800">
 
-  <!-- Canvas de animaciones estacionales (animations.js) -->
+  <!-- Animaciones estacionales -->
   <canvas id="seasonalCanvas" class="fixed inset-0 pointer-events-none z-0 w-full h-full opacity-80"></canvas>
 
   <!-- Etiqueta superior izquierda -->
   <div class="relative z-10 flex items-center">
     <div class="inline-flex items-center gap-2.5 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full shadow-sm border border-slate-200/80">
-      <span class="w-2.5 h-2.5 rounded-full bg-[#0052cc]"></span>
+      <span class="w-2.5 h-2.5 rounded-full bg-[#0047BA]"></span>
       <span class="text-xs font-bold text-slate-700 tracking-tight">Bemis México • Soporte de Sistemas</span>
     </div>
   </div>
@@ -35,15 +34,11 @@
   <main class="relative z-10 flex-1 flex items-center justify-center my-6">
     <div class="w-full max-w-md bg-white rounded-[32px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.08)] border border-slate-100 p-8 sm:p-10 text-center">
       
-      <!-- Logo Bemis Oficial -->
+      <!-- Logo sincronizado con el Admin -->
       <div class="flex justify-center mb-3">
         <div class="relative w-[170px] flex items-center justify-center">
           <span id="logoSeasonOrnament" class="absolute -top-2 right-1 text-2xl z-20 pointer-events-none animate-pulse"></span>
-          <svg viewBox="0 0 400 135" class="w-full h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M 20 75 C 100 15, 250 -10, 380 55 L 360 75 C 240 20, 120 35, 20 75 Z" fill="#0052cc"/>
-            <text x="50%" y="110" font-family="Montserrat, sans-serif" font-weight="900" font-style="italic" font-size="76" fill="#0052cc" text-anchor="middle">BEMIS</text>
-            <line x1="45" y1="124" x2="355" y2="124" stroke="#0052cc" stroke-width="5"/>
-          </svg>
+          <img id="loginLogoImg" class="w-full h-auto max-h-16 object-contain" alt="Bemis Logo" />
         </div>
       </div>
 
@@ -58,7 +53,9 @@
           </label>
           <div class="relative">
             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 pointer-events-none">
-              <i data-lucide="mail" class="w-4 h-4"></i>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
             </span>
             <select
               id="emailSelect"
@@ -68,12 +65,14 @@
               <option value="" disabled selected>Cargando correos...</option>
             </select>
             <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 pointer-events-none">
-              <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+              </svg>
             </span>
           </div>
         </div>
 
-        <!-- Campo de contraseña (solo se muestra cuando el correo seleccionado es Admin) -->
+        <!-- Campo de contraseña -->
         <div id="passwordContainer" class="hidden space-y-2">
           <label for="adminPassword" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">
             Contraseña de Administrador
@@ -95,10 +94,8 @@
           </div>
         </div>
 
-        <!-- Alerta de error -->
         <div id="loginError" class="hidden text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-xl p-3 text-center"></div>
 
-        <!-- Botón de acceso -->
         <button
           type="submit"
           id="loginBtn"
@@ -120,7 +117,14 @@
     import { login, getRememberedEmail, setRememberedEmail } from "./auth.js";
     import { getAllUsers, subscribeToGlobalTheme } from "./db.js";
 
-    lucide.createIcons();
+    const DEFAULT_BEMIS_SVG = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 120" width="360" height="120">
+        <path d="M 15 52 C 95 6, 235 -4, 312 42 L 298 64 C 225 22, 98 24, 15 52 Z" fill="#0047BA"/>
+        <text x="32" y="92" fill="#0047BA" font-family="Montserrat, Arial, sans-serif" font-weight="900" font-style="italic" font-size="64" letter-spacing="1">BEMIS</text>
+        <line x1="32" y1="104" x2="295" y2="104" stroke="#0047BA" stroke-width="4"/>
+      </svg>`
+    );
+    document.getElementById("loginLogoImg").src = localStorage.getItem("bemis_official_custom_logo") || DEFAULT_BEMIS_SVG;
 
     const emailSelect = document.getElementById("emailSelect");
     const passwordContainer = document.getElementById("passwordContainer");
@@ -132,7 +136,6 @@
 
     const usersByEmail = new Map();
 
-    // 1. Tema y animaciones globales
     const themeOrnaments = { navidad: "🎅", halloween: "🎃", dia_muertos: "🏵️", san_valentin: "💖", primavera: "🌸", estandar: "" };
     subscribeToGlobalTheme((activeTheme, activeBg) => {
       if (window.seasonalEngine) window.seasonalEngine.setTheme(activeTheme);
@@ -145,7 +148,6 @@
       }
     });
 
-    // 2. Mostrar / Ocultar contraseña
     togglePasswordBtn.addEventListener("click", () => {
       const isPass = adminPassword.type === "password";
       adminPassword.type = isPass ? "text" : "password";
@@ -174,9 +176,7 @@
       }
     }
 
-    // 3. Cargar lista de correos corporativos desde Firestore
     async function cargarListaCorreos() {
-      // Garantizar siempre la cuenta de Super Administrador en el selector
       const superAdminEmail = (ADMIN_EMAIL || "mario.ortiz@bemismfg.com").toLowerCase();
       usersByEmail.set(superAdminEmail, {
         email: superAdminEmail,
@@ -193,7 +193,7 @@
           }
         });
       } catch (err) {
-        console.warn("Aviso al leer directorio inicial:", err);
+        console.warn("Aviso al cargar directorio:", err);
       }
 
       const sortedUsers = Array.from(usersByEmail.values()).sort((a, b) =>
@@ -221,14 +221,13 @@
       actualizarCampoPassword(e.target.value);
     });
 
-    // 4. Procesar Inicio de Sesión
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       loginError.classList.add("hidden");
 
       const selectedEmail = (emailSelect.value || "").trim().toLowerCase();
       if (!selectedEmail) {
-        mostrarError("Selecciona tu correo corporativo de la lista.");
+        mostrarError("Selecciona tu correo corporativo.");
         return;
       }
 
@@ -253,14 +252,15 @@
 
         if (res.success && res.user) {
           sessionStorage.setItem("bemis_session_user", JSON.stringify(res.user));
+          localStorage.setItem("bemis_session_user", JSON.stringify(res.user));
           setRememberedEmail(selectedEmail);
-          window.location.href = res.user.role === "admin" ? "admin.html" : "user.html";
+          window.location.href = (res.user.role === "admin" || isSuper) ? "admin.html" : "user.html";
           return;
         }
 
-        // Respaldo para usuarios normales sin contraseña registrados en la colección users
         if (!isAdmin && userObj) {
           sessionStorage.setItem("bemis_session_user", JSON.stringify(userObj));
+          localStorage.setItem("bemis_session_user", JSON.stringify(userObj));
           setRememberedEmail(selectedEmail);
           window.location.href = "user.html";
           return;
@@ -269,7 +269,7 @@
         mostrarError(res.error || "Credenciales incorrectas. Verifica tu contraseña.");
       } catch (err) {
         console.error("Error en login:", err);
-        mostrarError("Error al conectar con el servidor de autenticación.");
+        mostrarError("Error al autenticar con Firebase.");
       } finally {
         loginBtn.disabled = false;
         loginBtn.innerHTML = '<span>Ingresar al Portal</span>';
