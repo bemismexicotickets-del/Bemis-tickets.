@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BEMIS Tickets - Login</title>
+  <title>BEMIS Tickets - Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,900;1,900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -18,121 +19,946 @@
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between p-6 relative overflow-x-hidden select-none text-slate-800">
+<body class="text-slate-800 min-h-screen flex flex-col relative overflow-x-hidden">
 
-  <!-- Canvas de animaciones estacionales (animations.js) -->
+  <!-- Animaciones estacionales al fondo -->
   <canvas id="seasonalCanvas" class="fixed inset-0 pointer-events-none z-0 w-full h-full opacity-80"></canvas>
 
-  <!-- Etiqueta superior izquierda -->
-  <div class="relative z-10 flex items-center">
-    <div class="inline-flex items-center gap-2.5 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full shadow-sm border border-slate-200/80">
-      <span class="w-2.5 h-2.5 rounded-full bg-[#0052cc]"></span>
-      <span class="text-xs font-bold text-slate-700 tracking-tight">Bemis México • Soporte de Sistemas</span>
-    </div>
-  </div>
+  <!-- Funciones globales de interfaz (Pestañas, Rol y Logo) -->
+  <script>
+    const LOGO_STORAGE_KEY = 'bemis_official_custom_logo';
+    const DEFAULT_BEMIS_SVG = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 120" width="360" height="120">
+        <path d="M 15 52 C 95 6, 235 -4, 312 42 L 298 64 C 225 22, 98 24, 15 52 Z" fill="#0047BA"/>
+        <text x="32" y="92" fill="#0047BA" font-family="Montserrat, Arial, sans-serif" font-weight="900" font-style="italic" font-size="64" letter-spacing="1">BEMIS</text>
+        <line x1="32" y1="104" x2="295" y2="104" stroke="#0047BA" stroke-width="4"/>
+      </svg>`
+    );
 
-  <!-- Tarjeta central de Login -->
-  <main class="relative z-10 flex-1 flex items-center justify-center my-6">
-    <div class="w-full max-w-md bg-white rounded-[32px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.08)] border border-slate-100 p-8 sm:p-10 text-center">
+    window.applyLogoEverywhere = () => {
+      const saved = localStorage.getItem(LOGO_STORAGE_KEY) || DEFAULT_BEMIS_SVG;
+      document.querySelectorAll('.bemis-custom-logo-img').forEach(img => {
+        img.src = saved;
+      });
+    };
+
+    window.cambiarPestana = (pestana) => {
+      ['tickets', 'usuarios', 'departamentos', 'noticias', 'temas', 'auditoria'].forEach(p => {
+        const tab = document.getElementById(`tab-${p}`);
+        const nav = document.getElementById(`nav-${p}`);
+        if (tab) {
+          tab.classList.add('hidden');
+          tab.classList.remove('block', 'grid');
+        }
+        if (nav) {
+          nav.classList.remove('bg-[#0f172a]', 'text-white', 'shadow-sm');
+          nav.classList.add('text-slate-600', 'hover:bg-slate-100');
+        }
+      });
+
+      const activeTab = document.getElementById(`tab-${pestana}`);
+      const activeNav = document.getElementById(`nav-${pestana}`);
+      if (activeTab) {
+        activeTab.classList.remove('hidden');
+        if (['usuarios', 'departamentos', 'noticias'].includes(pestana)) {
+          activeTab.classList.add('grid');
+        } else {
+          activeTab.classList.add('block');
+        }
+      }
+      if (activeNav) {
+        activeNav.classList.remove('text-slate-600', 'hover:bg-slate-100');
+        activeNav.classList.add('bg-[#0f172a]', 'text-white', 'shadow-sm');
+      }
+    };
+
+    window.verificarRol = () => {
+      const roleSelect = document.getElementById("newUserRole");
+      const passContainer = document.getElementById("passContainer");
+      const passInput = document.getElementById("newPass");
+      if (roleSelect && passContainer && passInput) {
+        if (roleSelect.value === "admin") {
+          passContainer.classList.remove("hidden");
+          passInput.required = true;
+        } else {
+          passContainer.classList.add("hidden");
+          passInput.required = false;
+          passInput.value = "";
+        }
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      window.applyLogoEverywhere();
+
+      const fileInput = document.getElementById('bemis-logo-file-input');
+      const uploadBtn = document.getElementById('btnSubirLogo');
+      const resetBtn = document.getElementById('btnRestaurarLogo');
+
+      if (uploadBtn && fileInput) {
+        uploadBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            try {
+              localStorage.setItem(LOGO_STORAGE_KEY, ev.target.result);
+              window.applyLogoEverywhere();
+              alert('Logotipo actualizado correctamente.');
+            } catch (err) {
+              alert('La imagen es demasiado grande. Intenta con un PNG o JPG más ligero.');
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+          localStorage.removeItem(LOGO_STORAGE_KEY);
+          window.applyLogoEverywhere();
+        });
+      }
+    });
+  </script>
+
+  <!-- HEADER SUPERIOR -->
+  <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-3 flex flex-col gap-4">
       
-      <!-- Logo Bemis Oficial -->
-      <div class="flex justify-center mb-3">
-        <div class="relative w-[170px] flex items-center justify-center">
-          <span id="logoSeasonOrnament" class="absolute -top-2 right-1 text-2xl z-20 pointer-events-none animate-pulse"></span>
-          <svg viewBox="0 0 400 135" class="w-full h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M 20 75 C 100 15, 250 -10, 380 55 L 360 75 C 240 20, 120 35, 20 75 Z" fill="#0052cc"/>
-            <text x="50%" y="110" font-family="Montserrat, sans-serif" font-weight="900" font-style="italic" font-size="76" fill="#0052cc" text-anchor="middle">BEMIS</text>
-            <line x1="45" y1="124" x2="355" y2="124" stroke="#0052cc" stroke-width="5"/>
-          </svg>
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="relative w-[105px] flex items-center">
+            <span id="logoSeasonOrnament" class="absolute -top-2 right-0 text-xl z-20 pointer-events-none animate-pulse"></span>
+            <img class="bemis-custom-logo-img w-full h-auto max-h-12 object-contain" alt="Bemis Logo" />
+          </div>
+          <div class="flex flex-col border-l border-slate-200 pl-4">
+            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-tight">Panel<br>Administrador</span>
+            <span class="text-xs text-slate-900 font-extrabold mt-0.5" id="headerAdminName">Administrador</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="document.getElementById('modalCambiarPassword').classList.remove('hidden')" class="px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all">
+            Cambiar Clave
+          </button>
+          <button id="btnExportExcel" class="px-4 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-sm">
+            Exportar
+          </button>
+          <button id="btnLogout" title="Cerrar sesión" class="p-2 rounded-full bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"/>
+            </svg>
+          </button>
         </div>
       </div>
 
-      <h1 class="text-xl font-extrabold text-slate-900 tracking-tight font-bemis">BEMIS TICKETS</h1>
-      <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1 mb-8">Mesa de Ayuda de TI</p>
-
-      <!-- Formulario de Login -->
-      <form id="loginForm" class="space-y-5 text-left">
-        <div>
-          <label for="emailSelect" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">
-            Selecciona tu correo corporativo
-          </label>
-          <div class="relative">
-            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 pointer-events-none">
-              <i data-lucide="mail" class="w-4 h-4"></i>
-            </span>
-            <select
-              id="emailSelect"
-              required
-              class="w-full pl-10 pr-9 py-3.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition appearance-none cursor-pointer"
-            >
-              <option value="" disabled selected>Cargando correos...</option>
-            </select>
-            <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 pointer-events-none">
-              <i data-lucide="chevron-down" class="w-4 h-4"></i>
-            </span>
-          </div>
-        </div>
-
-        <!-- Campo de contraseña (solo se muestra cuando el correo seleccionado es Admin) -->
-        <div id="passwordContainer" class="hidden space-y-2">
-          <label for="adminPassword" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-            Contraseña de Administrador
-          </label>
-          <div class="relative">
-            <input
-              type="password"
-              id="adminPassword"
-              placeholder="Ingresa tu contraseña..."
-              class="w-full pl-4 pr-16 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition"
-            />
-            <button
-              type="button"
-              id="togglePasswordBtn"
-              class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-700 text-xs font-bold"
-            >
-              Mostrar
-            </button>
-          </div>
-        </div>
-
-        <!-- Alerta de error -->
-        <div id="loginError" class="hidden text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-xl p-3 text-center"></div>
-
-        <!-- Botón de acceso -->
-        <button
-          type="submit"
-          id="loginBtn"
-          class="w-full py-3.5 px-6 bg-[#0f172a] hover:bg-slate-800 active:scale-[0.99] text-white font-bold text-sm rounded-xl shadow-lg shadow-slate-900/10 transition flex items-center justify-center gap-2 cursor-pointer"
-        >
-          <span>Ingresar al Portal</span>
+      <!-- PESTAÑAS -->
+      <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-bold">
+        <button id="nav-tickets" onclick="cambiarPestana('tickets')" class="py-2 px-4 rounded-full flex items-center gap-2 whitespace-nowrap cursor-pointer transition-all bg-[#0f172a] text-white shadow-sm">
+          <span>🎫</span> Tickets (<span id="count-tickets">0</span>)
         </button>
-      </form>
-
-      <p class="text-[11px] text-slate-400 mt-8 font-medium">© 2026 Bemis Manufacturing Company</p>
+        <button id="nav-usuarios" onclick="cambiarPestana('usuarios')" class="py-2 px-4 rounded-full flex items-center gap-2 whitespace-nowrap cursor-pointer transition-all text-slate-600 hover:bg-slate-100">
+          <span>👤</span> Usuarios
+        </button>
+        <button id="nav-departamentos" onclick="cambiarPestana('departamentos')" class="py-2 px-4 rounded-full flex items-center gap-2 whitespace-nowrap cursor-pointer transition-all text-slate-600 hover:bg-slate-100">
+          <span>🏢</span> Deptos
+        </button>
+        <button id="nav-noticias" onclick="cambiarPestana('noticias')" class="py-2 px-4 rounded-full flex items-center gap-2 whitespace-nowrap cursor-pointer transition-all text-slate-600 hover:bg-slate-100">
+          <span>📢</span> Avisos
+        </button>
+        <button id="nav-temas" onclick="cambiarPestana('temas')" class="py-2 px-4 rounded-full flex items-center gap-2 whitespace-nowrap cursor-pointer transition-all text-slate-600 hover:bg-slate-100">
+          <span>🎨</span> Temas
+        </button>
+        <button id="nav-auditoria" onclick="cambiarPestana('auditoria')" class="py-2 px-4 rounded-full flex items-center gap-2 whitespace-nowrap cursor-pointer transition-all text-slate-600 hover:bg-slate-100">
+          <span>📈</span> Auditoría
+        </button>
+      </div>
     </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="relative z-20 max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    
+    <!-- MÉTRICAS -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div class="p-5 rounded-3xl bg-white border border-slate-100 shadow-sm">
+        <span class="text-[9px] text-slate-400 uppercase font-extrabold tracking-wider">Total Histórico</span>
+        <div id="statTotal" class="text-3xl font-black text-slate-900 mt-1">0</div>
+      </div>
+      <div class="p-5 rounded-3xl bg-white border border-slate-100 shadow-sm">
+        <span class="text-[9px] text-slate-400 uppercase font-extrabold tracking-wider">Solicitados</span>
+        <div id="statPendientes" class="text-3xl font-black text-blue-600 mt-1">0</div>
+      </div>
+      <div class="p-5 rounded-3xl bg-white border border-slate-100 shadow-sm">
+        <span class="text-[9px] text-slate-400 uppercase font-extrabold tracking-wider">En Proceso</span>
+        <div id="statProceso" class="text-3xl font-black text-amber-500 mt-1">0</div>
+      </div>
+      <div class="p-5 rounded-3xl bg-white border border-slate-100 shadow-sm">
+        <span class="text-[9px] text-slate-400 uppercase font-extrabold tracking-wider">Finalizados</span>
+        <div id="statResueltos" class="text-3xl font-black text-emerald-600 mt-1">0</div>
+      </div>
+      <div class="p-5 rounded-3xl bg-white border border-slate-100 shadow-sm">
+        <span class="text-[9px] text-slate-400 uppercase font-extrabold tracking-wider">Satisfacción</span>
+        <div id="statSatisfaccion" class="text-3xl font-black text-purple-600 mt-1">100%</div>
+      </div>
+    </div>
+
+    <!-- TAB 1: TICKETS -->
+    <div id="tab-tickets" class="block">
+      <section class="bg-white border border-slate-100 rounded-[28px] p-6 shadow-sm">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-5">
+          <h2 class="text-base font-extrabold text-slate-900">Mesa de Tickets</h2>
+          
+          <div class="flex flex-wrap gap-2 items-center">
+            <input type="file" id="inputImportExcel" accept=".xlsx, .xls" class="hidden" />
+            <button id="btnImportExcel" class="px-3.5 py-1.5 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold flex items-center gap-1.5 transition-colors">
+              <span>📥</span> Excel Antiguo
+            </button>
+            <button id="btnDeleteAll" onclick="window.confirmarBorrarTodo()" class="hidden px-3.5 py-1.5 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold flex items-center gap-1.5 transition-colors">
+              <span>🗑️</span> Borrar Todos
+            </button>
+            
+            <div class="flex items-center gap-1.5 bg-slate-50 rounded-full px-3 py-1.5 border border-slate-200">
+              <span class="text-[11px] text-slate-400 font-semibold">Del:</span>
+              <input type="date" id="filtroFechaInicio" class="bg-transparent text-xs text-slate-700 focus:outline-none">
+              <span class="text-[11px] text-slate-400 font-semibold ml-1">Al:</span>
+              <input type="date" id="filtroFechaFin" class="bg-transparent text-xs text-slate-700 focus:outline-none">
+            </div>
+
+            <input type="text" id="filtroSearch" placeholder="Buscar ticket o usuario..." class="px-3.5 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-xs text-slate-800 w-44 focus:border-blue-500 focus:bg-white focus:outline-none transition-colors">
+            <select id="filtroEstado" class="px-3.5 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 focus:border-blue-500 focus:outline-none transition-colors">
+              <option value="todos">Todos</option>
+              <option value="Solicitado">Solicitados</option>
+              <option value="En Proceso">En Proceso</option>
+              <option value="Finalizado">Finalizados</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-600">
+            <thead class="text-slate-400 uppercase text-[10px] font-extrabold border-b border-slate-100">
+              <tr>
+                <th class="p-3">Ticket</th>
+                <th class="p-3">Usuario</th>
+                <th class="p-3">Reporte</th>
+                <th class="p-3">Fechas Exactas</th>
+                <th class="p-3">Estatus</th>
+                <th class="p-3 text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="ticketsTableBody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB 2: USUARIOS -->
+    <div id="tab-usuarios" class="hidden grid-cols-1 lg:grid-cols-12 gap-6">
+      <section class="lg:col-span-4 bg-white border border-slate-100 rounded-[28px] p-6 shadow-sm space-y-4">
+        <h3 class="text-base font-extrabold text-slate-900">Nuevo Usuario</h3>
+        <form id="formCrearUsuario" class="space-y-3 text-xs">
+          <input type="email" id="newEmail" required placeholder="Correo corporativo..." class="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 focus:border-blue-500 focus:bg-white focus:outline-none">
+          <input type="text" id="newFullName" required placeholder="Nombre Completo" class="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 focus:border-blue-500 focus:bg-white focus:outline-none">
+          <select id="newUserDept" class="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 focus:border-blue-500 focus:bg-white focus:outline-none"></select>
+          
+          <div id="roleSelectorDiv" class="hidden">
+            <label class="block text-slate-500 font-bold mb-1">Rol de Acceso:</label>
+            <select id="newUserRole" onchange="window.verificarRol()" class="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 focus:border-blue-500 focus:outline-none">
+              <option value="user">Usuario Normal (Sin contraseña)</option>
+              <option value="admin">Administrador (Requiere contraseña)</option>
+            </select>
+          </div>
+          
+          <div id="passContainer" class="hidden">
+            <label class="block text-amber-600 font-bold mb-1 mt-2 text-[10px] uppercase tracking-wider">Contraseña Obligatoria:</label>
+            <input type="password" id="newPass" placeholder="Mínimo 6 caracteres..." class="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 focus:border-amber-500 focus:outline-none">
+          </div>
+          
+          <button type="submit" id="btnCrearUsuario" class="w-full py-3 rounded-xl bg-[#0f172a] hover:bg-slate-800 text-white font-bold transition-colors mt-2">
+            Crear Cuenta
+          </button>
+        </form>
+      </section>
+
+      <section class="lg:col-span-8 bg-white border border-slate-100 rounded-[28px] p-6 shadow-sm">
+        <h3 class="text-base font-extrabold text-slate-900 mb-4">Directorio y Accesos</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-600">
+            <thead class="text-slate-400 uppercase text-[10px] font-extrabold border-b border-slate-100">
+              <tr>
+                <th class="p-3">Correo / Clave</th>
+                <th class="p-3">Nombre</th>
+                <th class="p-3">Depto / Rol</th>
+                <th class="p-3 text-right">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="usuariosTableBody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB 3: DEPARTAMENTOS -->
+    <div id="tab-departamentos" class="hidden grid-cols-1 lg:grid-cols-2 gap-6">
+      <section class="bg-white border border-slate-100 rounded-[28px] p-6 shadow-sm">
+        <h3 class="text-base font-extrabold text-slate-900 mb-4">Nuevo Depto</h3>
+        <form id="formCrearDepto" class="space-y-3">
+          <input type="text" id="newDeptName" required placeholder="Nombre del departamento..." class="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 text-xs focus:border-blue-500 focus:bg-white focus:outline-none">
+          <button type="submit" class="w-full py-3 bg-[#0f172a] hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-colors">
+            Guardar
+          </button>
+        </form>
+      </section>
+      <section class="bg-white border border-slate-100 rounded-[28px] p-6 shadow-sm">
+        <h3 class="text-base font-extrabold text-slate-900 mb-4">Departamentos Registrados</h3>
+        <div id="deptsContainer" class="space-y-2 text-xs"></div>
+      </section>
+    </div>
+
+    <!-- TAB 4: AVISOS -->
+    <div id="tab-noticias" class="hidden grid-cols-1 lg:grid-cols-2 gap-6">
+      <section class="bg-white border border-slate-100 rounded-[28px] p-6 shadow-sm">
+        <h3 class="text-base font-extrabold text-slate-900 mb-4">Publicar Aviso</h3>
+        <form id="formCrearNoticia" class="space-y-3 text-xs">
+          <input type="text" id="newsTitle" required placeholder="Título" class="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 focus:border-blue-500 focus:bg-white focus:outline-none">
+          <textarea id="newsContent" rows="3" required placeholder="Contenido" class="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 resize-none focus:border-blue-500 focus:bg-white focus:outline-none"></textarea>
+          <select id="newsScope" class="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 focus:border-blue-500 focus:outline-none">
+            <option value="GLOBAL">Para Todos</option>
+          </select>
+          <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-colors">
+            Publicar
+          </button>
+        </form>
+      </section>
+      <section class="bg-white border border-slate-100 rounded-[28px] p-6 shadow-sm">
+        <h3 class="text-base font-extrabold text-slate-900 mb-4">Avisos Publicados</h3>
+        <div id="newsContainer" class="space-y-3 text-xs"></div>
+      </section>
+    </div>
+
+    <!-- TAB 5: TEMAS (Incluye Logotipo del Sistema, Animaciones y Color de Fondo) -->
+    <div id="tab-temas" class="hidden space-y-5">
+      <!-- Logotipo del Sistema -->
+      <div class="bg-white border border-slate-100 rounded-[28px] p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+            <span>🖼️</span> Logotipo del Sistema
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">Sube el logo oficial (PNG, JPG). Se actualizará en todas las pantallas.</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="px-4 py-2 rounded-xl border border-dashed border-slate-200 bg-slate-50 flex items-center justify-center">
+            <img class="bemis-custom-logo-img h-7 w-auto object-contain" alt="Vista previa logo" />
+          </div>
+          <input type="file" id="bemis-logo-file-input" accept="image/png,image/jpeg,image/svg+xml,image/webp" class="hidden" />
+          <button type="button" id="btnSubirLogo" class="px-4 py-2 rounded-full bg-blue-700 hover:bg-blue-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-colors">
+            <span>📁</span> Subir Logo...
+          </button>
+          <button type="button" id="btnRestaurarLogo" class="px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors">
+            Restaurar
+          </button>
+        </div>
+      </div>
+
+      <!-- Animaciones Estacionales -->
+      <div class="bg-white border border-slate-100 rounded-[28px] p-6 shadow-sm">
+        <h2 class="text-sm font-extrabold text-slate-900 mb-4 flex items-center gap-2">
+          <span>✨</span> Animaciones Estacionales
+        </h2>
+        <div class="flex flex-wrap gap-3">
+          <button onclick="window.seleccionarTema('estandar')" class="px-5 py-2.5 rounded-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold text-xs transition-colors">🚫 Estándar</button>
+          <button onclick="window.seleccionarTema('navidad')" class="px-5 py-2.5 rounded-full bg-white hover:bg-emerald-50 border border-slate-200 text-slate-700 font-bold text-xs transition-colors">❄️ Navideño</button>
+          <button onclick="window.seleccionarTema('halloween')" class="px-5 py-2.5 rounded-full bg-white hover:bg-orange-50 border border-slate-200 text-slate-700 font-bold text-xs transition-colors">🎃 Halloween</button>
+          <button onclick="window.seleccionarTema('dia_muertos')" class="px-5 py-2.5 rounded-full bg-white hover:bg-amber-50 border border-slate-200 text-slate-700 font-bold text-xs transition-colors">💀 Día de Muertos</button>
+        </div>
+      </div>
+
+      <!-- Color de Fondo Global -->
+      <div class="bg-white border border-slate-100 rounded-[28px] p-6 shadow-sm">
+        <h2 class="text-sm font-extrabold text-slate-900 mb-4 flex items-center gap-2">
+          <span>🎨</span> Color de Fondo Global
+        </h2>
+        <div class="flex flex-wrap gap-3">
+          <button onclick="window.seleccionarFondo('#f8f7f2')" title="Crema Original" class="w-9 h-9 rounded-full bg-[#f8f7f2] border-2 border-slate-300 hover:scale-110 transition-transform"></button>
+          <button onclick="window.seleccionarFondo('#ffffff')" title="Blanco Puro" class="w-9 h-9 rounded-full bg-[#ffffff] border-2 border-slate-300 hover:scale-110 transition-transform"></button>
+          <button onclick="window.seleccionarFondo('#f1f5f9')" title="Gris Suave" class="w-9 h-9 rounded-full bg-[#f1f5f9] border-2 border-slate-300 hover:scale-110 transition-transform"></button>
+          <button onclick="window.seleccionarFondo('#eff6ff')" title="Azul Claro" class="w-9 h-9 rounded-full bg-[#eff6ff] border-2 border-blue-300 hover:scale-110 transition-transform"></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 6: AUDITORÍA -->
+    <div id="tab-auditoria" class="hidden">
+      <section class="bg-white border border-slate-100 rounded-[28px] p-6 shadow-sm">
+        <h2 class="text-base font-extrabold text-slate-900 mb-4">Registro de Administradores</h2>
+        <div class="overflow-x-auto max-h-96 overflow-y-auto">
+          <table class="w-full text-left text-xs text-slate-600">
+            <thead class="bg-slate-50 text-slate-400 uppercase text-[10px] font-extrabold sticky top-0">
+              <tr>
+                <th class="p-3">Fecha y Hora</th>
+                <th class="p-3">Administrador</th>
+                <th class="p-3">Acción Realizada</th>
+              </tr>
+            </thead>
+            <tbody id="auditTableBody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
   </main>
 
-  <div class="h-4"></div>
+  <!-- MODALES -->
+  <div id="deleteTicketModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+    <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 shadow-2xl relative">
+      <h3 class="text-base font-extrabold text-slate-900 mb-2">Eliminar Ticket</h3>
+      <p class="text-xs text-slate-500 mb-4">Ingresa el PIN de seguridad para borrar pruebas.</p>
+      <input type="password" id="deleteTicketPassword" autocomplete="new-password" placeholder="PIN Secreto" class="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-mono mb-4 focus:border-rose-500 focus:outline-none">
+      <div class="flex justify-end gap-2">
+        <button onclick="document.getElementById('deleteTicketModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold transition-colors">Cancelar</button>
+        <button onclick="window.ejecutarEliminarTicket()" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition-colors">Borrar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="deleteAllModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+    <div class="bg-white border border-rose-200 rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
+      <h3 class="text-lg font-black text-rose-600 mb-2">¡PELIGRO! Borrar Toda la Base de Datos</h3>
+      <p class="text-xs text-slate-600 mb-4">Estás a punto de borrar absolutamente TODOS los tickets históricos del sistema. Esta acción es irreversible.</p>
+      <input type="password" id="deleteAllPassword" autocomplete="new-password" placeholder="PIN Secreto" class="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-mono mb-4 focus:border-rose-500 focus:outline-none">
+      <div class="flex justify-end gap-2">
+        <button onclick="document.getElementById('deleteAllModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold transition-colors">Cancelar</button>
+        <button id="btnEjecutarDestruccion" onclick="window.ejecutarBorrarTodo()" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition-colors">DESTRUIR TICKETS</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalCambiarPassword" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+    <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 shadow-2xl relative">
+      <h3 class="text-base font-extrabold text-slate-900 mb-4">Actualizar Mi Contraseña</h3>
+      <input type="text" id="adminNewPass" placeholder="Nueva Contraseña (mín. 6 caracteres)" class="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 mb-3 text-xs focus:border-blue-500 focus:outline-none">
+      <button onclick="window.actualizarMiPass()" class="w-full py-3 rounded-xl bg-[#0f172a] hover:bg-slate-800 text-white font-bold text-xs transition-colors">Guardar Cambios</button>
+      <button onclick="document.getElementById('modalCambiarPassword').classList.add('hidden')" class="w-full py-2.5 rounded-xl bg-transparent hover:bg-slate-100 text-slate-500 text-xs font-semibold mt-1 transition-colors">Cancelar</button>
+    </div>
+  </div>
 
   <script src="animations.js"></script>
   <script type="module">
-    import { ADMIN_EMAIL, ADMIN_NAME } from "./firebase-config.js";
-    import { login, getRememberedEmail, setRememberedEmail } from "./auth.js";
-    import { getAllUsers, subscribeToGlobalTheme } from "./db.js";
+    import { db, firebaseConfig, ADMIN_EMAIL, ADMIN_NAME } from "./firebase-config.js";
+    import { collection, getDocs, getDoc, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import {
+      subscribeToTickets,
+      updateTicket,
+      createNews,
+      deleteNews,
+      subscribeToNews,
+      saveUserProfile,
+      subscribeToGlobalTheme,
+      setGlobalTheme,
+      setGlobalBackground,
+      createDepartment,
+      deleteDepartment,
+      importarTicketsMasivos,
+      logAdminAction,
+      subscribeToAuditLogs,
+      deleteAllTickets
+    } from "./db.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      updatePassword,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { exportarTicketsAExcel, procesarExcelImportacion } from "./app.js";
 
-    lucide.createIcons();
+    if (window.lucide && typeof window.lucide.createIcons === "function") {
+      window.lucide.createIcons();
+    }
+    if (typeof window.applyLogoEverywhere === "function") {
+      window.applyLogoEverywhere();
+    }
 
-    const emailSelect = document.getElementById("emailSelect");
-    const passwordContainer = document.getElementById("passwordContainer");
-    const adminPassword = document.getElementById("adminPassword");
-    const togglePasswordBtn = document.getElementById("togglePasswordBtn");
-    const loginForm = document.getElementById("loginForm");
-    const loginError = document.getElementById("loginError");
-    const loginBtn = document.getElementById("loginBtn");
+    const secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
+    const secondaryAuth = getAuth(secondaryApp);
+    const mainAuth = getAuth();
 
-    const usersByEmail = new Map();
+    // 1. RECUPERACIÓN SEGURA DE SESIÓN (sessionStorage, localStorage o Firebase Auth)
+    function obtenerSesionLocal() {
+      try {
+        const s = sessionStorage.getItem("bemis_session_user") || localStorage.getItem("bemis_session_user");
+        if (s) {
+          const parsed = JSON.parse(s);
+          if (parsed && parsed.email) return parsed;
+        }
+      } catch (e) {}
+      return null;
+    }
 
-    // 1. Tema y animaciones globales
+    let currentUser = obtenerSesionLocal() || {
+      email: ADMIN_EMAIL || "mario.ortiz@bemismfg.com",
+      nombreCompleto: ADMIN_NAME || "Mario Ortiz (Sistemas)",
+      departamento: "Sistemas",
+      role: "admin"
+    };
+
+    function actualizarCabeceraAdmin(userObj) {
+      currentUser = userObj;
+      const nombreMostrar = userObj.nombreCompleto || userObj.email || "Administrador";
+      const headerEl = document.getElementById("headerAdminName");
+      if (headerEl) headerEl.innerText = nombreMostrar;
+
+      const emailLower = String(userObj.email || "").toLowerCase();
+      const isSuperAdmin =
+        emailLower.includes("mario") ||
+        emailLower === String(ADMIN_EMAIL || "").toLowerCase();
+
+      if (isSuperAdmin) {
+        document.getElementById("roleSelectorDiv")?.classList.remove("hidden");
+        document.getElementById("btnDeleteAll")?.classList.remove("hidden");
+      }
+      return isSuperAdmin;
+    }
+
+    let isSuperAdmin = actualizarCabeceraAdmin(currentUser);
+
+    // Sincronizar con Firebase Auth si hay usuario activo en el navegador
+    onAuthStateChanged(mainAuth, async (fbUser) => {
+      if (fbUser) {
+        try {
+          const snap = await getDoc(doc(db, "users", fbUser.uid));
+          if (snap.exists()) {
+            const data = snap.data();
+            sessionStorage.setItem("bemis_session_user", JSON.stringify(data));
+            localStorage.setItem("bemis_session_user", JSON.stringify(data));
+            isSuperAdmin = actualizarCabeceraAdmin(data);
+            loadUsers();
+          }
+        } catch (err) {
+          console.warn("No se pudo refrescar perfil de Auth:", err);
+        }
+      }
+    });
+
+    // 2. AUDITORÍA
+    try {
+      subscribeToAuditLogs((logs) => {
+        const auditBody = document.getElementById("auditTableBody");
+        if (!auditBody) return;
+        auditBody.innerHTML = logs.map(l => `
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="p-3 text-blue-600 font-mono font-semibold">${l.fechaExacta || ""}</td>
+            <td class="p-3 text-slate-900 font-bold">${l.admin || ""}</td>
+            <td class="p-3 text-slate-600">${l.accion || ""}</td>
+          </tr>
+        `).join('');
+      });
+    } catch (e) {
+      console.warn("Error en suscripción de auditoría:", e);
+    }
+
+    // 3. TICKETS Y CONTADORES
+    let currentTickets = [];
+    let ticketAEliminarId = null;
+
+    subscribeToTickets((tickets) => {
+      currentTickets = tickets || [];
+      renderizarTickets();
+    });
+
+    function renderizarTickets() {
+      const search = (document.getElementById("filtroSearch")?.value || "").toLowerCase();
+      const estado = document.getElementById("filtroEstado")?.value || "todos";
+      const fInicio = document.getElementById("filtroFechaInicio")?.value || "";
+      const fFin = document.getElementById("filtroFechaFin")?.value || "";
+      const tbody = document.getElementById("ticketsTableBody");
+      if (!tbody) return;
+
+      tbody.innerHTML = "";
+
+      const filtrados = currentTickets.filter(t => {
+        const idStr = String(t.ticketId || t.id || "").toLowerCase();
+        const userStr = String(t.usuario || "").toLowerCase();
+        const repStr = String(t.nombreReporte || "").toLowerCase();
+        if (search && !idStr.includes(search) && !userStr.includes(search) && !repStr.includes(search)) {
+          return false;
+        }
+
+        const pct = Number(t.porcentajeHecho || 0);
+        if (estado === "Solicitado" && pct !== 0) return false;
+        if (estado === "En Proceso" && (pct === 0 || pct === 100)) return false;
+        if (estado === "Finalizado" && pct !== 100) return false;
+
+        if (fInicio && t.fechaTicket && t.fechaTicket < fInicio) return false;
+        if (fFin && t.fechaTicket && t.fechaTicket > fFin) return false;
+
+        return true;
+      });
+
+      document.getElementById("statTotal").innerText = currentTickets.length;
+      document.getElementById("statPendientes").innerText = currentTickets.filter(t => Number(t.porcentajeHecho || 0) === 0).length;
+      document.getElementById("statProceso").innerText = currentTickets.filter(t => {
+        const p = Number(t.porcentajeHecho || 0);
+        return p > 0 && p < 100;
+      }).length;
+      document.getElementById("statResueltos").innerText = currentTickets.filter(t => Number(t.porcentajeHecho || 0) === 100).length;
+
+      const evaluados = currentTickets.filter(t => typeof t.porcentajeSatisfaccion === "number");
+      const promSatisfaccion = evaluados.length > 0
+        ? Math.round(evaluados.reduce((acc, item) => acc + item.porcentajeSatisfaccion, 0) / evaluados.length)
+        : 100;
+      document.getElementById("statSatisfaccion").innerText = `${promSatisfaccion}%`;
+
+      const ticketsAMostrar = filtrados.slice(0, 100);
+      document.getElementById("count-tickets").innerText = filtrados.length;
+
+      if (ticketsAMostrar.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 font-medium">No hay tickets registrados con los filtros actuales.</td></tr>`;
+        return;
+      }
+
+      ticketsAMostrar.forEach(t => {
+        const pct = Number(t.porcentajeHecho || 0);
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-50/80 transition-colors";
+
+        let estatusStr = '<span class="text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full text-[10px] font-bold">Solicitado</span>';
+        if (pct > 0 && pct < 100) {
+          estatusStr = `<span class="text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full text-[10px] font-bold">En Proceso (${pct}%)</span>`;
+        } else if (pct === 100) {
+          estatusStr = '<span class="text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full text-[10px] font-bold">Finalizado</span>';
+        }
+
+        tr.innerHTML = `
+          <td class="p-3 font-mono text-blue-700 font-bold">${t.ticketId || t.id}</td>
+          <td class="p-3 text-slate-900 font-bold">${t.usuario || "Usuario"} <div class="text-[10px] text-slate-400 font-medium">${t.departamento || "General"}</div></td>
+          <td class="p-3 text-slate-700 max-w-xs">
+            <div class="font-bold truncate">${t.nombreReporte || ""}</div>
+            <div class="text-[11px] text-slate-400 truncate">${t.descripcionDetallada || ""}</div>
+          </td>
+          <td class="p-3 text-[10px] text-slate-500 font-mono leading-relaxed">
+            Abierto: ${t.fechaAperturaExacta || t.fechaTicket || ""}<br>
+            ${t.fechaCierreExacta ? `<span class="text-emerald-600 font-semibold">Cierre: ${t.fechaCierreExacta}</span>` : ""}
+          </td>
+          <td class="p-3">${estatusStr}</td>
+          <td class="p-3 text-right">
+            <div class="flex items-center justify-end gap-1.5">
+              ${pct === 0 ? `<button onclick="window.cambiarEstatus('${t.id}', 50)" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 rounded-lg text-white font-bold text-[10px] transition-colors">Atender</button>` : ""}
+              ${pct !== 100 ? `<button onclick="window.cambiarEstatus('${t.id}', 100)" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white font-bold text-[10px] transition-colors">Finalizar</button>` : ""}
+              <button onclick="window.confirmarEliminarTicket('${t.id}')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-600 border border-rose-200 rounded-lg text-rose-600 hover:text-white font-bold text-[10px] transition-colors">Borrar</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.getElementById("filtroSearch")?.addEventListener("input", renderizarTickets);
+    document.getElementById("filtroEstado")?.addEventListener("change", renderizarTickets);
+    document.getElementById("filtroFechaInicio")?.addEventListener("change", renderizarTickets);
+    document.getElementById("filtroFechaFin")?.addEventListener("change", renderizarTickets);
+
+    window.cambiarEstatus = async (docId, pct) => {
+      const today = new Date();
+      await updateTicket(docId, {
+        porcentajeHecho: pct,
+        fechaTermino: pct === 100 ? today.toISOString().split("T")[0] : "",
+        fechaCierreExacta: pct === 100 ? today.toLocaleString("es-MX") : ""
+      });
+      await logAdminAction(currentUser.nombreCompleto || "Admin", `Cambió estatus de ticket a ${pct === 100 ? "Finalizado" : "En Proceso"}`);
+    };
+
+    window.confirmarEliminarTicket = (id) => {
+      ticketAEliminarId = id;
+      document.getElementById("deleteTicketPassword").value = "";
+      document.getElementById("deleteTicketModal").classList.remove("hidden");
+    };
+
+    window.ejecutarEliminarTicket = async () => {
+      if (document.getElementById("deleteTicketPassword").value === "1917") {
+        await deleteDoc(doc(db, "tickets", ticketAEliminarId));
+        await logAdminAction(currentUser.nombreCompleto || "Admin", "Eliminó un ticket de prueba");
+        document.getElementById("deleteTicketModal").classList.add("hidden");
+      } else {
+        alert("PIN Incorrecto.");
+      }
+    };
+
+    window.confirmarBorrarTodo = () => {
+      document.getElementById("deleteAllPassword").value = "";
+      document.getElementById("deleteAllModal").classList.remove("hidden");
+    };
+
+    window.ejecutarBorrarTodo = async () => {
+      if (document.getElementById("deleteAllPassword").value === "1917") {
+        const btn = document.getElementById("btnEjecutarDestruccion");
+        btn.innerText = "DESTRUYENDO...";
+        btn.disabled = true;
+        try {
+          await deleteAllTickets();
+          await logAdminAction(currentUser.nombreCompleto || "Admin", "VACIÓ LA BASE DE DATOS DE TICKETS (MASIVO)");
+          document.getElementById("deleteAllModal").classList.add("hidden");
+          alert("Todos los tickets históricos han sido eliminados correctamente.");
+        } catch (error) {
+          alert("Hubo un error al borrar: " + error.message);
+        }
+        btn.innerText = "DESTRUIR TICKETS";
+        btn.disabled = false;
+      } else {
+        alert("PIN Incorrecto.");
+      }
+    };
+
+    document.getElementById("btnImportExcel")?.addEventListener("click", () => document.getElementById("inputImportExcel")?.click());
+    document.getElementById("inputImportExcel")?.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const btn = document.getElementById("btnImportExcel");
+      const iconOriginal = btn.innerHTML;
+      btn.innerHTML = "Cargando...";
+      procesarExcelImportacion(file, async (ticketsProcesados) => {
+        if (confirm(`Se encontraron ${ticketsProcesados.length} tickets. ¿Subirlos a Firebase?`)) {
+          try {
+            await importarTicketsMasivos(ticketsProcesados);
+            await logAdminAction(currentUser.nombreCompleto || "Admin", `Importó ${ticketsProcesados.length} tickets históricos de Excel`);
+            alert("¡Éxito! Tickets cargados.");
+          } catch (err) {
+            alert("Error: " + err.message);
+          }
+        }
+        btn.innerHTML = iconOriginal;
+        e.target.value = "";
+      });
+    });
+
+    // 4. DIRECTORIO DE USUARIOS
+    const loadUsers = async () => {
+      try {
+        const snap = await getDocs(collection(db, "users"));
+        const tbody = document.getElementById("usuariosTableBody");
+        if (!tbody) return;
+
+        tbody.innerHTML = snap.docs.map(d => {
+          const u = d.data();
+          let actionBtns = "";
+          let passInfo = "";
+
+          if (isSuperAdmin && u.email !== currentUser.email) {
+            if (u.role === "admin") {
+              passInfo = `<br><span class="text-[10px] text-amber-600 font-bold">Clave: ${u.passwordOriginal || "No registrada"}</span>`;
+            }
+            actionBtns = `<button onclick="window.eliminarUsuario('${d.id}')" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-600 border border-rose-200 text-rose-600 hover:text-white text-[10px] font-bold transition-colors">Borrar</button>`;
+          } else if (!isSuperAdmin && u.role !== "admin") {
+            actionBtns = `<button onclick="window.eliminarUsuario('${d.id}')" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-600 border border-rose-200 text-rose-600 hover:text-white text-[10px] font-bold transition-colors">Borrar</button>`;
+          } else {
+            actionBtns = '<span class="text-[10px] text-slate-400 font-semibold">Activo</span>';
+          }
+
+          return `
+            <tr class="hover:bg-slate-50 transition-colors">
+              <td class="p-3 text-slate-900 font-mono leading-tight">${u.email || ""}${passInfo}</td>
+              <td class="p-3 font-bold text-slate-800">${u.nombreCompleto || ""}</td>
+              <td class="p-3">
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${u.role === "admin" ? "bg-amber-50 text-amber-700 border border-amber-200" : "bg-slate-100 text-slate-700"}">
+                  ${u.departamento || "General"} (${u.role || "user"})
+                </span>
+              </td>
+              <td class="p-3 text-right whitespace-nowrap">${actionBtns}</td>
+            </tr>
+          `;
+        }).join("");
+      } catch (err) {
+        console.error("Error al cargar usuarios:", err);
+      }
+    };
+
+    document.getElementById("formCrearUsuario")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("btnCrearUsuario");
+      btn.disabled = true;
+      btn.innerText = "Registrando...";
+      try {
+        const email = document.getElementById("newEmail").value.trim().toLowerCase();
+        const role = isSuperAdmin ? document.getElementById("newUserRole").value : "user";
+        const pass = role === "admin" ? document.getElementById("newPass").value : "BemisUser2026!";
+        let finalUid = "";
+
+        try {
+          const userCred = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
+          finalUid = userCred.user.uid;
+          await signOut(secondaryAuth);
+          alert("¡Usuario registrado exitosamente!");
+        } catch (authErr) {
+          if (authErr.code === "auth/email-already-in-use") {
+            try {
+              const loginCred = await signInWithEmailAndPassword(secondaryAuth, email, "BemisUser2026!");
+              finalUid = loginCred.user.uid;
+              if (role === "admin") {
+                await updatePassword(loginCred.user, pass);
+              }
+              await signOut(secondaryAuth);
+              alert("El correo ya existía. Se restauró su perfil con su nuevo rol.");
+            } catch (loginErr) {
+              finalUid = email;
+              alert("Perfil actualizado en el directorio.");
+            }
+          } else {
+            throw authErr;
+          }
+        }
+
+        await saveUserProfile(finalUid, {
+          email,
+          nombreCompleto: document.getElementById("newFullName").value,
+          departamento: document.getElementById("newUserDept").value || "General",
+          role,
+          requiereCambioPassword: false,
+          activo: true,
+          creadoEn: new Date().toISOString(),
+          passwordOriginal: pass
+        });
+
+        await logAdminAction(currentUser.nombreCompleto || "Admin", `Creó/Restauró la cuenta ${email} (${role})`);
+        document.getElementById("formCrearUsuario").reset();
+        document.getElementById("passContainer")?.classList.add("hidden");
+        loadUsers();
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+      btn.disabled = false;
+      btn.innerText = "Crear Cuenta";
+    });
+
+    window.eliminarUsuario = async (id) => {
+      if (confirm("¿Borrar de la base de datos de perfiles?")) {
+        await deleteDoc(doc(db, "users", id));
+        await logAdminAction(currentUser.nombreCompleto || "Admin", "Eliminó un perfil de usuario");
+        loadUsers();
+      }
+    };
+
+    window.actualizarMiPass = async () => {
+      const newP = document.getElementById("adminNewPass").value;
+      if (newP.length < 6) {
+        alert("Mínimo 6 caracteres");
+        return;
+      }
+      try {
+        if (!mainAuth.currentUser) {
+          alert("Por seguridad, vuelve a iniciar sesión desde el Login antes de cambiar tu clave.");
+          return;
+        }
+        await updatePassword(mainAuth.currentUser, newP);
+        await updateDoc(doc(db, "users", mainAuth.currentUser.uid), { passwordOriginal: newP });
+        await logAdminAction(currentUser.nombreCompleto || "Admin", "Cambió su contraseña de administrador");
+        alert("Contraseña actualizada con éxito.");
+        document.getElementById("modalCambiarPassword").classList.add("hidden");
+        loadUsers();
+      } catch (e) {
+        alert("Error al cambiar: " + e.message);
+      }
+    };
+
+    // 5. DEPARTAMENTOS
+    const loadDepts = async () => {
+      try {
+        const snap = await getDocs(collection(db, "departments"));
+        const depts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const optionsHtml = depts.length > 0
+          ? depts.map(d => `<option value="${d.nombre}">${d.nombre}</option>`).join("")
+          : `<option value="Sistemas">Sistemas</option><option value="General">General</option>`;
+
+        const selectUserDept = document.getElementById("newUserDept");
+        if (selectUserDept) selectUserDept.innerHTML = optionsHtml;
+
+        const selectNewsScope = document.getElementById("newsScope");
+        if (selectNewsScope) selectNewsScope.innerHTML = `<option value="GLOBAL">Para Todos</option>` + optionsHtml;
+
+        const deptsContainer = document.getElementById("deptsContainer");
+        if (deptsContainer) {
+          deptsContainer.innerHTML = depts.length === 0
+            ? `<p class="text-slate-400">No hay departamentos registrados.</p>`
+            : depts.map(d => `
+              <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
+                <span class="font-bold text-slate-800">${d.nombre}</span>
+                <button onclick="window.borrarDepto('${d.id}')" class="text-rose-600 hover:text-rose-800 font-bold text-[11px]">Eliminar</button>
+              </div>
+            `).join("");
+        }
+      } catch (err) {
+        console.error("Error al cargar departamentos:", err);
+      }
+    };
+
+    document.getElementById("formCrearDepto")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const nombre = document.getElementById("newDeptName").value.trim();
+      if (!nombre) return;
+      await createDepartment(nombre, "");
+      await logAdminAction(currentUser.nombreCompleto || "Admin", `Creó el departamento ${nombre}`);
+      document.getElementById("formCrearDepto").reset();
+      loadDepts();
+    });
+
+    window.borrarDepto = async (id) => {
+      if (confirm("¿Eliminar departamento?")) {
+        await deleteDepartment(id);
+        loadDepts();
+      }
+    };
+
+    // 6. AVISOS / NOTICIAS
+    try {
+      subscribeToNews("TODOS", (noticias) => {
+        const container = document.getElementById("newsContainer");
+        if (!container) return;
+        container.innerHTML = noticias.length === 0
+          ? `<p class="text-slate-400">No hay avisos publicados.</p>`
+          : noticias.map(n => `
+            <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex justify-between items-start gap-3">
+              <div>
+                <div class="font-extrabold text-slate-900">${n.titulo || ""}</div>
+                <p class="text-slate-600 mt-0.5">${n.contenido || ""}</p>
+                <span class="inline-block mt-1 text-[10px] font-bold text-blue-600">${n.departamentoDestino || "TODOS"} • ${n.fecha || ""}</span>
+              </div>
+              <button onclick="window.borrarNoticia('${n.id}')" class="text-rose-600 font-bold text-[11px]">Borrar</button>
+            </div>
+          `).join("");
+      });
+    } catch (e) {}
+
+    document.getElementById("formCrearNoticia")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const scope = document.getElementById("newsScope").value;
+      await createNews({
+        titulo: document.getElementById("newsTitle").value.trim(),
+        contenido: document.getElementById("newsContent").value.trim(),
+        esGlobal: scope === "GLOBAL",
+        departamentoDestino: scope === "GLOBAL" ? "TODOS" : scope
+      });
+      await logAdminAction(currentUser.nombreCompleto || "Admin", "Publicó un aviso");
+      document.getElementById("formCrearNoticia").reset();
+    });
+
+    window.borrarNoticia = async (id) => {
+      await deleteNews(id);
+    };
+
+    // 7. TEMAS Y EXPORTACIÓN
+    window.seleccionarTema = async (tema) => {
+      await setGlobalTheme(tema);
+      await logAdminAction(currentUser.nombreCompleto || "Admin", `Cambió el tema a ${tema}`);
+    };
+    window.seleccionarFondo = async (color) => {
+      await setGlobalBackground(color);
+      await logAdminAction(currentUser.nombreCompleto || "Admin", "Cambió el color de fondo");
+    };
+
     const themeOrnaments = { navidad: "🎅", halloween: "🎃", dia_muertos: "🏵️", san_valentin: "💖", primavera: "🌸", estandar: "" };
     subscribeToGlobalTheme((activeTheme, activeBg) => {
       if (window.seasonalEngine) window.seasonalEngine.setTheme(activeTheme);
@@ -145,138 +971,20 @@
       }
     });
 
-    // 2. Mostrar / Ocultar contraseña
-    togglePasswordBtn.addEventListener("click", () => {
-      const isPass = adminPassword.type === "password";
-      adminPassword.type = isPass ? "text" : "password";
-      togglePasswordBtn.textContent = isPass ? "Ocultar" : "Mostrar";
+    document.getElementById("btnExportExcel")?.addEventListener("click", async () => {
+      exportarTicketsAExcel(currentTickets);
+      await logAdminAction(currentUser.nombreCompleto || "Admin", "Descargó el reporte mensual Excel");
     });
 
-    function mostrarError(msg) {
-      loginError.textContent = msg;
-      loginError.classList.remove("hidden");
-    }
-
-    function actualizarCampoPassword(email) {
-      if (!email) return;
-      const clean = email.trim().toLowerCase();
-      const userObj = usersByEmail.get(clean);
-      const isSuper = clean === (ADMIN_EMAIL || "").toLowerCase() || clean === "mario.ortiz@bemismfg.com" || clean.includes("mario");
-      const requiresPass = isSuper || (userObj && userObj.role === "admin");
-
-      if (requiresPass) {
-        passwordContainer.classList.remove("hidden");
-        adminPassword.required = true;
-      } else {
-        passwordContainer.classList.add("hidden");
-        adminPassword.required = false;
-        adminPassword.value = "";
-      }
-    }
-
-    // 3. Cargar lista de correos corporativos desde Firestore
-    async function cargarListaCorreos() {
-      // Garantizar siempre la cuenta de Super Administrador en el selector
-      const superAdminEmail = (ADMIN_EMAIL || "mario.ortiz@bemismfg.com").toLowerCase();
-      usersByEmail.set(superAdminEmail, {
-        email: superAdminEmail,
-        nombreCompleto: ADMIN_NAME || "Mario Ortiz (Administrador)",
-        departamento: "Sistemas",
-        role: "admin"
-      });
-
-      try {
-        const dbUsers = await getAllUsers();
-        dbUsers.forEach(u => {
-          if (u && u.email) {
-            usersByEmail.set(u.email.trim().toLowerCase(), u);
-          }
-        });
-      } catch (err) {
-        console.warn("Aviso al leer directorio inicial:", err);
-      }
-
-      const sortedUsers = Array.from(usersByEmail.values()).sort((a, b) =>
-        (a.nombreCompleto || a.email).localeCompare(b.nombreCompleto || b.email)
-      );
-
-      emailSelect.innerHTML = '<option value="" disabled selected>Selecciona tu correo...</option>';
-      sortedUsers.forEach(u => {
-        const emailLower = u.email.trim().toLowerCase();
-        const opt = document.createElement("option");
-        opt.value = emailLower;
-        opt.textContent = u.nombreCompleto ? `${u.nombreCompleto} — ${emailLower}` : emailLower;
-        emailSelect.appendChild(opt);
-      });
-
-      const remembered = getRememberedEmail();
-      if (remembered && usersByEmail.has(remembered.toLowerCase())) {
-        emailSelect.value = remembered.toLowerCase();
-        actualizarCampoPassword(emailSelect.value);
-      }
-    }
-
-    emailSelect.addEventListener("change", (e) => {
-      loginError.classList.add("hidden");
-      actualizarCampoPassword(e.target.value);
+    document.getElementById("btnLogout")?.addEventListener("click", async () => {
+      sessionStorage.removeItem("bemis_session_user");
+      localStorage.removeItem("bemis_session_user");
+      await signOut(mainAuth);
+      window.location.replace("index.html");
     });
 
-    // 4. Procesar Inicio de Sesión
-    loginForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      loginError.classList.add("hidden");
-
-      const selectedEmail = (emailSelect.value || "").trim().toLowerCase();
-      if (!selectedEmail) {
-        mostrarError("Selecciona tu correo corporativo de la lista.");
-        return;
-      }
-
-      const userObj = usersByEmail.get(selectedEmail);
-      const isSuper = selectedEmail === (ADMIN_EMAIL || "").toLowerCase() || selectedEmail === "mario.ortiz@bemismfg.com" || selectedEmail.includes("mario");
-      const isAdmin = isSuper || (userObj && userObj.role === "admin");
-
-      const passwordToUse = isAdmin
-        ? adminPassword.value
-        : (userObj?.passwordOriginal || "BemisUser2026!");
-
-      if (isAdmin && !passwordToUse) {
-        mostrarError("Ingresa tu contraseña de administrador.");
-        return;
-      }
-
-      loginBtn.disabled = true;
-      loginBtn.innerHTML = '<span>Iniciando sesión...</span>';
-
-      try {
-        const res = await login(selectedEmail, passwordToUse);
-
-        if (res.success && res.user) {
-          sessionStorage.setItem("bemis_session_user", JSON.stringify(res.user));
-          setRememberedEmail(selectedEmail);
-          window.location.href = res.user.role === "admin" ? "admin.html" : "user.html";
-          return;
-        }
-
-        // Respaldo para usuarios normales sin contraseña registrados en la colección users
-        if (!isAdmin && userObj) {
-          sessionStorage.setItem("bemis_session_user", JSON.stringify(userObj));
-          setRememberedEmail(selectedEmail);
-          window.location.href = "user.html";
-          return;
-        }
-
-        mostrarError(res.error || "Credenciales incorrectas. Verifica tu contraseña.");
-      } catch (err) {
-        console.error("Error en login:", err);
-        mostrarError("Error al conectar con el servidor de autenticación.");
-      } finally {
-        loginBtn.disabled = false;
-        loginBtn.innerHTML = '<span>Ingresar al Portal</span>';
-      }
-    });
-
-    cargarListaCorreos();
+    loadUsers();
+    loadDepts();
   </script>
 </body>
 </html>
