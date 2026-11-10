@@ -1,89 +1,309 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BEMIS Tickets - Usuario</title>
-    <!-- Tailwind CSS y Google Fonts -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-    <style>
-        :root { --bg-labs: #F8F7F4; --bemis-blue: #0047BA; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-labs); color: #111827; }
-        .apple-card { background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
-        .apple-input { background-color: #F8F7F4; border: 1px solid #E5E7EB; border-radius: 12px; transition: all 0.2s; }
-        .apple-input:focus { background-color: #FFFFFF; border-color: var(--bemis-blue); outline: none; }
-        table th { text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.05em; font-weight: 700; color: #6B7280; padding-bottom: 0.75rem; border-bottom: 1px solid #F3F4F6; }
-        table td { padding: 1rem 0; border-bottom: 1px solid #F8F7F4; font-size: 0.875rem; }
-        .bemis-header-logo { max-height: 38px; width: auto; object-fit: contain; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BEMIS Tickets - Panel de Usuario</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,900;1,900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #f8f7f2;
+      transition: background-color 0.5s ease;
+    }
+    .font-bemis {
+      font-family: 'Montserrat', sans-serif;
+    }
+  </style>
 </head>
-<body id="userBody" class="min-h-screen flex flex-col relative overflow-x-hidden">
+<body class="text-slate-800 min-h-screen flex flex-col relative overflow-x-hidden">
+  
+  <!-- Animaciones siempre al fondo pero visibles -->
+  <canvas id="seasonalCanvas" class="fixed inset-0 pointer-events-none z-0 w-full h-full opacity-80"></canvas>
+
+  <script>
+    window.cambiarVista = (vista) => {
+      document.getElementById('vista-crear').classList.toggle('hidden', vista !== 'crear');
+      document.getElementById('vista-historial').classList.toggle('hidden', vista !== 'historial');
+      
+      const btnCrear = document.getElementById('btn-nav-crear');
+      const btnHist = document.getElementById('btn-nav-historial');
+
+      if (vista === 'crear') {
+        btnCrear.className = "py-2 px-4 rounded-full text-xs font-bold flex items-center gap-2 bg-[#0f172a] text-white shadow-sm transition-all";
+        btnHist.className = "py-2 px-4 rounded-full text-xs font-bold flex items-center gap-2 text-slate-600 hover:bg-slate-100 transition-all";
+      } else {
+        btnHist.className = "py-2 px-4 rounded-full text-xs font-bold flex items-center gap-2 bg-[#0f172a] text-white shadow-sm transition-all";
+        btnCrear.className = "py-2 px-4 rounded-full text-xs font-bold flex items-center gap-2 text-slate-600 hover:bg-slate-100 transition-all";
+      }
+    };
+  </script>
+
+  <!-- HEADER MINIMALISTA -->
+  <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 pt-4 pb-3 flex flex-col gap-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="relative w-[110px] flex items-center">
+            <span id="logoSeasonOrnament" class="absolute -top-2 right-0 text-xl z-20 pointer-events-none animate-pulse"></span>
+            <svg viewBox="0 0 400 135" class="w-full h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 20 75 C 100 15, 250 -10, 380 55 L 360 75 C 240 20, 120 35, 20 75 Z" fill="#0052cc"/>
+              <text x="50%" y="110" font-family="Montserrat, sans-serif" font-weight="900" font-style="italic" font-size="76" fill="#0052cc" text-anchor="middle">BEMIS</text>
+              <line x1="45" y1="124" x2="355" y2="124" stroke="#0052cc" stroke-width="5"/>
+            </svg>
+          </div>
+          <div class="flex flex-col border-l border-slate-200 pl-4">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Portal de Soporte</span>
+            <span id="headerUserName" class="text-xs font-extrabold text-slate-900">Usuario</span>
+          </div>
+        </div>
+        
+        <button id="btnLogout" title="Cerrar sesión" class="p-2 rounded-full bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 transition-all">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button id="btn-nav-crear" onclick="window.cambiarVista('crear')" class="py-2 px-4 rounded-full text-xs font-bold flex items-center gap-2 bg-[#0f172a] text-white shadow-sm transition-all">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i> Generar Ticket Nuevo
+        </button>
+        <button id="btn-nav-historial" onclick="window.cambiarVista('historial')" class="py-2 px-4 rounded-full text-xs font-bold flex items-center gap-2 text-slate-600 hover:bg-slate-100 transition-all">
+          <i data-lucide="history" class="w-4 h-4"></i> Mis Tickets (<span id="userTicketCount">0</span>)
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="relative z-20 max-w-4xl mx-auto w-full px-4 sm:px-6 py-8 space-y-6">
     
-    <canvas id="snowCanvas" class="fixed inset-0 pointer-events-none z-0 hidden"></canvas>
-    <div id="halloween-bats" class="fixed inset-0 pointer-events-none z-0 hidden"></div>
-    <div id="muertos-flowers" class="fixed inset-0 pointer-events-none z-0 hidden"></div>
+    <!-- AVISOS DE SISTEMAS -->
+    <div id="userNewsBanner" class="hidden space-y-2"></div>
 
-    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-neutral-200">
-        <div class="max-w-[1000px] mx-auto px-6 py-4 flex flex-wrap justify-between items-center gap-4">
-            <div class="flex items-center gap-4">
-                <img src="" alt="Bemis" class="bemis-header-logo hidden">
-                <div class="h-6 w-px bg-neutral-200 hidden sm:block"></div>
-                <div>
-                    <h1 class="text-[10px] font-bold tracking-widest uppercase text-neutral-400">Portal de Ayuda</h1>
-                    <p class="text-sm font-semibold text-neutral-900" id="userNameDisplay">Cargando...</p>
-                </div>
-            </div>
-            <button id="logoutBtn" class="px-4 py-2 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-600 hover:bg-neutral-200">Salir</button>
+    <!-- VISTA 1: CREAR TICKET -->
+    <div id="vista-crear" class="block">
+      <div class="bg-white border border-slate-100 rounded-[28px] p-6 sm:p-8 shadow-sm">
+        <h2 class="text-xl font-extrabold text-slate-900 mb-1 flex items-center gap-2">
+          <i data-lucide="headphones" class="w-5 h-5 text-blue-600"></i> ¿En qué podemos ayudarte hoy?
+        </h2>
+        <p class="text-xs text-slate-500 mb-6">Describe detalladamente la incidencia técnica para que el equipo de Soporte de Sistemas te asigne atención.</p>
+        
+        <form id="createTicketForm" class="space-y-4 text-sm">
+          <input type="text" id="ticketSubject" required placeholder="Asunto o título breve del problema..." class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-semibold focus:border-blue-600 focus:bg-white focus:outline-none transition-colors">
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <select id="ticketCategory" class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 font-medium focus:border-blue-600 focus:bg-white focus:outline-none transition-colors">
+              <option value="Hardware / PC">Falla en PC / Laptop</option>
+              <option value="Software / SAP ERP">Error en SAP / Software</option>
+              <option value="Red e Internet">Falla de Red / Wi-Fi</option>
+              <option value="Impresoras">Problema de Impresión</option>
+            </select>
+            <select id="ticketPriority" class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 font-medium focus:border-blue-600 focus:bg-white focus:outline-none transition-colors">
+              <option value="Baja">Prioridad Baja</option>
+              <option value="Media" selected>Prioridad Media</option>
+              <option value="Alta">Prioridad Alta</option>
+              <option value="Crítica">Crítica (Paro Operativo)</option>
+            </select>
+          </div>
+          
+          <textarea id="ticketDesc" required rows="4" placeholder="Describe los pasos previos, mensajes de error en pantalla o números de equipo afectados..." class="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 resize-none focus:border-blue-600 focus:bg-white focus:outline-none transition-colors"></textarea>
+          
+          <button type="submit" id="btnSendTicket" class="w-full py-4 rounded-xl bg-[#0f172a] hover:bg-slate-800 text-white font-bold text-sm shadow-md transition-all cursor-pointer">
+            Generar y Enviar Solicitud de Soporte
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- VISTA 2: HISTORIAL -->
+    <div id="vista-historial" class="hidden">
+      <div class="bg-white border border-slate-100 rounded-[28px] p-6 shadow-sm">
+        <h2 class="text-base font-extrabold text-slate-900 mb-4">Historial Completo de Mis Solicitudes</h2>
+        <div id="ticketsContainer" class="space-y-4"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL ENCUESTA DE SATISFACCIÓN -->
+  <div id="surveyModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm overflow-y-auto">
+    <div class="bg-white border border-slate-200 rounded-3xl max-w-xl w-full p-6 shadow-2xl relative my-auto">
+      <h3 class="text-lg font-extrabold text-slate-900 mb-1">Evaluación de Soporte Recibido</h3>
+      <p class="text-xs text-slate-500 mb-4">Tu ticket ha sido finalizado. Califica el servicio para continuar:</p>
+      <form id="surveyForm" class="space-y-3">
+        <div class="space-y-2.5 max-h-[50vh] overflow-y-auto pr-1">
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl"><div class="flex justify-between text-xs font-bold text-slate-800 mb-1"><span>1. Rapidez inicial</span><span id="pts_q1" class="text-blue-600 font-mono">0 pts</span></div><div class="flex gap-1" id="stars_q1"></div></div>
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl"><div class="flex justify-between text-xs font-bold text-slate-800 mb-1"><span>2. Claridad en comunicación</span><span id="pts_q2" class="text-blue-600 font-mono">0 pts</span></div><div class="flex gap-1" id="stars_q2"></div></div>
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl"><div class="flex justify-between text-xs font-bold text-slate-800 mb-1"><span>3. Solución definitiva</span><span id="pts_q3" class="text-blue-600 font-mono">0 pts</span></div><div class="flex gap-1" id="stars_q3"></div></div>
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl"><div class="flex justify-between text-xs font-bold text-slate-800 mb-1"><span>4. Amabilidad</span><span id="pts_q4" class="text-blue-600 font-mono">0 pts</span></div><div class="flex gap-1" id="stars_q4"></div></div>
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl"><div class="flex justify-between text-xs font-bold text-slate-800 mb-1"><span>5. Satisfacción general</span><span id="pts_q5" class="text-blue-600 font-mono">0 pts</span></div><div class="flex gap-1" id="stars_q5"></div></div>
         </div>
-    </header>
+        <textarea id="surveyComment" rows="2" class="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 text-xs resize-none focus:border-blue-600 focus:outline-none" placeholder="Comentarios adicionales..."></textarea>
+        <button type="submit" id="btnSubmitSurvey" class="w-full py-3.5 bg-[#0f172a] hover:bg-slate-800 text-white font-bold rounded-xl text-xs transition-colors shadow-md">
+          Enviar Encuesta
+        </button>
+      </form>
+    </div>
+  </div>
 
-    <main class="max-w-[1000px] mx-auto w-full px-6 py-8 flex-1 relative z-10 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="space-y-6">
-            <div class="apple-card p-6">
-                <h2 class="text-lg font-bold mb-4">🎫 Crear Ticket</h2>
-                <form id="newTicketForm" class="space-y-4">
-                    <div>
-                        <label class="block text-xs text-neutral-500 mb-1">Tu Departamento</label>
-                        <input type="text" id="userDeptoDisplay" class="apple-input w-full px-4 py-2.5 text-sm font-semibold" readonly disabled>
-                    </div>
-                    <div>
-                        <label class="block text-xs text-neutral-500 mb-1">¿En qué podemos ayudarte?</label>
-                        <textarea id="ticketReport" rows="4" class="apple-input w-full px-4 py-2.5 text-sm resize-none" required></textarea>
-                    </div>
-                    <button type="submit" class="w-full py-3 rounded-full bg-[#0047BA] text-white font-semibold text-sm">Enviar Ticket</button>
-                </form>
-            </div>
-            <div class="apple-card p-6 bg-amber-50/50 border-amber-100">
-                <h3 class="text-sm font-bold text-amber-900 mb-3">📢 Avisos Importantes</h3>
-                <div id="userAvisosList" class="space-y-3 text-sm text-neutral-700"></div>
-            </div>
+  <script src="animations.js"></script>
+  <script type="module">
+    import { createTicket, subscribeToTickets, submitSatisfactionSurvey, subscribeToGlobalTheme, subscribeToNews } from "./db.js";
+    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    lucide.createIcons();
+    const auth = getAuth();
+    const currentUser = JSON.parse(sessionStorage.getItem("bemis_session_user") || "null");
+    if (!currentUser || !currentUser.email) {
+      window.location.replace("index.html");
+      throw new Error("Redirigiendo a login: sesión no iniciada.");
+    }
+
+    document.getElementById("headerUserName").innerText = currentUser.nombreCompleto || currentUser.email;
+
+    const themeOrnaments = { navidad: "🎅", halloween: "🎃", dia_muertos: "🏵️", san_valentin: "💖", primavera: "🌸", estandar: "" };
+    subscribeToGlobalTheme((activeTheme, activeBg) => {
+      if (window.seasonalEngine) window.seasonalEngine.setTheme(activeTheme);
+      const ornamentSpan = document.getElementById("logoSeasonOrnament");
+      if (ornamentSpan) ornamentSpan.innerText = themeOrnaments[activeTheme] || "";
+      if (activeBg && activeBg !== "#0f172a" && activeBg !== "#020617") {
+        document.body.style.backgroundColor = activeBg;
+      } else {
+        document.body.style.backgroundColor = "#f8f7f2";
+      }
+    });
+
+    // Avisos activos para el departamento del usuario
+    subscribeToNews(currentUser.departamento || "General", (noticias) => {
+      const banner = document.getElementById("userNewsBanner");
+      if (!noticias || noticias.length === 0) {
+        banner.classList.add("hidden");
+        return;
+      }
+      banner.classList.remove("hidden");
+      banner.innerHTML = noticias.slice(0, 2).map(n => `
+        <div class="p-4 rounded-2xl bg-blue-50 border border-blue-200 text-xs flex items-start gap-3">
+          <span class="text-base">📢</span>
+          <div>
+            <div class="font-extrabold text-blue-900">${n.titulo || "Aviso de Sistemas"}</div>
+            <div class="text-blue-800 mt-0.5">${n.contenido || ""}</div>
+          </div>
         </div>
+      `).join("");
+    });
 
-        <div class="md:col-span-2 apple-card p-6 h-fit">
-            <h2 class="text-lg font-bold mb-6">Mis Solicitudes</h2>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead><tr><th class="px-2">Folio</th><th class="px-2">Reporte</th><th class="px-2">Fecha</th><th class="px-2">Estatus</th><th class="px-2 text-right">Calificar</th></tr></thead>
-                    <tbody id="userTicketsTableBody"></tbody>
-                </table>
+    let pendingSurveyDocId = null;
+    subscribeToTickets((allTickets) => {
+      const emailLower = (currentUser.email || "").toLowerCase();
+      const nameLower = (currentUser.nombreCompleto || "").toLowerCase();
+
+      const myTickets = allTickets.filter(t => {
+        const u = (t.usuario || "").toLowerCase();
+        return u === emailLower || (nameLower && u === nameLower);
+      });
+
+      document.getElementById("userTicketCount").innerText = myTickets.length;
+
+      document.getElementById("ticketsContainer").innerHTML = myTickets.length === 0
+        ? '<div class="py-8 text-center text-slate-400 text-sm font-medium">No tienes tickets registrados en el sistema.</div>'
+        : myTickets.map(t => {
+          let estatusStr = '<span class="text-blue-700 border border-blue-200 bg-blue-50 px-3 py-1 rounded-full text-[11px] font-bold">Solicitado</span>';
+          if (t.porcentajeHecho > 0 && t.porcentajeHecho < 100) {
+            estatusStr = '<span class="text-amber-700 border border-amber-200 bg-amber-50 px-3 py-1 rounded-full text-[11px] font-bold">En Proceso</span>';
+          } else if (t.porcentajeHecho === 100) {
+            estatusStr = '<span class="text-emerald-700 border border-emerald-200 bg-emerald-50 px-3 py-1 rounded-full text-[11px] font-bold">✅ Finalizado</span>';
+          }
+
+          return `
+            <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col gap-2.5">
+              <div class="flex flex-wrap items-center justify-between text-xs gap-2">
+                <span class="text-blue-700 font-mono font-extrabold text-sm">${t.ticketId || t.id}</span>
+                ${estatusStr}
+              </div>
+              <div class="text-base font-extrabold text-slate-900 leading-snug">${t.nombreReporte || ""}</div>
+              <div class="text-xs text-slate-600 bg-white p-3 rounded-xl border border-slate-200/70 italic">"${t.descripcionDetallada || ""}"</div>
+              <div class="text-[11px] text-slate-500 flex flex-col sm:flex-row justify-between gap-2 pt-2 border-t border-slate-200/60">
+                <span><strong class="text-slate-700">Apertura:</strong> ${t.fechaAperturaExacta || t.fechaTicket || ""}</span>
+                <span><strong class="text-slate-700">Atiende:</strong> ${t.seguimiento || "Mario (Sistemas)"}</span>
+                ${t.fechaCierreExacta ? `<span class="text-emerald-700 font-semibold"><strong>Cierre:</strong> ${t.fechaCierreExacta}</span>` : ""}
+              </div>
             </div>
-        </div>
-    </main>
+          `;
+        }).join("");
 
-    <script>
-        const DEFAULT_LOGO = 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 120"><path d="M15 52C95 6,235-4,312 42L298 64C225 22,98 24,15 52Z" fill="#003B73"/><text x="28" y="105" fill="#003B73" font-family="Arial Black,sans-serif" font-weight="900" font-style="italic" font-size="68">BEMIS</text></svg>`);
-        document.addEventListener("DOMContentLoaded", () => {
-            const logoSrc = localStorage.getItem('bemis_official_custom_logo') || DEFAULT_LOGO;
-            document.querySelectorAll('.bemis-header-logo').forEach(el => { el.src = logoSrc; el.classList.remove('hidden'); });
-        });
-    </script>
-    
-    <script type="module" src="firebase-config.js"></script>
-    <script type="module" src="db.js"></script>
-    <script type="module" src="animations.js"></script>
-    <script type="module" src="app.js"></script>
+      const pending = myTickets.find(t => t.porcentajeHecho === 100 && !t.encuestaRespondida);
+      if (pending) {
+        pendingSurveyDocId = pending.id;
+        renderStarRows();
+        document.getElementById("surveyModal").classList.remove("hidden");
+      }
+    });
+
+    let surveyRatings = { q1: 0, q2: 0, q3: 0, q4: 0, q5: 0 };
+    function renderStarRows() {
+      ['q1', 'q2', 'q3', 'q4', 'q5'].forEach(q => {
+        const c = document.getElementById(`stars_${q}`);
+        c.innerHTML = '';
+        for (let s = 1; s <= 5; s++) {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.innerText = '★';
+          b.className = `text-3xl transition-transform hover:scale-125 ${s <= surveyRatings[q] ? 'text-amber-400' : 'text-slate-300 hover:text-slate-400'}`;
+          b.onclick = () => {
+            surveyRatings[q] = s;
+            document.getElementById(`pts_${q}`).innerText = `${s * 20} pts`;
+            renderStarRows();
+          };
+          c.appendChild(b);
+        }
+      });
+    }
+
+    document.getElementById("surveyForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (Object.values(surveyRatings).some(v => v === 0)) {
+        alert("Por favor califica todas las preguntas antes de enviar.");
+        return;
+      }
+      const btn = document.getElementById("btnSubmitSurvey");
+      btn.disabled = true;
+      btn.innerText = "Guardando...";
+      await submitSatisfactionSurvey(pendingSurveyDocId, {
+        ...surveyRatings,
+        comentario: document.getElementById("surveyComment").value
+      });
+      document.getElementById("surveyModal").classList.add("hidden");
+      btn.disabled = false;
+      btn.innerText = "Enviar Encuesta";
+    });
+
+    document.getElementById("createTicketForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("btnSendTicket");
+      btn.disabled = true;
+      btn.innerText = "Enviando Solicitud...";
+      await createTicket({
+        usuario: currentUser.nombreCompleto || currentUser.email,
+        usuarioUid: currentUser.uid || "",
+        nombreReporte: document.getElementById("ticketSubject").value,
+        categoria: document.getElementById("ticketCategory").value,
+        prioridad: document.getElementById("ticketPriority").value,
+        departamento: currentUser.departamento || "General",
+        descripcionDetallada: document.getElementById("ticketDesc").value
+      });
+      document.getElementById("createTicketForm").reset();
+      btn.disabled = false;
+      btn.innerText = "Generar y Enviar Solicitud de Soporte";
+      alert("Ticket enviado correctamente a Sistemas.");
+      window.cambiarVista("historial");
+    });
+
+    document.getElementById("btnLogout").addEventListener("click", async () => {
+      sessionStorage.removeItem("bemis_session_user");
+      await signOut(auth);
+      window.location.replace("index.html");
+    });
+  </script>
 </body>
 </html>
