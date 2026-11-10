@@ -8,17 +8,59 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ==========================================
-// AUDITORÍA Y REGISTRO DE ADMINISTRADORES
+// OBTENCIÓN DE DIRECCIÓN IP DEL CLIENTE
 // ==========================================
-export async function logAdminAction(adminName, actionDescription) {
+let cachedClientIP = null;
+
+export async function getClientIP() {
+  if (cachedClientIP) return cachedClientIP;
+
+  const endpoints = [
+    "https://api.ipify.org?format=json",
+    "https://ipwho.is/",
+    "https://api.db-ip.com/v2/free/self"
+  ];
+
+  for (const url of endpoints) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2500);
+      const response = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const data = await response.json();
+        const ip = data.ip || data.ipAddress;
+        if (ip) {
+          cachedClientIP = ip;
+          return ip;
+        }
+      }
+    } catch (e) {
+      // Intenta con el siguiente servicio si hay bloqueo de red
+    }
+  }
+
+  return "IP no disponible";
+}
+
+// ==========================================
+// HISTORIAL DE ACTIVIDAD (USUARIOS Y ADMINS)
+// ==========================================
+export async function logAdminAction(userName, actionDescription, rol = "Administrador") {
   try {
+    const ip = await getClientIP();
     await addDoc(collection(db, "audit_logs"), {
-      admin: adminName,
+      admin: userName || "Administrador",
+      rol: rol,
+      ip: ip,
       accion: actionDescription,
       fechaExacta: new Date().toLocaleString('es-MX'),
       creadoEn: serverTimestamp()
     });
-  } catch(e) { console.error("Error guardando log:", e); }
+  } catch (e) {
+    console.error("Error guardando en historial:", e);
+  }
 }
 
 export function subscribeToAuditLogs(callback) {
@@ -36,11 +78,13 @@ export async function createTicket(ticketData) {
   const count = ticketsSnap.size;
   const ticketId = `TIK-${1001 + count}`;
   const now = new Date();
+  const ip = await getClientIP();
 
   const newTicket = {
     ticketId,
     usuario: ticketData.usuario,
     usuarioUid: ticketData.usuarioUid || "",
+    ipUsuario: ip,
     nombreReporte: ticketData.nombreReporte,
     descripcionDetallada: ticketData.descripcionDetallada || "",
     column4: ticketData.column4 || "",
@@ -60,6 +104,21 @@ export async function createTicket(ticketData) {
   };
 
   const docRef = await addDoc(collection(db, "tickets"), newTicket);
+
+  // Registrar automáticamente en el Historial cuando el usuario levanta el ticket
+  try {
+    await addDoc(collection(db, "audit_logs"), {
+      admin: ticketData.usuario || "Usuario",
+      rol: "Usuario",
+      ip: ip,
+      accion: `Levantó el ticket ${ticketId}: "${ticketData.nombreReporte}" (${ticketData.departamento || "General"})`,
+      fechaExacta: now.toLocaleString('es-MX'),
+      creadoEn: serverTimestamp()
+    });
+  } catch (e) {
+    console.error("Error registrando ticket en historial:", e);
+  }
+
   return { id: docRef.id, ticketId };
 }
 
@@ -72,11 +131,10 @@ export async function deleteTicket(docId) {
   await deleteDoc(doc(db, "tickets", docId));
 }
 
-// ELIMINACIÓN MASIVA POR LOTES (Corrige el congelamiento)
 export async function deleteAllTickets() {
   const snap = await getDocs(collection(db, "tickets"));
   const docs = snap.docs;
-  const chunkSize = 400; // Máximo permitido por Firebase es 500
+  const chunkSize = 400;
   
   for (let i = 0; i < docs.length; i += chunkSize) {
     const chunk = docs.slice(i, i + chunkSize);
@@ -135,7 +193,11 @@ export async function createNews(newsData) {
   };
   return await addDoc(collection(db, "news"), newDoc);
 }
-export async function deleteNews(docId) { await deleteDoc(doc(db, "news", docId)); }
+
+export async function deleteNews(docId) {
+  await deleteDoc(doc(db, "news", docId));
+}
+
 export function subscribeToNews(userDepartment, callback) {
   const q = query(collection(db, "news"), orderBy("fecha", "desc"));
   return onSnapshot(q, (snapshot) => {
@@ -146,19 +208,31 @@ export function subscribeToNews(userDepartment, callback) {
 
 export function subscribeToGlobalTheme(callback) {
   return onSnapshot(doc(db, "settings", "theme"), (snap) => {
-    if (snap.exists()) callback(snap.data().activeTheme || "estandar", snap.data().activeBg || "#0f172a");
-    else callback("estandar", "#0f172a");
+    if (snap.exists()) callback(snap.data().activeTheme || "estandar", snap.data().activeBg || "#f8f7f2");
+    else callback("estandar", "#f8f7f2");
   });
 }
-export async function setGlobalTheme(themeName) { await setDoc(doc(db, "settings", "theme"), { activeTheme: themeName, actualizadoEn: serverTimestamp() }, { merge: true }); }
-export async function setGlobalBackground(bgColor) { await setDoc(doc(db, "settings", "theme"), { activeBg: bgColor, actualizadoEn: serverTimestamp() }, { merge: true }); }
+
+export async function setGlobalTheme(themeName) {
+  await setDoc(doc(db, "settings", "theme"), { activeTheme: themeName, actualizadoEn: serverTimestamp() }, { merge: true });
+}
+
+export async function setGlobalBackground(bgColor) {
+  await setDoc(doc(db, "settings", "theme"), { activeBg: bgColor, actualizadoEn: serverTimestamp() }, { merge: true });
+}
 
 export async function getDepartments() {
   const snap = await getDocs(collection(db, "departments"));
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
-export async function createDepartment(nombre, descripcion) { return await addDoc(collection(db, "departments"), { nombre, descripcion: descripcion || "", creadoEn: serverTimestamp() }); }
-export async function deleteDepartment(docId) { await deleteDoc(doc(db, "departments", docId)); }
+
+export async function createDepartment(nombre, descripcion) {
+  return await addDoc(collection(db, "departments"), { nombre, descripcion: descripcion || "", creadoEn: serverTimestamp() });
+}
+
+export async function deleteDepartment(docId) {
+  await deleteDoc(doc(db, "departments", docId));
+}
 
 // ==========================================
 // USUARIOS
@@ -167,5 +241,11 @@ export async function getAllUsers() {
   const snap = await getDocs(collection(db, "users"));
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
-export async function saveUserProfile(uid, userData) { await setDoc(doc(db, "users", uid), { ...userData, actualizadoEn: serverTimestamp() }, { merge: true }); }
-export async function deleteUserProfile(uid) { await deleteDoc(doc(db, "users", uid)); }
+
+export async function saveUserProfile(uid, userData) {
+  await setDoc(doc(db, "users", uid), { ...userData, actualizadoEn: serverTimestamp() }, { merge: true });
+}
+
+export async function deleteUserProfile(uid) {
+  await deleteDoc(doc(db, "users", uid));
+}
